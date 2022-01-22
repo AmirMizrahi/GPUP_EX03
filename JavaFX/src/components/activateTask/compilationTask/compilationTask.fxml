@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<ScrollPane fitToHeight="true" fitToWidth="true" minHeight="300.0" minWidth="600.0" xmlns="http://javafx.com/javafx/8.0.301" xmlns:fx="http://javafx.com/fxml/1" fx:controller="components.activateTask.compilationTask.CompilationTaskController">
+   <content>
+      <VBox minHeight="200.0" minWidth="400.0">
+         <children>
+            <HBox prefHeight="58.0" prefWidth="588.0" spacing="50.0">
+               <children>
+                  <Button fx:id="selectSourceButton" mnemonicParsing="false" onAction="#selectSourceButtonAction" text="Select Source Folder" />
+                  <Label fx:id="selectSourceLabel" prefHeight="21.0" prefWidth="220.0" text="Source Selected!" textFill="RED" />
+               </children>
+            </HBox>
+            <HBox prefHeight="40.0" prefWidth="588.0" spacing="20.0">
+               <children>
+                  <Button fx:id="selectDestinationButton" mnemonicParsing="false" onAction="#selectDestinationButtonAction" text="Select Destination Folder" />
+                  <Label fx:id="selectDestinationLabel" prefHeight="21.0" prefWidth="219.0" text="Destination Selected!" textFill="RED" />
+               </children>
+            </HBox>
+         </children>
+         <padding>
+            <Insets left="10.0" top="10.0" />
+         </padding>
+      </VBox>
+   </content>
+</ScrollPane>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<ScrollPane fitToHeight="true" fitToWidth="true" minHeight="300.0" minWidth="600.0" xmlns="http://javafx.com/javafx/8.0.301" xmlns:fx="http://javafx.com/fxml/1" fx:controller="components.activateTask.simulationTask.SimulationTaskController">
+   <content>
+      <VBox minHeight="200.0" minWidth="400.0">
+         <children>
+            <HBox prefHeight="58.0" prefWidth="588.0">
+               <children>
+                  <Label prefHeight="21.0" prefWidth="220.0" text="Target Process Time: " />
+                  <Spinner fx:id="processTimeSpinner" prefHeight="31.0" prefWidth="298.0" />
+               </children>
+            </HBox>
+            <HBox prefHeight="40.0" prefWidth="588.0">
+               <children>
+                  <Label prefHeight="21.0" prefWidth="219.0" text="Time Option: " />
+                  <RadioButton mnemonicParsing="false" selected="true" text="Fixed">
+                     <toggleGroup>
+                        <ToggleGroup fx:id="timeOptionToggle" />
+                     </toggleGroup>
+                     <HBox.margin>
+                        <Insets right="5.0" />
+                     </HBox.margin></RadioButton>
+                  <RadioButton mnemonicParsing="false" prefHeight="21.0" prefWidth="92.0" text="Random" toggleGroup="$timeOptionToggle" />
+               </children>
+            </HBox>
+            <HBox prefHeight="42.0" prefWidth="588.0">
+               <children>
+                  <Label prefHeight="29.0" prefWidth="220.0" text="Success rates: " />
+                  <Slider fx:id="successRatesSlider" max="1.0" min="0.01" prefWidth="300.0" showTickLabels="true" showTickMarks="true" />
+                  <Label fx:id="successRatesLabel" text="0.01">
+                     <HBox.margin>
+                        <Insets />
+                     </HBox.margin>
+                     <padding>
+                        <Insets left="10.0" />
+                     </padding>
+                  </Label>
+               </children>
+            </HBox>
+            <HBox>
+               <children>
+                  <Label prefHeight="21.0" prefWidth="220.0" text="Warning Rates If Succeeded" />
+                  <Slider fx:id="warningRatesSlider" max="1.0" min="0.01" prefWidth="300.0" showTickLabels="true" showTickMarks="true" />
+                  <Label fx:id="warningRatesLabel" text="0.01">
+                     <HBox.margin>
+                        <Insets />
+                     </HBox.margin>
+                     <padding>
+                        <Insets left="10.0" />
+                     </padding>
+                  </Label>
+               </children>
+            </HBox>
+         </children>
+         <padding>
+            <Insets left="10.0" top="10.0" />
+         </padding>
+      </VBox>
+   </content>
+</ScrollPane>
