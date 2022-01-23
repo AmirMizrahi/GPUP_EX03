@@ -12,6 +12,7 @@ import components.cycle.CycleController;
 import components.findPath.FindPathController;
 import components.gifAnimation.gifAnimationController;
 import components.graphviz.GraphvizController;
+import components.login.LoginController;
 import components.welcomeAnimation.welcomeAnimationController;
 import components.welcomeToGPUP.welcomeToGPUPController;
 import components.whatIf.WhatIfController;
@@ -58,7 +59,6 @@ public class MainAppController implements Closeable {
     private Timer timer;
     //
     //UI
-    @FXML private Pane blankPane;
     @FXML private GridPane gridPaneMainAppRight;
     @FXML private Button loadXMLButton;
     @FXML private Button showGraphInformationButton;
@@ -72,6 +72,7 @@ public class MainAppController implements Closeable {
     //Properties
     private SimpleBooleanProperty isFileSelected;
     // Controllers
+    @FXML private LoginController loginController;
     @FXML private welcomeToGPUPController welcomeToGpupController;
     @FXML private welcomeAnimationController welcomeAnimationController;
     @FXML private BasicInformationController basicInformationController;
@@ -101,6 +102,7 @@ public class MainAppController implements Closeable {
         this.animationButton.disableProperty().bind(isFileSelected.not());
         this.graphvizButton.disableProperty().bind(isFileSelected.not());
 
+        loginController = (LoginController) genericControllersInit("/components/login/login.fxml");
         welcomeToGpupController = (welcomeToGPUPController) genericControllersInit("/components/welcomeToGPUP/welcomeToGPUP.fxml");
         welcomeAnimationController = (welcomeAnimationController) genericControllersInit("/components/welcomeAnimation/welcomeAnimation.fxml");
         basicInformationController = (BasicInformationController) genericControllersInit("/components/basicInformation/basicInformation.fxml");
@@ -113,6 +115,9 @@ public class MainAppController implements Closeable {
 
         this.changeSkinComboBox.getItems().addAll("No Skin", "Light Mode","Dark Mode", "Old School Mode");
         this.changeSkinComboBox.getSelectionModel().select(0);
+
+        this.gridPaneMainAppRight.getChildren().remove(0);
+        gridPaneMainAppRight.getChildren().add(this.loginController.getNodeController());
     }
 
     private Controller genericControllersInit(String str) throws IOException {
