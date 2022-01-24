@@ -5,11 +5,12 @@
       <element id="javaee-facet-resources" facet="web/web/Web" />
       <element id="directory" name="WEB-INF">
         <element id="directory" name="classes">
-          <element id="javaee-facet-classes" facet="web/web/Web" />
+          <element id="module-output" name="web" />
         </element>
         <element id="directory" name="lib">
-          <element id="library" level="project" name="gson-2.1" />
+          <element id="library" level="project" name="gson-2" />
           <element id="library" level="project" name="okHttp" />
+          <element id="artifact" artifact-name="engine" />
         </element>
       </element>
     </root>

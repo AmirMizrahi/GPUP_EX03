@@ -1,13 +1,10 @@
 <component name="libraryTable">
   <library name="okHttp">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/web/web/WEB-INF/lib/okHttp/annotations-13.0.jar!/" />
-      <root url="jar://$PROJECT_DIR$/web/web/WEB-INF/lib/okHttp/kotlin-stdlib-1.4.10.jar!/" />
-      <root url="jar://$PROJECT_DIR$/web/web/WEB-INF/lib/okHttp/okhttp-4.9.1.jar!/" />
-      <root url="jar://$PROJECT_DIR$/web/web/WEB-INF/lib/okHttp/okio-2.8.0.jar!/" />
-      <root url="jar://$PROJECT_DIR$/web/web/WEB-INF/lib/okHttp/kotlin-stdlib-common-1.4.10.jar!/" />
+      <root url="file://$USER_HOME$/Desktop/okHttp" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
+    <jarDirectory url="file://$USER_HOME$/Desktop/okHttp" recursive="false" />
   </library>
 </component>

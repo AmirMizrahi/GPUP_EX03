@@ -3,6 +3,7 @@ package components.login;
 //import chat.client.component.main.ChatAppMainController;
 //import chat.client.util.Constants;
 //import chat.client.util.http.HttpClientUtil;
+import Utils.HttpClientUtil;
 import components.mainApp.Controller;
 import components.mainApp.MainAppController;
 import javafx.application.Platform;
@@ -26,8 +27,6 @@ public class LoginController implements Controller {
     private Node nodeController;
 
     @FXML private TextField userNameTextField;
-    @FXML private Label errorMessageLabel;
-    @FXML private Button loginButton;
 
    // private ChatAppMainController chatAppMainController;
 
@@ -48,21 +47,17 @@ public class LoginController implements Controller {
         this.nodeController = node;
     }
 
-    @FXML
-    void loginButtonAction(ActionEvent event) {
-
-    }
 
     @FXML
     public void initialize() {
-        errorMessageLabel.textProperty().bind(errorMessageProperty);
-        HttpClientUtil.setCookieManagerLoggingFacility(line ->
-                Platform.runLater(() ->
-                        updateHttpStatusLine(line)));
+//        errorMessageLabel.textProperty().bind(errorMessageProperty);
+//        HttpClientUtil.setCookieManagerLoggingFacility(line ->
+//                Platform.runLater(() ->
+//                        updateHttpStatusLine(line)));
     }
 
     @FXML
-    private void loginButtonClicked(ActionEvent event) {
+    private void loginButtonAction(ActionEvent event) {
 
         String userName = userNameTextField.getText();
         if (userName.isEmpty()) {
@@ -72,13 +67,13 @@ public class LoginController implements Controller {
 
         //noinspection ConstantConditions
         String finalUrl = HttpUrl
-                        .parse(Constants.LOGIN_PAGE)
+                        .parse("http://localhost:8080/test/loginShortResponse")
                         .newBuilder()
                         .addQueryParameter("username", userName)
                         .build()
                         .toString();
 
-        updateHttpStatusLine("New request is launched for: " + finalUrl);
+        //updateHttpStatusLine("New request is launched for: " + finalUrl);
 
         HttpClientUtil.runAsync(finalUrl, new Callback() {
 
@@ -98,8 +93,9 @@ public class LoginController implements Controller {
                     );
                 } else {
                     Platform.runLater(() -> {
-                            chatAppMainController.updateUserName(userName);
-                            chatAppMainController.switchToChatRoom();
+                        System.out.println("Test");
+//                            chatAppMainController.updateUserName(userName);
+//                            chatAppMainController.switchToChatRoom();
                     });
                 }
             }
@@ -116,11 +112,11 @@ public class LoginController implements Controller {
         Platform.exit();
     }
 
-    private void updateHttpStatusLine(String data) {
-        chatAppMainController.updateHttpLine(data);
-    }
-
-    public void setChatAppMainController(ChatAppMainController chatAppMainController) {
-        this.chatAppMainController = chatAppMainController;
-    }
+//    private void updateHttpStatusLine(String data) {
+//        chatAppMainController.updateHttpLine(data);
+//    }
+//
+//    public void setChatAppMainController(ChatAppMainController chatAppMainController) {
+//        this.chatAppMainController = chatAppMainController;
+//    }
 }
