@@ -3,6 +3,7 @@ package components.login;
 //import chat.client.component.main.ChatAppMainController;
 //import chat.client.util.Constants;
 //import chat.client.util.http.HttpClientUtil;
+import Utils.Constants;
 import Utils.HttpClientUtil;
 import components.mainApp.Controller;
 import components.mainApp.MainAppController;
@@ -18,7 +19,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
-
 import java.io.IOException;
 
 public class LoginController implements Controller {
@@ -30,7 +30,7 @@ public class LoginController implements Controller {
 
    // private ChatAppMainController chatAppMainController;
 
-    private final StringProperty errorMessageProperty = new SimpleStringProperty();
+    private final StringProperty errorMessageProperty = new SimpleStringProperty(); //Not Happening
 
     @Override
     public void setMainAppController(MainAppController newMainAppController) {
@@ -61,15 +61,16 @@ public class LoginController implements Controller {
 
         String userName = userNameTextField.getText();
         if (userName.isEmpty()) {
-            errorMessageProperty.set("User name is empty. You can't login with empty user name");
+            errorMessageProperty.set("User name is empty. You can't login with empty user name"); //Not Happening
             return;
         }
 
         //noinspection ConstantConditions
         String finalUrl = HttpUrl
-                        .parse("http://localhost:8080/test/loginShortResponse")
+                        .parse(Constants.LOGIN_ADDRESS)
                         .newBuilder()
                         .addQueryParameter("username", userName)
+                        .addQueryParameter("type", "Admin")
                         .build()
                         .toString();
 
@@ -91,12 +92,15 @@ public class LoginController implements Controller {
                     Platform.runLater(() ->
                             errorMessageProperty.set("Something went wrong: " + responseBody)
                     );
+                    System.out.println("NOT Logged in");
                 } else {
+
                     Platform.runLater(() -> {
-                        System.out.println("Test");
+                        mainAppController.onLoggedIn();
 //                            chatAppMainController.updateUserName(userName);
 //                            chatAppMainController.switchToChatRoom();
                     });
+                    System.out.println("Logged in");
                 }
             }
         });

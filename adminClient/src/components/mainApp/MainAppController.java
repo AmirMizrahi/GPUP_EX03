@@ -71,6 +71,7 @@ public class MainAppController implements Closeable {
     @FXML private ComboBox<String> changeSkinComboBox;
     //Properties
     private SimpleBooleanProperty isFileSelected;
+    private SimpleBooleanProperty isLoggedIn;
     // Controllers
     @FXML private LoginController loginController;
     @FXML private welcomeToGPUPController welcomeToGpupController;
@@ -90,10 +91,12 @@ public class MainAppController implements Closeable {
     public MainAppController(){
         this.manager = new Manager();
         isFileSelected = new SimpleBooleanProperty(false);
+        isLoggedIn = new SimpleBooleanProperty(false);
     }
 
     @FXML
     private void initialize() throws IOException {
+        this.loadXMLButton.disableProperty().bind(isLoggedIn.not());
         this.showGraphInformationButton.disableProperty().bind(isFileSelected.not());
         this.findPathBetweenTwoTargetsButton.disableProperty().bind(isFileSelected.not());
         this.checkIfTargetInCycleButton.disableProperty().bind(isFileSelected.not());
@@ -388,5 +391,9 @@ public class MainAppController implements Closeable {
 
     public void setNewThreadAmount(Integer value) {
         this.manager.setNewThreadAmountMG(value);
+    }
+
+    public void onLoggedIn() {
+        this.isLoggedIn.set(true);
     }
 }
