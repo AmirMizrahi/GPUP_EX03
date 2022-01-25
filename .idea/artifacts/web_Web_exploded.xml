@@ -8,9 +8,9 @@
           <element id="module-output" name="web" />
         </element>
         <element id="directory" name="lib">
+          <element id="artifact" artifact-name="engine" />
           <element id="library" level="project" name="gson-2" />
           <element id="library" level="project" name="okHttp" />
-          <element id="artifact" artifact-name="engine" />
         </element>
       </element>
     </root>
