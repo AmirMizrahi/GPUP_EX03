@@ -1,30 +1,94 @@
 package components.dashboard;
 
+import components.basicInformation.TargetsTableViewRow;
+import components.mainApp.Controller;
+import components.mainApp.MainAppController;
+import exceptions.TargetNotFoundException;
+import javafx.application.Platform;
+import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 
-public class DashboardController {
+import java.io.IOException;
+import java.util.*;
+import java.util.function.Consumer;
+
+import static Utils.Constants.REFRESH_RATE;
+
+public class DashboardController implements Controller {
+
+    //Controllers
+    private MainAppController mainAppController;
+    private Node nodeController;
+    private Timer timer;
+    private TimerTask listRefresher;
+    //
+    //UI
+    @FXML private TableView<?> tasksTableView;
+    @FXML private ListView<?> tasksListView;
+    @FXML private TableView<?> graphsTableView;
+    @FXML private ListView<?> graphsListView;
+    @FXML private TableView<UserTableViewRow> usersTableView;
+    @FXML private TableColumn<UserTableViewRow, String> userTableColumn;
+    @FXML private TableColumn<UserTableViewRow, String> typeTableColumn;
+    @FXML private Label loggedInLabel;
+   //
+
+    @Override
+    public void setMainAppController(MainAppController newMainAppController) {
+        this.mainAppController = newMainAppController;
+    }
+    @Override
+    public Node getNodeController(){
+        return this.nodeController;
+    }
+    @Override
+    public void setNodeController(Node node){
+        this.nodeController = node;
+    }
 
     @FXML
-    private TableView<?> tasksTableView;
+    private void initialize() throws IOException {
+        startDashboardRefresher();
+        wireColumn(userTableColumn,"userName");
+        wireColumn(typeTableColumn,"userType");
+    }
 
-    @FXML
-    private ListView<?> tasksListView;
+    private void startDashboardRefresher(){
+        listRefresher = new UserListRefresher(
+                this::updateUsersList);
+        timer = new Timer();
+        timer.schedule(listRefresher, REFRESH_RATE, REFRESH_RATE);
+    }
 
-    @FXML
-    private TableView<?> graphsTableView;
+    private void updateUsersList(Map<String,String> usersNames) {
+        List<UserTableViewRow> rows = new LinkedList<>();
 
-    @FXML
-    private ListView<?> graphsListView;
+        for (Map.Entry<String, String> entry : usersNames.entrySet()) {
+            rows.add(new UserTableViewRow(entry.getKey(), entry.getValue()));
+        }
 
-    @FXML
-    private TableView<?> usersTableView;
+        Platform.runLater(() -> {
+            final ObservableList<UserTableViewRow> data = FXCollections.observableArrayList(rows);
+            usersTableView.setItems(data);
+            usersTableView.getColumns().clear();
+            usersTableView.getColumns().addAll(userTableColumn,typeTableColumn);
+        });
+    }
 
-    @FXML
-    private Label loggedInLabel;
+    private void wireColumn(TableColumn column, String property) {
+        column.setCellValueFactory(
+                new PropertyValueFactory<>(property)
+        );
+    }
 
     @FXML
     void graphsTableViewOnClicked(MouseEvent event) {

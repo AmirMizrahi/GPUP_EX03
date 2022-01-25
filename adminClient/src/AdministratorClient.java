@@ -6,7 +6,7 @@ import javafx.stage.Stage;
 
 import java.net.URL;
 
-public class JavaFXui extends Application {
+public class AdministratorClient extends Application {
 
     private MainAppController mainAppController;
 

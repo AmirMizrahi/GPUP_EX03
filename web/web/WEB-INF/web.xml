@@ -11,4 +11,14 @@
         <servlet-name>LoginShortResponseServlet</servlet-name>
         <url-pattern>/loginShortResponse</url-pattern>
     </servlet-mapping>
+
+    <servlet>
+        <servlet-name>UsersListServlet</servlet-name>
+        <servlet-class>servlets.UsersListServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>UsersListServlet</servlet-name>
+        <url-pattern>/userslist</url-pattern>
+    </servlet-mapping>
+
 </web-app>

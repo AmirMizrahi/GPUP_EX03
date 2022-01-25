@@ -9,6 +9,7 @@ import components.activateTask.mainActivateTask.MainActivateTaskController;
 import components.basicInformation.BasicInformationController;
 import components.basicInformation.TargetsTableViewRow;
 import components.cycle.CycleController;
+import components.dashboard.DashboardController;
 import components.findPath.FindPathController;
 import components.gifAnimation.gifAnimationController;
 import components.graphviz.GraphvizController;
@@ -60,6 +61,7 @@ public class MainAppController implements Closeable {
     //
     //UI
     @FXML private GridPane gridPaneMainAppRight;
+    @FXML private Button dashboardButton;
     @FXML private Button loadXMLButton;
     @FXML private Button showGraphInformationButton;
     @FXML private Button findPathBetweenTwoTargetsButton;
@@ -83,6 +85,7 @@ public class MainAppController implements Closeable {
     @FXML private MainActivateTaskController mainActivateTaskController;
     @FXML private gifAnimationController gifAnimationController;
     @FXML private GraphvizController graphvizController;
+    @FXML private DashboardController dashboardController;
     //
     //Consts
 
@@ -96,6 +99,7 @@ public class MainAppController implements Closeable {
 
     @FXML
     private void initialize() throws IOException {
+        this.dashboardButton.disableProperty().bind(isLoggedIn.not());
         this.loadXMLButton.disableProperty().bind(isLoggedIn.not());
         this.showGraphInformationButton.disableProperty().bind(isFileSelected.not());
         this.findPathBetweenTwoTargetsButton.disableProperty().bind(isFileSelected.not());
@@ -115,6 +119,7 @@ public class MainAppController implements Closeable {
         mainActivateTaskController = (MainActivateTaskController) genericControllersInit("/components/activateTask/mainActivateTask/mainActivateTask.fxml");
         gifAnimationController = (gifAnimationController) genericControllersInit("/components/gifAnimation/gifAnimation.fxml");
         graphvizController = (GraphvizController) genericControllersInit("/components/graphviz/graphviz.fxml");
+        dashboardController = (DashboardController) genericControllersInit("/components/dashboard/dashboard.fxml");
 
         this.changeSkinComboBox.getItems().addAll("No Skin", "Light Mode","Dark Mode", "Old School Mode");
         this.changeSkinComboBox.getSelectionModel().select(0);
@@ -395,5 +400,14 @@ public class MainAppController implements Closeable {
 
     public void onLoggedIn() {
         this.isLoggedIn.set(true);
+        gridPaneMainAppRight.getChildren().remove(0); //move to property
+        gridPaneMainAppRight.getChildren().add(this.dashboardController.getNodeController());
+    }
+
+
+    @FXML
+    void dashboardButtonAction(ActionEvent event) {
+        gridPaneMainAppRight.getChildren().remove(0); //move to property
+        gridPaneMainAppRight.getChildren().add(this.dashboardController.getNodeController());
     }
 }
