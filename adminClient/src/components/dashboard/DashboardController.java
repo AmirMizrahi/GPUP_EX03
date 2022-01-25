@@ -1,11 +1,9 @@
 package components.dashboard;
 
-import components.basicInformation.TargetsTableViewRow;
 import components.mainApp.Controller;
 import components.mainApp.MainAppController;
-import exceptions.TargetNotFoundException;
 import javafx.application.Platform;
-import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -19,9 +17,8 @@ import javafx.scene.input.MouseEvent;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.function.Consumer;
 
-import static Utils.Constants.REFRESH_RATE;
+import static Utils.Constants.DASHBOARD_REFRESH_RATE;
 
 public class DashboardController implements Controller {
 
@@ -66,7 +63,7 @@ public class DashboardController implements Controller {
         listRefresher = new UserListRefresher(
                 this::updateUsersList);
         timer = new Timer();
-        timer.schedule(listRefresher, REFRESH_RATE, REFRESH_RATE);
+        timer.schedule(listRefresher, DASHBOARD_REFRESH_RATE, DASHBOARD_REFRESH_RATE);
     }
 
     private void updateUsersList(Map<String,String> usersNames) {
@@ -100,4 +97,7 @@ public class DashboardController implements Controller {
 
     }
 
+    public void initializeDashboardController(SimpleStringProperty userNameProperty) {
+        loggedInLabel.textProperty().bind(userNameProperty);
+    }
 }

@@ -19,10 +19,7 @@ import components.welcomeToGPUP.welcomeToGPUPController;
 import components.whatIf.WhatIfController;
 import exceptions.TargetNotFoundException;
 import exceptions.XMLException;
-import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -30,7 +27,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -41,15 +37,13 @@ import tasks.SimulationTask;
 import javax.xml.bind.JAXBException;
 import java.io.Closeable;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Timer;
 import java.util.function.Consumer;
 
-import static Utils.Constants.REFRESH_RATE;
+import static Utils.Constants.TARGETS_REFRESH_RATE;
 
 public class MainAppController implements Closeable {
 
@@ -346,7 +340,7 @@ public class MainAppController implements Closeable {
 
         TargetRefresher targetRefresher = new TargetRefresher(refresherConsumer);
         timer = new Timer();
-        timer.schedule(targetRefresher, REFRESH_RATE, REFRESH_RATE);
+        timer.schedule(targetRefresher, TARGETS_REFRESH_RATE, TARGETS_REFRESH_RATE);
     }
 
     public TargetDTO getInformationOnTarget(String targetName) throws XMLException, TargetNotFoundException {
@@ -402,6 +396,7 @@ public class MainAppController implements Closeable {
         this.isLoggedIn.set(true);
         gridPaneMainAppRight.getChildren().remove(0); //move to property
         gridPaneMainAppRight.getChildren().add(this.dashboardController.getNodeController());
+        this.dashboardController.initializeDashboardController(this.loginController.userNamePropertyProperty());
     }
 
 

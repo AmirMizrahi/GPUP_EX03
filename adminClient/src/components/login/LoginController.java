@@ -26,12 +26,13 @@ public class LoginController implements Controller {
     private MainAppController mainAppController;
     private Node nodeController;
 
+    //UI
     @FXML private TextField userNameTextField;
-
-   // private ChatAppMainController chatAppMainController;
-
+    //
+    //Properties
     private final StringProperty errorMessageProperty = new SimpleStringProperty(); //Not Happening
-
+    private final SimpleStringProperty userNameProperty = new SimpleStringProperty();
+    //
     @Override
     public void setMainAppController(MainAppController newMainAppController) {
         this.mainAppController = newMainAppController;
@@ -97,6 +98,7 @@ public class LoginController implements Controller {
 
                     Platform.runLater(() -> {
                         mainAppController.onLoggedIn();
+                        userNameProperty.set("Logged as: [" + userNameTextField.getText() + "]      ;    Rank: Admin");
 //                            chatAppMainController.updateUserName(userName);
 //                            chatAppMainController.switchToChatRoom();
                     });
@@ -123,4 +125,13 @@ public class LoginController implements Controller {
 //    public void setChatAppMainController(ChatAppMainController chatAppMainController) {
 //        this.chatAppMainController = chatAppMainController;
 //    }
+
+
+    public String getUserNameProperty() {
+        return userNameProperty.get();
+    }
+
+    public SimpleStringProperty userNamePropertyProperty() {
+        return userNameProperty;
+    }
 }
