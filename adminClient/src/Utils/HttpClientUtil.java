@@ -1,11 +1,12 @@
 package Utils;
 
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
+import okhttp3.*;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.function.Consumer;
+
+import static Utils.Constants.LOAD_XML;
 
 public class HttpClientUtil {
 
@@ -32,6 +33,28 @@ public class HttpClientUtil {
         Call call = HttpClientUtil.HTTP_CLIENT.newCall(request);
 
         call.enqueue(callback);
+    }
+
+    public static void uploadFile(File file, Callback callback){
+        RequestBody body =
+                new MultipartBody.Builder()
+                        .addFormDataPart("file1", file.getName(), RequestBody.create(file, MediaType.parse("text/plain")))
+                        //.addFormDataPart("key1", "value1") // you can add multiple, different parts as needed
+                        .build();
+
+        Request request = new Request.Builder()
+                .url(LOAD_XML)
+                .post(body)
+                .build();
+
+        Call call = HTTP_CLIENT.newCall(request);
+
+        try {
+            Response response = call.execute();
+        } catch (IOException e) {
+            System.out.println("byebye");
+        }
+        //call.enqueue(callback);
     }
 
     public static void shutdown() {

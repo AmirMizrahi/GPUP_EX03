@@ -19,14 +19,13 @@ public class TargetsTableViewRow {
     private final SimpleIntegerProperty targetDirectReq;
     private final SimpleIntegerProperty targetTotalReq;
     private final SimpleStringProperty targetData;
-    private final SimpleIntegerProperty targetSSAmount;
     private final BooleanProperty deselect = new SimpleBooleanProperty();
     //
     //UI
     private CheckBox checkBox;
     //
 
-    public TargetsTableViewRow(TargetDTO targetDTO, SerialSetsDTO serialSetsDTO, int numberOfTarget, int numberOfTransitiveDep, int numberOfTransitiveReq, boolean del) {
+    public TargetsTableViewRow(TargetDTO targetDTO, int numberOfTarget, int numberOfTransitiveDep, int numberOfTransitiveReq, boolean del) {
         this.targetNumber = new SimpleIntegerProperty(numberOfTarget);
         this.targetName = new SimpleStringProperty(targetDTO.getTargetName());
         this.targetType = new SimpleStringProperty(targetDTO.getTargetCategory().toString());
@@ -35,7 +34,6 @@ public class TargetsTableViewRow {
         this.targetDirectReq = new SimpleIntegerProperty(targetDTO.getInList().size());
         this.targetTotalReq = new SimpleIntegerProperty(numberOfTransitiveReq);
         this.targetData = new SimpleStringProperty(targetDTO.getTargetData());
-        this.targetSSAmount = new SimpleIntegerProperty(serialSetsDTO.getSerialSetForTarget(targetDTO.getTargetName()).size());
         deselect.set(del);
         this.checkBox = new CheckBox();
         this.checkBox.setAccessibleText(targetDTO.getTargetName());
@@ -99,14 +97,6 @@ public class TargetsTableViewRow {
 
     public SimpleStringProperty targetTypeProperty() {
         return targetType;
-    }
-
-    public int getTargetSSAmount() {
-        return targetSSAmount.get();
-    }
-
-    public SimpleIntegerProperty targetSSAmountProperty() {
-        return targetSSAmount;
     }
 
     public int getTargetTotalDep() {

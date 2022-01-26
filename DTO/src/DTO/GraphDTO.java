@@ -34,4 +34,8 @@ public class GraphDTO {
         }
         return targetDTOS;
     }
+
+    public String getGraphName() {
+        return this.graph.getGraphName();
+    }
 }

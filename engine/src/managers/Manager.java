@@ -18,13 +18,12 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public class Manager implements Serializable {
-    private Graph originalGraph, tempGraph;
-    private Map<String,List<SerialSet>> targetToListOfSerialSets;
-    private Set<SerialSet> serialSets;
+    private GraphManager graphManager;
+    private Graph tempGraph;
     private final static String JAXB_XML_GAME_PACKAGE_NAME = "resources.jaxb.schema.generated";
-    private String mainSimulationTaskFolderPath;
+    private String mainSimulationTaskFolderPath; //
     private Boolean fileLoaded = false;
-    private int maxParallelism;
+    private int maxParallelism; //
     private final List<String> taskNames;
     private static boolean pauseOccurred;
     private Object isPaused;
@@ -34,7 +33,8 @@ public class Manager implements Serializable {
         this.taskNames = new LinkedList<>();
         this.taskNames.add("Simulation");
         this.taskNames.add("Compilation");
-        this.tempGraph = new Graph();
+        this.graphManager = new GraphManager();
+        this.tempGraph = new Graph("aaa");//todo
         pauseOccurred = false;
         isPaused = new Object();
     }
@@ -95,13 +95,14 @@ public class Manager implements Serializable {
         return res;
     }
 
-    public void loadXMLFileMG(String fullPathFileName) throws TargetNotFoundException, JAXBException, FileNotFoundException, XMLException {
-        Graph newGraph = new Graph();
+    public void loadXMLFileMG(InputStream inputStream) throws TargetNotFoundException, JAXBException, FileNotFoundException, XMLException {
         ArrayList<String> duplicatedTargets = new ArrayList<>();
         Boolean flag;
-        checkIfFileEndsWithXML(fullPathFileName.trim());
-        InputStream inputStream = new FileInputStream(new File(fullPathFileName.trim()));
+        //checkIfFileEndsWithXML(fullPathFileName.trim()); //todo
+        //InputStream inputStream = new FileInputStream(new File(fullPathFileName.trim()));
         GPUPDescriptor descriptor = deserializeFrom(inputStream);
+        String graphName = descriptor.getGPUPConfiguration().getGPUPGraphName().trim();
+        Graph newGraph = new Graph(graphName);
         //Create target by name only
         for (GPUPTarget gpupTarget: descriptor.getGPUPTargets().getGPUPTarget()) {
             flag =  newGraph.addTarget(new Target(gpupTarget.getName().trim(), gpupTarget.getGPUPUserData()));
@@ -116,55 +117,14 @@ public class Manager implements Serializable {
         this.setTargetsType(descriptor, newGraph);
         this.mainSimulationTaskFolderPath = descriptor.getGPUPConfiguration().getGPUPWorkingDirectory().trim();
 
-        Map<String,List<SerialSet>> newSerialSetMap = loadSerialSets(descriptor, newGraph);
+        //Check if name already exits //todo do me
+
         //if all ok
         this.fileLoaded = true;
-        this.originalGraph = newGraph;
-        this.targetToListOfSerialSets = newSerialSetMap;
-        updateSerialSets();
-        this.maxParallelism = descriptor.getGPUPConfiguration().getGPUPMaxParallelism();
-        //this.originalGraph.getTargetsList().forEach(target -> this.currentStatusOfTargets.put(target.getName(),target));
-    }
-
-    private void updateSerialSets() {
-        this.serialSets = new HashSet<>();
-
-        for (List<SerialSet> value : this.targetToListOfSerialSets.values()) {
-            this.serialSets.addAll(value);
-        }
-    }
-
-    private Map<String,List<SerialSet>> loadSerialSets(GPUPDescriptor descriptor, Graph newGraph) throws TargetNotFoundException, XMLException {
-        Map<String,List<SerialSet>> returnedMap = new HashMap<>();
-
-        List<Target> targets = newGraph.getTargetsList();
-        targets.forEach(x->returnedMap.put(x.getName(), new LinkedList<>()));
-        try {
-            List<GPUPDescriptor.GPUPSerialSets.GPUPSerialSet> serialSets = descriptor.getGPUPSerialSets().getGPUPSerialSet();
-            for (GPUPDescriptor.GPUPSerialSets.GPUPSerialSet serialSet : serialSets) {
-                SerialSet current = new SerialSet(serialSet.getName());
-                String[] targetsInSerialSetByName = serialSet.getTargets().split(",");
-                for (String s:targetsInSerialSetByName) {
-                    current.add(newGraph.getTargetByName(s));
-                    returnedMap.get(s).add(current);
-                }
-            }
-
-            checkForDuplicateSerialSetName(descriptor);
-        }
-        catch(NullPointerException ignored){}
-
-        return returnedMap;
-    }
-
-    private void checkForDuplicateSerialSetName(GPUPDescriptor descriptor) throws XMLException {
-        List<GPUPDescriptor.GPUPSerialSets.GPUPSerialSet> serialSets = descriptor.getGPUPSerialSets().getGPUPSerialSet();
-        final Set<String> set = new HashSet<>();
-        for (GPUPDescriptor.GPUPSerialSets.GPUPSerialSet serialSet : serialSets){
-            if(!set.add(serialSet.getName()))
-                throw new XMLException("Duplicate serial set name - " + serialSet.getName());
-
-        }
+        this.graphManager.addGraph(graphName ,newGraph);
+        System.out.println("Graph Name :" + graphName );
+        this.maxParallelism = descriptor.getGPUPConfiguration().getGPUPMaxParallelism(); //todo
+        //this.graphManager.getTargetsList().forEach(target -> this.currentStatusOfTargets.put(target.getName(),target));
     }
 
     private void checkIfFileEndsWithXML(String fullPathFileName) throws FileNotFoundException {
@@ -193,27 +153,21 @@ public class Manager implements Serializable {
         return (GPUPDescriptor) u.unmarshal(in);
     }
 
-    public GraphDTO showBasicInformationAboutEntireGraphMG() throws XMLException {//INDEPENDENT, LEAF, MIDDLE, ROOT
+    public GraphDTO showBasicInformationAboutEntireGraphMG(String graphName) throws XMLException {//INDEPENDENT, LEAF, MIDDLE, ROOT
         if (!this.fileLoaded)
             throw new XMLException("XML not loaded");
-        return new GraphDTO(this.originalGraph);
+        return new GraphDTO(this.graphManager.getGraphs().get(graphName));
     }
 
-    public SerialSetsDTO showBasicInformationAboutSerialSetsMG() throws XMLException {
+    public TargetDTO showInformationAboutSpecificTargetMG(String graphName, String targetName) throws XMLException, TargetNotFoundException {
+        // //chk if target in graphManager
         if (!this.fileLoaded)
             throw new XMLException("XML not loaded");
-        return new SerialSetsDTO(serialSets, targetToListOfSerialSets);
-    }
-
-    public TargetDTO showInformationAboutSpecificTargetMG(String targetName) throws XMLException, TargetNotFoundException {
-        // //chk if target in originalGraph
-        if (!this.fileLoaded)
-            throw new XMLException("XML not loaded");
-        Target t = this.originalGraph.getTargetByName(targetName);
+        Target t = this.graphManager.getGraphs().get(graphName).getTargetByName(targetName);
         return new TargetDTO(t);
     }
 
-    public PathsBetweenTwoTargetsDTO findALlPathsBetweenTwoTargetsMG(String source, String destination, DependencyRelation relation) throws TargetNotFoundException, XMLException {
+    public PathsBetweenTwoTargetsDTO findALlPathsBetweenTwoTargetsMG(String graphName, String source, String destination, DependencyRelation relation) throws TargetNotFoundException, XMLException {
 
         if (!this.fileLoaded)
             throw new XMLException("XML not loaded");
@@ -223,9 +177,9 @@ public class Manager implements Serializable {
         StringBuilder stringBuilder = new StringBuilder();
 
         if(relation == DependencyRelation.DEPENDS_ON)
-            res = originalGraph.findAllPathsBetweenTwoTargets(this.originalGraph.getTargetByName(source),this.originalGraph.getTargetByName(destination));
+            res = graphManager.getGraphs().get(graphName).findAllPathsBetweenTwoTargets(this.graphManager.getGraphs().get(graphName).getTargetByName(source),this.graphManager.getGraphs().get(graphName).getTargetByName(destination));
         else{
-            tmp = originalGraph.findAllPathsBetweenTwoTargets(this.originalGraph.getTargetByName(destination),this.originalGraph.getTargetByName(source));
+            tmp = graphManager.getGraphs().get(graphName).findAllPathsBetweenTwoTargets(this.graphManager.getGraphs().get(graphName).getTargetByName(destination),this.graphManager.getGraphs().get(graphName).getTargetByName(source));
             for (String str:tmp)
             {
                 stringBuilder.delete(0,stringBuilder.capacity());
@@ -239,23 +193,23 @@ public class Manager implements Serializable {
         return new PathsBetweenTwoTargetsDTO(res);
     }
 
-    private void createGraphByUserSelection(List<String> selectedTargets) throws TargetNotFoundException {
+    private void createGraphByUserSelection(String graphName, List<String> selectedTargets) throws TargetNotFoundException {
         List<Target> oldInTargetList, oldOutTargetList;
-        this.tempGraph = new Graph();
+        this.tempGraph = new Graph("aaa");//todo
 
         for (String targetName : selectedTargets) { //Create new targets in the new graph (without in/out list)
-            Target originalTarget = this.originalGraph.getTargetByName(targetName);
+            Target originalTarget = this.graphManager.getGraphs().get(graphName).getTargetByName(targetName);
             tempGraph.addTarget(new Target(targetName, originalTarget.getData()));
         }
 
         //for every target in the new graph:                                            V
-        //      1.get the InList of the target in the originalGraph                     V
+        //      1.get the InList of the target in the graphManager                     V
         //      2.On every target in the (1) that does appear in the tempGraph
         //      3.add the target from the new graph to the new Inlist of the target
 
         for (Target currentTargetInTempGraph : tempGraph.getTargetsList()) {
-            oldInTargetList = originalGraph.getTargetByName(currentTargetInTempGraph.getName()).getInTargets();
-            oldOutTargetList = originalGraph.getTargetByName(currentTargetInTempGraph.getName()).getOutTargets();
+            oldInTargetList = graphManager.getGraphs().get(graphName).getTargetByName(currentTargetInTempGraph.getName()).getInTargets();
+            oldOutTargetList = graphManager.getGraphs().get(graphName).getTargetByName(currentTargetInTempGraph.getName()).getOutTargets();
 
             for (Target oldTarget : oldInTargetList) {
                 if (selectedTargets.contains(oldTarget.getName())) {
@@ -290,8 +244,8 @@ public class Manager implements Serializable {
 
     public void activateSimulationTask(List<String> selectedTargets , Integer taskTime, SimulationTask.TIME_OPTION op, Double ChanceToSucceed, Double SucceedWithWarning,
                                    AbstractTask.WAYS_TO_START_SIM_TASK way, List<Consumer<String>> consumerList,Consumer<File> consumeWhenFinished, int threadsNumber) throws TargetNotFoundException, XMLException, IOException, InterruptedException {
-        if(way == AbstractTask.WAYS_TO_START_SIM_TASK.FROM_SCRATCH)
-            createGraphByUserSelection(selectedTargets);
+        if(way == AbstractTask.WAYS_TO_START_SIM_TASK.FROM_SCRATCH);
+            //createGraphByUserSelection(selectedTargets); //todo
 
         List<Target> targetList = runTaskInFirstTime(way);
         Task simulationTask = new SimulationTask(taskTime,op,ChanceToSucceed, SucceedWithWarning, way, targetList,
@@ -302,8 +256,8 @@ public class Manager implements Serializable {
 
     public void activateCompilationTask(List<String> selectedTargets, String source, String destination, AbstractTask.WAYS_TO_START_SIM_TASK way, List<Consumer<String>> consumerList,
                                         Consumer<File> consumeWhenFinished,int threadsNumber) throws TargetNotFoundException, XMLException, IOException, InterruptedException {
-        if(way == AbstractTask.WAYS_TO_START_SIM_TASK.FROM_SCRATCH)
-            createGraphByUserSelection(selectedTargets);
+        if(way == AbstractTask.WAYS_TO_START_SIM_TASK.FROM_SCRATCH);
+            //createGraphByUserSelection(selectedTargets); //todo
 
         List<Target> targetList = runTaskInFirstTime(way);
         Task compilationTask = new CompilationTask(way, targetList, this.mainSimulationTaskFolderPath, source, destination, checkIfTaskIsActivatedInFirstTime());
@@ -323,12 +277,13 @@ public class Manager implements Serializable {
         Runnable r = () -> {
 //            Task simulationTask = new SimulationTask(taskTime,op,ChanceToSucceed, SucceedWithWarning, way, targetList,
 //                    this.mainSimulationTaskFolderPath, checkIfTaskIsActivatedInFirstTime());
-            executorManager = new ExecutorManager(task,this.tempGraph.getTargetsList(),consumerList,consumeWhenFinished,this.targetToListOfSerialSets, threadsNumber, maxParallelism, isPaused);
+            Map<String,List<SerialSet>> dummy = new HashMap<>();
+            executorManager = new ExecutorManager(task,this.tempGraph.getTargetsList(),consumerList,consumeWhenFinished,dummy,threadsNumber, maxParallelism, isPaused);
             try {
                 executorManager.execute();
 //                Graph newGraph = new Graph();
 //                targets.forEach(x->newGraph.addTarget(x));
-//                this.originalGraph = newGraph;
+//                this.graphManager = newGraph;
             } catch (InterruptedException | IOException ignored) {}
         };
         Thread activateTaskThread = new Thread(r,"TaskThread");
@@ -397,11 +352,11 @@ public class Manager implements Serializable {
         return targetList;
     }
 
-    public PathsBetweenTwoTargetsDTO checkIfTargetIsPartOfCycleMG(String targetName) throws TargetNotFoundException, XMLException {
+    public PathsBetweenTwoTargetsDTO checkIfTargetIsPartOfCycleMG(String graphName, String targetName) throws TargetNotFoundException, XMLException {
         if (!this.fileLoaded)
             throw new XMLException("XML not loaded");
 
-       List<String> res = this.originalGraph.checkIfTargetIsPartOfCycle(this.originalGraph.getTargetByName(targetName));
+       List<String> res = this.graphManager.getGraphs().get(graphName).checkIfTargetIsPartOfCycle(this.graphManager.getGraphs().get(graphName).getTargetByName(targetName));
 
         return new PathsBetweenTwoTargetsDTO(res);
     }
@@ -429,15 +384,25 @@ public class Manager implements Serializable {
         this.executorManager.setNewThreadPoolAmount(value);
     }
 
+    public List<GraphDTO> getAllGraphs() {
+        List<GraphDTO> toReturn = new LinkedList<>();
+
+        for (Map.Entry<String, Graph> entry : this.graphManager.getGraphs().entrySet()) {
+            toReturn.add(new GraphDTO(entry.getValue()));
+        }
+
+        return toReturn;
+    }
+
     public enum DependencyRelation
     {
         DEPENDS_ON, REQUIRED_FOR, KA
     }
 
     //What If
-    public List<TargetDTO> getAllEffectedTargets(String targetName, DependencyRelation relation) throws TargetNotFoundException {
+    public List<TargetDTO> getAllEffectedTargets(String graphName, String targetName, DependencyRelation relation) throws TargetNotFoundException {
         List<TargetDTO> targetDTOS = new LinkedList<>();
-        List<Target> targetsAsString = this.originalGraph.findAllEffectedTargets(this.originalGraph.getTargetByName(targetName),relation);
+        List<Target> targetsAsString = this.graphManager.getGraphs().get(graphName).findAllEffectedTargets(this.graphManager.getGraphs().get(graphName).getTargetByName(targetName),relation);
 
         targetsAsString.forEach(t->targetDTOS.add(new TargetDTO(t)));
         return targetDTOS;
@@ -467,7 +432,7 @@ public class Manager implements Serializable {
             Manager temp = (Manager) in.readObject();
             //System.out.println("survivorsFromFile = " +
                    // survivorsFromFile);
-            this.originalGraph = temp.originalGraph;
+            this.graphManager = temp.graphManager;
             this.mainSimulationTaskFolderPath = temp.mainSimulationTaskFolderPath;
             this.fileLoaded = temp.fileLoaded;
         }

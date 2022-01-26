@@ -42,7 +42,7 @@
                <children>
                   <TableView fx:id="graphsTableView" onMouseClicked="#graphsTableViewOnClicked" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
                     <columns>
-                      <TableColumn prefWidth="75.0" text="Graph" />
+                      <TableColumn fx:id="graphTableColumn" prefWidth="75.0" text="Graph" />
                     </columns>
                      <columnResizePolicy>
                         <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />

@@ -21,4 +21,22 @@
         <url-pattern>/userslist</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>LoadXMLServlet</servlet-name>
+        <servlet-class>servlets.LoadXMLServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>LoadXMLServlet</servlet-name>
+        <url-pattern>/engine/loadxml</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>GraphsListServlet</servlet-name>
+        <servlet-class>servlets.GraphsListServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>GraphsListServlet</servlet-name>
+        <url-pattern>/graphslist</url-pattern>
+    </servlet-mapping>
+
 </web-app>

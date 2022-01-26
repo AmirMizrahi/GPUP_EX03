@@ -3,6 +3,7 @@ package utils;
 //import engine.chat.ChatManager;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
+import managers.Manager;
 import managers.UserManager;
 
 //import static chat.constants.Constants.INT_PARAMETER_ERROR;
@@ -10,6 +11,7 @@ import managers.UserManager;
 public class ServletUtils {
 
 	private static final String USER_MANAGER_ATTRIBUTE_NAME = "userManager";
+	private static final String MANAGER_ATTRIBUTE_NAME = "manager";
 	private static final String CHAT_MANAGER_ATTRIBUTE_NAME = "chatManager";
 
 	/*
@@ -17,6 +19,7 @@ public class ServletUtils {
 	the actual fetch of them is remained un-synchronized for performance POV
 	 */
 	private static final Object userManagerLock = new Object();
+	private static final Object managerLock = new Object();
 	private static final Object chatManagerLock = new Object();
 
 	public static UserManager getUserManager(ServletContext servletContext) {
@@ -27,6 +30,16 @@ public class ServletUtils {
 			}
 		}
 		return (UserManager) servletContext.getAttribute(USER_MANAGER_ATTRIBUTE_NAME);
+	}
+
+	public static Manager getManager(ServletContext servletContext) {
+
+		synchronized (managerLock) {
+			if (servletContext.getAttribute(MANAGER_ATTRIBUTE_NAME) == null) {
+				servletContext.setAttribute(MANAGER_ATTRIBUTE_NAME, new Manager());
+			}
+		}
+		return (Manager) servletContext.getAttribute(MANAGER_ATTRIBUTE_NAME);
 	}
 
 //	public static ChatManager getChatManager(ServletContext servletContext) {

@@ -5,6 +5,8 @@ import DTO.PathsBetweenTwoTargetsDTO;
 import DTO.SerialSetsDTO;
 import DTO.TargetDTO;
 
+import Utils.Constants;
+import Utils.HttpClientUtil;
 import components.activateTask.mainActivateTask.MainActivateTaskController;
 import components.basicInformation.BasicInformationController;
 import components.basicInformation.TargetsTableViewRow;
@@ -31,6 +33,11 @@ import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import managers.Manager;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.HttpUrl;
+import okhttp3.Response;
+import org.jetbrains.annotations.NotNull;
 import tasks.AbstractTask;
 import tasks.SimulationTask;
 
@@ -157,20 +164,40 @@ public class MainAppController implements Closeable {
         if (file == null)
             return;
 
-        try {
+//        try {
             p.setContentText("XML loaded successfully!");
-            manager.loadXMLFileMG(file.getAbsolutePath());
-            this.maxParallelTaskAmount = manager.getParallelTaskAmount();
+            //manager.loadXMLFileMG(file.getAbsolutePath());
+
+            HttpClientUtil.uploadFile(file, new Callback() {
+                @Override
+                public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                    //todo when fail
+                }
+
+                @Override
+                public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                    if (!response.isSuccessful()) {
+                        //todo when success
+                    }
+                }
+            });
+
+        maxParallelTaskAmount = manager.getParallelTaskAmount();
+        try {
             loadAllDetailsToSubComponents();
-            p.setAlertType(Alert.AlertType.INFORMATION);
-            isFileSelected.set(true);
+        } catch (XMLException | IOException e) {
+            e.printStackTrace();//todo
+        }
+        p.setAlertType(Alert.AlertType.INFORMATION);
+        isFileSelected.set(true);
+
             //switchToBasicInformation();
-        } catch (TargetNotFoundException | JAXBException | XMLException | IOException e) {
-            p.setContentText(e.getMessage());
-        }
-        finally {
-            p.show();
-        }
+ //       } catch (TargetNotFoundException | JAXBException | XMLException | IOException e) {
+ //           p.setContentText(e.getMessage());
+  //      }
+ //       finally {
+ //           p.show();
+ //       }
     }
 
     private void loadAllDetailsToSubComponents() throws XMLException, IOException {
@@ -179,11 +206,11 @@ public class MainAppController implements Closeable {
         gridPaneMainAppRight.getChildren().add(this.welcomeAnimationController.getNodeController());
         //this.welcomeAnimationController.initialize(null,null);
 
-        this.basicInformationController.initializeBasicInformationController();
-        this.findPathController.initializeFindPath();
-        this.cycleController.initializeCycle();
-        this.whatIfController.initializeWhatIfController();
-        this.mainActivateTaskController.initializeMainActivateTask();
+     //   this.basicInformationController.initializeBasicInformationController();
+     //   this.findPathController.initializeFindPath();
+     //   this.cycleController.initializeCycle();
+     //   this.whatIfController.initializeWhatIfController();
+     //   this.mainActivateTaskController.initializeMainActivateTask();
     }
 
     @FXML
@@ -240,16 +267,12 @@ public class MainAppController implements Closeable {
     }
 
     public GraphDTO getGraphDTOFromEngine() throws XMLException {
-        return this.manager.showBasicInformationAboutEntireGraphMG();
-    }
-
-    public SerialSetsDTO getSerialSetDTOFromEngine() throws XMLException {
-        return this.manager.showBasicInformationAboutSerialSetsMG();
+        return this.manager.showBasicInformationAboutEntireGraphMG("Test"); //todo
     }
 
     public List<String> getTargetsNames() throws XMLException {
         List<String> targetsNames = new LinkedList<>();
-        this.manager.showBasicInformationAboutEntireGraphMG().getAllTargets().forEach(targetDTO -> targetsNames.add(targetDTO.getTargetName()));
+        this.manager.showBasicInformationAboutEntireGraphMG("Test").getAllTargets().forEach(targetDTO -> targetsNames.add(targetDTO.getTargetName()));//todo
         return targetsNames;
     }
 
@@ -260,13 +283,13 @@ public class MainAppController implements Closeable {
         else
             relation = Manager.DependencyRelation.REQUIRED_FOR;
 
-        PathsBetweenTwoTargetsDTO dto = manager.findALlPathsBetweenTwoTargetsMG(source, destination, relation);
+        PathsBetweenTwoTargetsDTO dto = manager.findALlPathsBetweenTwoTargetsMG("",source, destination, relation);//todo
 
         return dto.getPathsBetweenTwoTargets();
     }
 
     public List<String> getCyclePath(String value) throws XMLException, TargetNotFoundException {
-        return this.manager.checkIfTargetIsPartOfCycleMG(value).getPathsBetweenTwoTargets();
+        return this.manager.checkIfTargetIsPartOfCycleMG("Test",value).getPathsBetweenTwoTargets();//todo
     }
 
     public List<String> getAllEffectedTargets(String targetName, String selectedRadioButton) throws TargetNotFoundException {
@@ -278,7 +301,7 @@ public class MainAppController implements Closeable {
         else
             relation = Manager.DependencyRelation.REQUIRED_FOR;
 
-        List<TargetDTO> dtos = this.manager.getAllEffectedTargets(targetName,relation);
+        List<TargetDTO> dtos = this.manager.getAllEffectedTargets("Test",targetName,relation);//todo
         dtos.forEach(targetDTO ->returnedList.add(targetDTO.getTargetName()));
         return returnedList;
     }
@@ -344,7 +367,7 @@ public class MainAppController implements Closeable {
     }
 
     public TargetDTO getInformationOnTarget(String targetName) throws XMLException, TargetNotFoundException {
-        return this.manager.showInformationAboutSpecificTargetMG(targetName);
+        return this.manager.showInformationAboutSpecificTargetMG("",targetName);//todo
     }
 
     @Override

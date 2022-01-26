@@ -62,7 +62,7 @@ public class LoginController implements Controller {
 
         String userName = userNameTextField.getText();
         if (userName.isEmpty()) {
-            errorMessageProperty.set("User name is empty. You can't login with empty user name"); //Not Happening
+            errorMessageProperty.set("User name is empty. You can't login with empty user name"); //todo Not Happening
             return;
         }
 

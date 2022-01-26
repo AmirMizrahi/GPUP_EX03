@@ -6,12 +6,14 @@ import targets.*;
 import java.io.Serializable;
 import java.util.*;
 
-public class Graph implements Serializable {
+public class Graph {
+    private String graphName;
     private final Map<String, Target> targetNameToTarget;
     private final int[] targetTypeArray;
     private boolean needToCalculate;
 
-    public Graph() {
+    public Graph(String graphName) {
+        this.graphName = graphName;
         this.targetNameToTarget = new HashMap<>();
         this.targetTypeArray = new int[] {0,0,0,0};
         this.needToCalculate = true;
@@ -60,6 +62,10 @@ public class Graph implements Serializable {
         List<Target> resTargetList = new ArrayList<>();
         targetNameToTarget.values().forEach(resTargetList::add);
         return resTargetList;
+    }
+
+    public String getGraphName() {
+        return graphName;
     }
 
     public List<String> findAllPathsBetweenTwoTargets(Target s, Target t)

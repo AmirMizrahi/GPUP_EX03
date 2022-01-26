@@ -34,7 +34,7 @@ public class BasicInformationController implements Controller {
     @FXML private TableColumn<TargetsTableViewRow, String> targetsDirectReqCol;
     @FXML private TableColumn<TargetsTableViewRow, String> targetsTotalReqCol;
     @FXML private TableColumn<TargetsTableViewRow, String> targetsDataCol;
-    @FXML private TableColumn<TargetsTableViewRow, String> targetsSSAmountCol;
+    @FXML private TableColumn<TargetsTableViewRow, String> targetsSSAmountCol; //todo
     //serialSetTableView
     @FXML private TableView<SerialSetTableViewRow> serialSetTableView;
     @FXML private TableColumn<SerialSetTableViewRow, String> serialSetHashCol;
@@ -66,23 +66,23 @@ public class BasicInformationController implements Controller {
     }
 
     public void initializeBasicInformationController() throws XMLException {
-        updateData(mainAppController.getGraphDTOFromEngine(), mainAppController.getSerialSetDTOFromEngine());
+        updateData(mainAppController.getGraphDTOFromEngine());
     }
 
-    public void updateData(GraphDTO graphDTO, SerialSetsDTO serialSetsDTO){
+    public void updateData(GraphDTO graphDTO){
         List<TargetDTO> allTargets = graphDTO.getAllTargets();
 
-        updateTargetsTableView(allTargets, serialSetsDTO);
-        updateSerialSetTableView(serialSetsDTO);
+        updateTargetsTableView(allTargets);
+        //updateSerialSetTableView(serialSetsDTO);
         updateSummary(graphDTO);
     }
 
-    private void updateTargetsTableView(List<TargetDTO> allTargets, SerialSetsDTO serialSetsDTO){
+    private void updateTargetsTableView(List<TargetDTO> allTargets){
         List<TargetsTableViewRow> rows = new LinkedList<>();
         final int[] counter = {0};
         allTargets.forEach(row-> {
             try {
-                rows.add(new TargetsTableViewRow(row, serialSetsDTO, ++counter[0], mainAppController.getAllEffectedTargetsAdapter(row.getTargetName(),"Depends On").size(), mainAppController.getAllEffectedTargetsAdapter(row.getTargetName(), "Required For").size(),false));
+                rows.add(new TargetsTableViewRow(row, ++counter[0], mainAppController.getAllEffectedTargetsAdapter(row.getTargetName(),"Depends On").size(), mainAppController.getAllEffectedTargetsAdapter(row.getTargetName(), "Required For").size(),false));
                 checkBoxes.add(rows.get(rows.size()-1).getCheckBox());
             } catch (TargetNotFoundException ignored){}
         });
@@ -97,12 +97,11 @@ public class BasicInformationController implements Controller {
         wireColumn(targetsDirectReqCol,"targetDirectReq");
         wireColumn(targetsTotalReqCol,"targetTotalReq");
         wireColumn(targetsDataCol,"targetData");
-        wireColumn(targetsSSAmountCol,"targetSSAmount");
 
         targetsTableView.setItems(data);
         targetsTableView.getColumns().clear();
 
-        targetsTableView.getColumns().addAll(targetsNumberCol,targetsNameCol,targetsTypeCol, targetsDirectDepCol, targetsTotalDepCol,targetsDirectReqCol,targetsTotalReqCol ,targetsDataCol, targetsSSAmountCol);
+        targetsTableView.getColumns().addAll(targetsNumberCol,targetsNameCol,targetsTypeCol, targetsDirectDepCol, targetsTotalDepCol,targetsDirectReqCol,targetsTotalReqCol ,targetsDataCol);
         //Platform.runLater(() -> targetsTableView.refresh());
     }
 

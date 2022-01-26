@@ -343,19 +343,11 @@ public class ProcessLogController implements ActivateTaskController {
     private void showTargetOnTable(String targetName) throws XMLException {
         //TargetDTO targetDTO = this.mainActivateTaskController.getTargetInformationWhenTableClicked(targetName);
         TargetDTO targetDTO = searchForRefreshedTarget(targetName);
-        List<SerialSetDTO> serialSetDTOS = this.mainActivateTaskController.getSerialSetsForTarget(targetName);
         List<String> serialSets = new LinkedList<>();
         Platform.runLater(()->{
             this.targetInfoListView.getItems().clear();
             this.targetInfoListView.getItems().add("Target name: " + targetDTO.getTargetName());
             this.targetInfoListView.getItems().add("Target category: " + targetDTO.getTargetCategory());
-
-            if(serialSetDTOS.size()>0){
-                for (SerialSetDTO serialSetDTO : serialSetDTOS) {
-                    serialSets.add(serialSetDTO.getName());
-                }
-                this.targetInfoListView.getItems().add("Target Serial Set Included: " + serialSets);
-            }
             this.targetInfoListView.getItems().add("Target dependOn list: " + targetDTO.getOutList());
             this.targetInfoListView.getItems().add("Target requiredFor list: " + targetDTO.getInList());
             this.targetInfoListView.getItems().add("Target data: " + targetDTO.getTargetData());

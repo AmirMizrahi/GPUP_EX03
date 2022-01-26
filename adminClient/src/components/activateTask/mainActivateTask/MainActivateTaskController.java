@@ -302,10 +302,6 @@ public class MainActivateTaskController implements Controller {
         return this.mainAppController.getInformationOnTarget(targetName);
     }
 
-    public List<SerialSetDTO> getSerialSetsForTarget(String targetName) throws XMLException {
-        return this.mainAppController.getSerialSetDTOFromEngine().getSerialSetForTarget(targetName);
-    }
-
     public ObservableList<CheckBox> getCheckBoxes() {
         return this.mainAppController.getCheckBoxesFromMainAppController();
     }
