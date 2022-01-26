@@ -3,7 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/DTO/DTO.iml" filepath="$PROJECT_DIR$/DTO/DTO.iml" />
-      <module fileurl="file://$PROJECT_DIR$/JavaFX/adminClient.iml" filepath="$PROJECT_DIR$/JavaFX/adminClient.iml" />
+      <module fileurl="file://$PROJECT_DIR$/adminClient/adminClient.iml" filepath="$PROJECT_DIR$/adminClient/adminClient.iml" />
       <module fileurl="file://$PROJECT_DIR$/engine/engine.iml" filepath="$PROJECT_DIR$/engine/engine.iml" />
       <module fileurl="file://$PROJECT_DIR$/web/web.iml" filepath="$PROJECT_DIR$/web/web.iml" />
     </modules>
