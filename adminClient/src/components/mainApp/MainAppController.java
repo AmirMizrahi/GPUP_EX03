@@ -21,6 +21,7 @@ import components.welcomeToGPUP.welcomeToGPUPController;
 import components.whatIf.WhatIfController;
 import exceptions.TargetNotFoundException;
 import exceptions.XMLException;
+import graph.Graph;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;

@@ -1,7 +1,10 @@
 package servlets;
 
 import DTO.GraphDTO;
+import DTO.TargetDTO;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import graph.Graph;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -21,10 +24,17 @@ public class GraphsListServlet extends HttpServlet {
             Gson gson = new Gson();
             Manager manager = ServletUtils.getManager(getServletContext());
             List<GraphDTO> graphsList = manager.getAllGraphs();
+
+            if(graphsList.size() > 0) {
+                System.out.println("Graph name: " + graphsList.get(0).getGraphName());
+                System.out.println("TargetDTO names: " + graphsList.get(0).getAllTargets());
+                System.out.println(graphsList.get(0).getAllTargets().get(0));
+                System.out.println(gson.toJson(graphsList.get(0).getAllTargets().get(0).returnTargetTest()));
+            }
+
             //String json = gson.toJson(graphsList);
-            //System.out.println("Line " + json);
             //out.println(json);
-            out.flush();
+            //out.flush();
         }
     }
 }

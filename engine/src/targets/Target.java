@@ -1,11 +1,10 @@
 package targets;
 
-import java.io.Serializable;
 import java.time.Instant;
 import java.util.LinkedList;
 import java.util.Objects;
 
-public class Target implements Serializable {
+public class Target{
     private final String name;
     private TargetType category;
     private TargetStatus status;

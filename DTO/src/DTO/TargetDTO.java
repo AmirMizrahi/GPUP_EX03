@@ -50,4 +50,6 @@ public class TargetDTO {
     public String getTargetStatus(){return this.target.getStatus().toString();}
 
     public String getTargetStatusAfterTask(){return this.target.getStatusAfterTask().toString();}
+
+    public Target returnTargetTest(){return this.target;}
 }

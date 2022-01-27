@@ -3,7 +3,6 @@ package graph;
 import exceptions.TargetNotFoundException;
 import managers.Manager;
 import targets.*;
-import java.io.Serializable;
 import java.util.*;
 
 public class Graph {
@@ -18,6 +17,7 @@ public class Graph {
         this.targetTypeArray = new int[] {0,0,0,0};
         this.needToCalculate = true;
     }
+
 
     public Boolean addTarget(Target t){
         boolean res = true;

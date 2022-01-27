@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+
+<ScrollPane fitToHeight="true" fitToWidth="true" minHeight="10.0" minWidth="10.0" prefHeight="500.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/8.0.301" xmlns:fx="http://javafx.com/fxml/1" fx:controller="components.mainApp.MainAppControllerW">
+   <content>
+      <GridPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
+        <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="10.0" prefWidth="250.0" />
+          <ColumnConstraints fx:id="asd" hgrow="SOMETIMES" minWidth="10.0" prefWidth="324.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <ScrollPane fitToHeight="true" fitToWidth="true" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
+               <content>
+                  <VBox alignment="CENTER_LEFT" fillWidth="false" minHeight="500.0" minWidth="100.0" spacing="25.0">
+                     <children>
+                        <Button fx:id="dashboardButton" layoutX="20.0" layoutY="7.0" mnemonicParsing="false" onAction="#dashboardButtonAction" text="Dashboard" />
+                        <Separator prefWidth="200.0" />
+                        <Label layoutX="20.0" layoutY="40.0" text="Switch Skin:" />
+                        <ComboBox fx:id="changeSkinComboBox" onAction="#changeSkinComboBoxAction" prefWidth="150.0">
+                           <VBox.margin>
+                              <Insets />
+                           </VBox.margin>
+                        </ComboBox>
+                     </children>
+                     <padding>
+                        <Insets left="10.0" />
+                     </padding>
+                  </VBox>
+               </content>
+            </ScrollPane>
+            <ScrollPane fitToHeight="true" fitToWidth="true" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
+               <content>
+                  <GridPane fx:id="gridPaneMainAppRight" alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
+                    <columnConstraints>
+                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                     <children>
+                        <Pane prefHeight="200.0" prefWidth="200.0" />
+                     </children>
+                  </GridPane>
+               </content>
+            </ScrollPane>
+         </children>
+      </GridPane>
+   </content>
+</ScrollPane>
