@@ -27,8 +27,10 @@ public class DashboardController implements Controller {
     //Controllers
     private MainAppController mainAppController;
     private Node nodeController;
-    private Timer timer;
-    private TimerTask listRefresher;
+    private Timer userTimer;
+    private Timer graphTimer;
+    private TimerTask userRefresher;
+    private TimerTask graphRefresher;
     //
     //UI
     @FXML private TableView<?> tasksTableView;
@@ -57,19 +59,21 @@ public class DashboardController implements Controller {
 
     @FXML
     private void initialize() throws IOException {
+        userTimer = new Timer();
+        graphTimer = new Timer();
         startDashboardRefresher();
-        wireColumn(userTableColumn,"userName");
-        wireColumn(typeTableColumn,"userType");
+        wireColumnForUserList(userTableColumn,"userName");
+        wireColumnForUserList(typeTableColumn,"userType");
         graphTableColumn.setCellValueFactory(cellData ->
                 new ReadOnlyStringWrapper(cellData.getValue()));
     }
 
     private void startDashboardRefresher(){
-        listRefresher = new DashboardRefresher(
-                this::updateUsersList,
-                this::updateGraphList);
-        timer = new Timer();
-        timer.schedule(listRefresher, DASHBOARD_REFRESH_RATE, DASHBOARD_REFRESH_RATE);
+        userRefresher = new UserListRefresher(this::updateUsersList);
+        graphRefresher = new GraphListRefresher(this::updateGraphList);
+
+        userTimer.schedule(userRefresher, DASHBOARD_REFRESH_RATE, DASHBOARD_REFRESH_RATE);
+        graphTimer.schedule(graphRefresher, DASHBOARD_REFRESH_RATE, DASHBOARD_REFRESH_RATE);
     }
 
     private void updateUsersList(Map<String,String> usersNames) {
@@ -88,20 +92,19 @@ public class DashboardController implements Controller {
     }
 
     private void updateGraphList(List<GraphDTO> graphDTOS) {
-//        List<String> rows = new LinkedList<>();
-//
-//        graphDTOS.forEach(graph -> rows.add(graph.getGraphName()));
-//
-//        Platform.runLater(() -> {
-//            final ObservableList<String> data = FXCollections.observableArrayList(rows);
-//            graphsTableView.setItems(data);
-//            graphsTableView.getColumns().clear();
-//            graphsTableView.getColumns().addAll(graphTableColumn);
-//        });
-        System.out.println("blalbladsl");
+        List<String> rows = new LinkedList<>();
+
+        graphDTOS.forEach(graph -> rows.add(graph.getGraphName()));
+
+        Platform.runLater(() -> {
+            final ObservableList<String> data = FXCollections.observableArrayList(rows);
+            graphsTableView.setItems(data);
+            graphsTableView.getColumns().clear();
+            graphsTableView.getColumns().addAll(graphTableColumn);
+        });
     }
 
-        private void wireColumn(TableColumn column, String property) {
+        private void wireColumnForUserList(TableColumn column, String property) {
         column.setCellValueFactory(
                 new PropertyValueFactory<>(property)
         );

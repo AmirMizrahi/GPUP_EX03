@@ -30,8 +30,7 @@ public class HttpClientUtil {
                 .url(finalUrl)
                 .build();
 
-        Call call = HttpClientUtil.HTTP_CLIENT.newCall(request);
-
+        Call call = HTTP_CLIENT.newCall(request);
         call.enqueue(callback);
     }
 
@@ -39,7 +38,6 @@ public class HttpClientUtil {
         RequestBody body =
                 new MultipartBody.Builder()
                         .addFormDataPart("file1", file.getName(), RequestBody.create(file, MediaType.parse("text/plain")))
-                        //.addFormDataPart("key1", "value1") // you can add multiple, different parts as needed
                         .build();
 
         Request request = new Request.Builder()
@@ -48,13 +46,7 @@ public class HttpClientUtil {
                 .build();
 
         Call call = HTTP_CLIENT.newCall(request);
-
-        try {
-            Response response = call.execute();
-        } catch (IOException e) {
-            System.out.println("byebye");
-        }
-        //call.enqueue(callback);
+        call.enqueue(callback);
     }
 
     public static void shutdown() {

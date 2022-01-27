@@ -18,7 +18,6 @@ public class Graph {
         this.needToCalculate = true;
     }
 
-
     public Boolean addTarget(Target t){
         boolean res = true;
         if(this.targetNameToTarget.containsKey(t.getName().toUpperCase()))

@@ -26,15 +26,16 @@ public class GraphsListServlet extends HttpServlet {
             List<GraphDTO> graphsList = manager.getAllGraphs();
 
             if(graphsList.size() > 0) {
+                //todo remove when cycle is fixed
                 System.out.println("Graph name: " + graphsList.get(0).getGraphName());
                 System.out.println("TargetDTO names: " + graphsList.get(0).getAllTargets());
-                System.out.println(graphsList.get(0).getAllTargets().get(0));
-                System.out.println(gson.toJson(graphsList.get(0).getAllTargets().get(0).returnTargetTest()));
+               // System.out.println(graphsList.get(0).getAllTargets().get(0));
+               // System.out.println(gson.toJson(graphsList.get(0).getAllTargets().get(0).returnTargetTest()));
             }
 
-            //String json = gson.toJson(graphsList);
-            //out.println(json);
-            //out.flush();
+            String json = gson.toJson(graphsList);
+            out.println(json);
+            out.flush();
         }
     }
 }

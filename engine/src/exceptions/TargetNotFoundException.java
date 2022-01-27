@@ -4,7 +4,7 @@ public class TargetNotFoundException extends Exception {
     private String EXCEPTION_MESSAGE;
 
     public TargetNotFoundException(String nameOfTarget) {
-        this.EXCEPTION_MESSAGE = String.format("Targets.Target '%s' not found", nameOfTarget);
+        this.EXCEPTION_MESSAGE = String.format("Target '%s' not found", nameOfTarget);
     }
 
     @Override

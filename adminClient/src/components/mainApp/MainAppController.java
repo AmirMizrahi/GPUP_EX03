@@ -22,6 +22,7 @@ import components.whatIf.WhatIfController;
 import exceptions.TargetNotFoundException;
 import exceptions.XMLException;
 import graph.Graph;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -154,42 +155,47 @@ public class MainAppController implements Closeable {
         Alert p = new Alert(Alert.AlertType.ERROR);
         FileChooser fileChooser = new FileChooser();
 
-        // Default folder for all examples.
-//        String currentPath = Paths.get("engine/src/resources/XMLTestsEx02").toAbsolutePath().normalize().toString();
-//        fileChooser.setInitialDirectory(new File(currentPath));
-        //
-
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("XML File", "*.xml"));
         File file = fileChooser.showOpenDialog(this.primaryStage);
 
         if (file == null)
             return;
+        HttpClientUtil.uploadFile(file, new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                Platform.runLater(() -> {
+                    Alert failLoginPopup = new Alert(Alert.AlertType.ERROR);
+                    failLoginPopup.setHeaderText("XML Error");
+                    failLoginPopup.setContentText("Something went wrong: " + e.getMessage());
+                    failLoginPopup.show();
+                });
+            }
 
-//        try {
-            p.setContentText("XML loaded successfully!");
-            //manager.loadXMLFileMG(file.getAbsolutePath());
-
-            HttpClientUtil.uploadFile(file, new Callback() {
-                @Override
-                public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                    //todo when fail
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                if (response.code() != 200) {
+                    String responseBody = response.body().string();
+                    p.setHeaderText("XML Error");
+                    p.setAlertType(Alert.AlertType.ERROR);
+                    p.setContentText("Something went wrong: " + responseBody);
                 }
-
-                @Override
-                public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                    if (!response.isSuccessful()) {
-                        //todo when success
-                    }
+                else {
+                    p.setContentText(response.body().string());
+                    Platform.runLater(() -> {
+                        p.setAlertType(Alert.AlertType.INFORMATION);
+                        p.setHeaderText("Success!");
+                    });
                 }
-            });
+                Platform.runLater(() -> p.show() );
+            }
+        });
 
-        maxParallelTaskAmount = manager.getParallelTaskAmount();
+        maxParallelTaskAmount = manager.getParallelTaskAmount(); //todo remove this
         try {
-            loadAllDetailsToSubComponents();
+            loadAllDetailsToSubComponents(); //todo when table is clicked
         } catch (XMLException | IOException e) {
             e.printStackTrace();//todo
         }
-        p.setAlertType(Alert.AlertType.INFORMATION);
         isFileSelected.set(true);
 
             //switchToBasicInformation();

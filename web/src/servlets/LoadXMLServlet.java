@@ -19,39 +19,38 @@ import java.util.Collection;
 public class LoadXMLServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        //todo Need to check that we didn't receive this file already (isn't available at the engine already - synchronize this action!
+        //todo synchronize?
+
         response.setContentType("text/plain");
-        PrintWriter out = response.getWriter();
 
         Collection<Part> parts = request.getParts();
-        for (Part part : parts) {
-            int content;
-            InputStream fileAsStream = part.getInputStream();
-            while ((content = fileAsStream.read()) != -1) {
-                System.out.print((char)content);
+        //check if file exits?
+
+        if (!parts.isEmpty()) { // File received from client
+            for (Part part : parts) {
+                int content;
+                InputStream fileAsStream = part.getInputStream();
+                while ((content = fileAsStream.read()) != -1) {
+                    System.out.print((char) content);
+                }
             }
+
+            Part p = parts.iterator().next(); //get the file
+            Manager manager = ServletUtils.getManager(getServletContext());
+            try {
+                manager.loadXMLFileMG(p.getInputStream());
+                response.setStatus(HttpServletResponse.SC_OK);
+                response.getOutputStream().print("Loaded file successfully!");
+            } catch (TargetNotFoundException | JAXBException | XMLException e) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                response.getOutputStream().print(e.getMessage());
+            }
+
+         }
+        else{ //Didn't get file from client
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getOutputStream().print("XML not loaded - Didn't get file to server.");
         }
-
-        Part p = parts.iterator().next();
-        System.out.println("111");
-        Manager manager = ServletUtils.getManager(getServletContext());
-        try {
-            System.out.println("222");
-            manager.loadXMLFileMG(p.getInputStream());
-            System.out.println("333");
-        } catch (TargetNotFoundException e) {
-            e.printStackTrace();
-        } catch (JAXBException e) {
-            e.printStackTrace();
-        } catch (XMLException e) {
-            e.printStackTrace();
-        }
-
-        //int size = fileAsStream.available();
-        //byte[] bucket = new byte[size];
-
-        //fileAsStream.read(bucket);
-
-//        try (FileOutputStream outputStream = new FileOutputStream( "c:\\temp\\output.xml")) {
-          //  outputStream.write(bucket);
     }
 }
