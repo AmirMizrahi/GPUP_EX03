@@ -30,6 +30,7 @@
                         <Label text="Main Menu" />
                         <Button fx:id="dashboardButton" layoutX="20.0" layoutY="7.0" mnemonicParsing="false" onAction="#dashboardButtonAction" text="Dashboard" />
                         <Button fx:id="loadXMLButton" mnemonicParsing="false" onAction="#loadXMLAction" text="Load XML" />
+                        <Button fx:id="actionsOnGraphButton" mnemonicParsing="false" onAction="#ActionsOnGraphAction" text="Actions On Graph" />
                         <Button fx:id="showGraphInformationButton" mnemonicParsing="false" onAction="#showGraphInformationAction" prefWidth="183.0" text="Show Graph Information" />
                         <Button fx:id="findPathBetweenTwoTargetsButton" mnemonicParsing="false" onAction="#findPathBetweenTwoTargetsAction" prefWidth="228.0" text="Find Path Between Two Targets" />
                         <Button fx:id="checkIfTargetInCycleButton" layoutX="10.0" layoutY="103.0" mnemonicParsing="false" onAction="#checkIfTargetInCycleAction" text="Check If Target In Cycle" />

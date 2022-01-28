@@ -12,6 +12,7 @@ import components.cycle.CycleController;
 import components.dashboard.DashboardController;
 import components.findPath.FindPathController;
 import components.gifAnimation.gifAnimationController;
+import components.graphMainComponent.Test2Controller;
 import components.graphviz.GraphvizController;
 import components.login.LoginController;
 import components.welcomeAnimation.welcomeAnimationController;
@@ -62,6 +63,7 @@ public class MainAppController implements Closeable {
     @FXML private GridPane gridPaneMainAppRight;
     @FXML private Button dashboardButton;
     @FXML private Button loadXMLButton;
+    @FXML private Button actionsOnGraphButton;
     @FXML private Button showGraphInformationButton;
     @FXML private Button findPathBetweenTwoTargetsButton;
     @FXML private Button checkIfTargetInCycleButton;
@@ -76,6 +78,7 @@ public class MainAppController implements Closeable {
     private SimpleStringProperty selectedGraph;
     // Controllers
     @FXML private LoginController loginController;
+    @FXML private Test2Controller test2Controller;
     @FXML private welcomeToGPUPController welcomeToGpupController;
     @FXML private welcomeAnimationController welcomeAnimationController;
     @FXML private BasicInformationController basicInformationController;
@@ -102,6 +105,7 @@ public class MainAppController implements Closeable {
     private void initialize() throws IOException {
         this.dashboardButton.disableProperty().bind(isLoggedIn.not());
         this.loadXMLButton.disableProperty().bind(isLoggedIn.not());
+        this.actionsOnGraphButton.disableProperty().bind(isFileSelected.not());
         this.showGraphInformationButton.disableProperty().bind(isFileSelected.not());
         this.findPathBetweenTwoTargetsButton.disableProperty().bind(isFileSelected.not());
         this.checkIfTargetInCycleButton.disableProperty().bind(isFileSelected.not());
@@ -110,6 +114,7 @@ public class MainAppController implements Closeable {
         this.animationButton.disableProperty().bind(isFileSelected.not());
         this.graphvizButton.disableProperty().bind(isFileSelected.not());
 
+        test2Controller = (Test2Controller) genericControllersInit("/components/graphMainComponent/test2.fxml");
         loginController = (LoginController) genericControllersInit("/components/login/login.fxml");
         welcomeToGpupController = (welcomeToGPUPController) genericControllersInit("/components/welcomeToGPUP/welcomeToGPUP.fxml");
         welcomeAnimationController = (welcomeAnimationController) genericControllersInit("/components/welcomeAnimation/welcomeAnimation.fxml");
@@ -201,9 +206,9 @@ public class MainAppController implements Closeable {
     }
 
     public void loadAllDetailsToSubComponents() throws XMLException, IOException {
-        this.gridPaneMainAppRight.getChildren().remove(0);
+        //this.gridPaneMainAppRight.getChildren().remove(0);
         //gridPaneMainAppRight.getChildren().add(this.welcomeToGpupController.getNodeController());
-        gridPaneMainAppRight.getChildren().add(this.welcomeAnimationController.getNodeController());
+        //gridPaneMainAppRight.getChildren().add(this.welcomeAnimationController.getNodeController());
         //this.welcomeAnimationController.initialize(null,null);
 
         this.basicInformationController.initializeBasicInformationController();
@@ -431,4 +436,11 @@ public class MainAppController implements Closeable {
         gridPaneMainAppRight.getChildren().remove(0); //move to property
         gridPaneMainAppRight.getChildren().add(this.dashboardController.getNodeController());
     }
+
+    @FXML
+    void ActionsOnGraphAction(ActionEvent event) {
+        gridPaneMainAppRight.getChildren().remove(0);
+        gridPaneMainAppRight.getChildren().add(this.test2Controller.getNodeController());
+    }
+
 }
