@@ -1,7 +1,6 @@
 package components.mainApp;
 
 import DTO.GraphDTO;
-import DTO.PathsBetweenTwoTargetsDTO;
 import DTO.TargetDTO;
 
 import Utils.HttpClientUtil;
@@ -212,9 +211,9 @@ public class MainAppController implements Closeable {
         //this.welcomeAnimationController.initialize(null,null);
 
         this.basicInformationController.initializeBasicInformationController();
-     //   this.findPathController.initializeFindPath();
-     //   this.cycleController.initializeCycle();
-     //   this.whatIfController.initializeWhatIfController();
+        this.findPathController.initializeFindPath();
+        this.cycleController.initializeCycle();
+        this.whatIfController.initializeWhatIfController();
      //   this.mainActivateTaskController.initializeMainActivateTask();
     }
 
@@ -271,46 +270,47 @@ public class MainAppController implements Closeable {
         gridPaneMainAppRight.getChildren().add(this.graphvizController.getNodeController());
     }
 
-    public GraphDTO getGraphDTOFromDashboard() throws XMLException {
+    public GraphDTO getGraphDTOFromDashboard() {
         return dashboardController.getSelectedGraph();
     }
 
-    public List<String> getTargetsNames() throws XMLException {
+    public List<String> getTargetsNames() {
         List<String> targetsNames = new LinkedList<>();
-        this.manager.showBasicInformationAboutEntireGraphMG("Test").getAllTargets().forEach(targetDTO -> targetsNames.add(targetDTO.getTargetName()));//todo
+        this.getGraphDTOFromDashboard().getAllTargets().forEach(targetDTO -> targetsNames.add(targetDTO.getTargetName()));
         return targetsNames;
     }
 
-    public List<String> getAllPathsBetweenTwoTargets(String source, String destination, RadioButton selectedRadioButton) throws XMLException, TargetNotFoundException {
-        Manager.DependencyRelation relation;
+    public List<String> getAllPathsBetweenTwoTargets(String source, String destination, RadioButton selectedRadioButton) {
+        String relation;
         if (selectedRadioButton.getText().equals("Depends On"))
-            relation = Manager.DependencyRelation.DEPENDS_ON;
+            relation = Manager.DependencyRelation.DEPENDS_ON.name();
         else
-            relation = Manager.DependencyRelation.REQUIRED_FOR;
+            relation = Manager.DependencyRelation.REQUIRED_FOR.name();
 
-        PathsBetweenTwoTargetsDTO dto = manager.findALlPathsBetweenTwoTargetsMG("",source, destination, relation);//todo
+        List<String> path = this.getGraphDTOFromDashboard().findAllPathsBetweenTwoTargets(source, destination, relation);
 
-        return dto.getPathsBetweenTwoTargets();
+        return path;
     }
 
-    public List<String> getCyclePath(String value) throws XMLException, TargetNotFoundException {
-        return this.manager.checkIfTargetIsPartOfCycleMG("Test",value).getPathsBetweenTwoTargets();//todo
+    public List<String> getCyclePath(String value) {
+        return getGraphDTOFromDashboard().checkIfTargetIsPartOfCycle(value);
     }
 
-    public List<String> getAllEffectedTargets(String targetName, String selectedRadioButton) throws TargetNotFoundException, XMLException {
-        Manager.DependencyRelation relation;
+    //Used by What-if
+    public List<String> getAllEffectedTargets(String targetName, String selectedRadioButton) {
+       // Manager.DependencyRelation relation;
         List<String> returnedList =  new LinkedList<>();
 
-        if (selectedRadioButton.contains("Depends On"))
-            relation = Manager.DependencyRelation.DEPENDS_ON;
-        else
-            relation = Manager.DependencyRelation.REQUIRED_FOR;
+        //if (selectedRadioButton.contains("Depends On"))
+        //    relation = Manager.DependencyRelation.DEPENDS_ON;
+        //else
+        //    relation = Manager.DependencyRelation.REQUIRED_FOR;
 
         GraphDTO currentGraph = getGraphDTOFromDashboard();
         //currentGraph.getAllTargets()
 
-        //List<TargetDTO> dtos = this.manager.getAllEffectedTargets("Test",targetName,relation);//todo
-        //dtos.forEach(targetDTO ->returnedList.add(targetDTO.getTargetName()));
+        List<TargetDTO> dtos = getGraphDTOFromDashboard().getAllEffected(targetName,selectedRadioButton);//todo
+        dtos.forEach(targetDTO ->returnedList.add(targetDTO.getTargetName()));
         return returnedList;
     }
 

@@ -7,7 +7,6 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 
-
 <ScrollPane fitToHeight="true" fitToWidth="true" xmlns="http://javafx.com/javafx/8.0.301" xmlns:fx="http://javafx.com/fxml/1" fx:controller="components.graphMainComponent.Test2Controller">
    <content>
       <TabPane prefHeight="600.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE">
@@ -22,7 +21,7 @@
                       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                     </rowConstraints>
                      <children>
-                        <fx:include source="../basicInformation/basicInformation.fxml" />
+                        <fx:include fx:id="showGraphInformationComponent" source="../basicInformation/basicInformation.fxml" />
                      </children>
                   </GridPane>
                </content>

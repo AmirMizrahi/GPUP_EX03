@@ -67,7 +67,7 @@ public class CycleController implements Controller {
         this.isTargetSelected.set(true);
     }
 
-    public void initializeCycle() throws XMLException {
+    public void initializeCycle() {
         List<String> targetsNames = this.mainAppController.getTargetsNames();
         this.targetComboBox.getItems().clear();
         this.targetComboBox.getItems().addAll(targetsNames);

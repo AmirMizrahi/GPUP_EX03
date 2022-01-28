@@ -3,6 +3,9 @@ package components.basicInformation;
 import DTO.GraphDTO;
 import DTO.SerialSetsDTO;
 import DTO.TargetDTO;
+import Utils.Constants;
+import Utils.HttpClientUtil;
+import components.graphMainComponent.Test2Controller;
 import components.mainApp.Controller;
 import components.mainApp.MainAppController;
 import exceptions.TargetNotFoundException;
@@ -13,13 +16,21 @@ import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.HttpUrl;
+import okhttp3.Response;
+import org.jetbrains.annotations.NotNull;
+import sun.applet.Main;
 
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
 public class BasicInformationController implements Controller {
 
     //Controllers
+    private Test2Controller mainAppControllerTest;
     private MainAppController mainAppController;
     private Node nodeController;
     //
@@ -55,6 +66,10 @@ public class BasicInformationController implements Controller {
         this.mainAppController = newMainAppController;
     }
 
+    public void setMainAppControllerTest(Test2Controller newMainAppController) {
+        this.mainAppControllerTest = newMainAppController;
+    }
+
     @Override
     public Node getNodeController(){
         return this.nodeController;
@@ -65,26 +80,25 @@ public class BasicInformationController implements Controller {
         this.nodeController = node;
     }
 
-    public void initializeBasicInformationController() throws XMLException {
+    public void initializeBasicInformationController() {
         updateData(mainAppController.getGraphDTOFromDashboard());
     }
 
     public void updateData(GraphDTO graphDTO){
         List<TargetDTO> allTargets = graphDTO.getAllTargets();
 
-        updateTargetsTableView(allTargets);
+        updateTargetsTableView(allTargets, graphDTO);
         //updateSerialSetTableView(serialSetsDTO);
         updateSummary(graphDTO);
     }
 
-    private void updateTargetsTableView(List<TargetDTO> allTargets){
+    private void updateTargetsTableView(List<TargetDTO> allTargets, GraphDTO currentGraph){
         List<TargetsTableViewRow> rows = new LinkedList<>();
         final int[] counter = {0};
+
         allTargets.forEach(row-> {
-            try {
-                rows.add(new TargetsTableViewRow(row, ++counter[0], mainAppController.getAllEffectedTargetsAdapter(row.getTargetName(),"Depends On").size(), mainAppController.getAllEffectedTargetsAdapter(row.getTargetName(), "Required For").size(),false));
+                rows.add(new TargetsTableViewRow(row, ++counter[0], currentGraph.getAllEffected(row.getTargetName(),"DEPENDS_ON").size(), currentGraph.getAllEffected(row.getTargetName(), "REQUIRED_FOR").size(),false));
                 checkBoxes.add(rows.get(rows.size()-1).getCheckBox());
-            } catch (TargetNotFoundException | XMLException ignored){}
         });
 
         final ObservableList<TargetsTableViewRow> data = FXCollections.observableArrayList(rows);
@@ -104,6 +118,7 @@ public class BasicInformationController implements Controller {
         targetsTableView.getColumns().addAll(targetsNumberCol,targetsNameCol,targetsTypeCol, targetsDirectDepCol, targetsTotalDepCol,targetsDirectReqCol,targetsTotalReqCol ,targetsDataCol);
         //Platform.runLater(() -> targetsTableView.refresh());
     }
+
 
     private void updateSerialSetTableView(SerialSetsDTO dto){
         List<SerialSetTableViewRow> rows = new LinkedList<>();

@@ -62,7 +62,7 @@ public class WhatIfController implements Controller {
         startButton.disableProperty().bind(booleanBinding);
     }
 
-    public void initializeWhatIfController() throws XMLException {
+    public void initializeWhatIfController() {
         List<String> targetsNames = this.mainAppController.getTargetsNames();
         this.targetComboBox.getItems().clear();
         this.targetComboBox.getItems().addAll(targetsNames);

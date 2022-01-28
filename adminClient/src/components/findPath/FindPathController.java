@@ -64,7 +64,7 @@ public class FindPathController implements Controller {
         startButton.disableProperty().bind(booleanBinding);
     }
 
-    public void initializeFindPath() throws XMLException {
+    public void initializeFindPath() {
         List<String> targetsNames = this.mainAppController.getTargetsNames();
         this.sourceComboBox.getItems().clear();
         this.sourceComboBox.getItems().addAll(targetsNames);

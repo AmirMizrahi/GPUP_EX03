@@ -1,6 +1,8 @@
 package DTO;
 
+import exceptions.TargetNotFoundException;
 import graph.Graph;
+import managers.Manager;
 import targets.Target;
 
 import java.util.LinkedList;
@@ -37,5 +39,40 @@ public class GraphDTO {
 
     public String getGraphName() {
         return this.graph.getGraphName();
+    }
+
+    public List<TargetDTO> getAllEffected(String targetName, String relationAsString) {
+        List<TargetDTO> toReturn = new LinkedList<>();
+        if (relationAsString.contains("Depends"))
+            relationAsString = "DEPENDS_ON";
+        else
+            relationAsString = "REQUIRED_FOR";
+        try {
+            List<Target> targets = this.graph.findAllEffectedTargets(this.graph.getTargetByName(targetName), Manager.DependencyRelation.valueOf(relationAsString));
+            targets.forEach(target -> toReturn.add(new TargetDTO(target)));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return toReturn;
+    }
+
+    public List<String> findAllPathsBetweenTwoTargets(String s, String t, String relation){
+        List<String> toReturn = new LinkedList<>();
+        try {
+            toReturn = this.graph.findAllPathsBetweenTwoTargets(this.graph.getTargetByName(s), this.graph.getTargetByName(t), relation);
+        } catch (TargetNotFoundException e) {
+            e.printStackTrace();
+        }
+        return toReturn;
+    }
+
+    public List<String> checkIfTargetIsPartOfCycle(String targetName) {
+        List<String> toReturn = new LinkedList<>();
+        try {
+            toReturn = this.graph.checkIfTargetIsPartOfCycle(this.graph.getTargetByName(targetName));
+        } catch (TargetNotFoundException e) {
+            e.printStackTrace();
+        }
+        return toReturn;
     }
 }

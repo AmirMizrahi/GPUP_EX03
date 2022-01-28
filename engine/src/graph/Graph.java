@@ -67,20 +67,40 @@ public class Graph {
         return graphName;
     }
 
-    public List<String> findAllPathsBetweenTwoTargets(Target s, Target t)
+    public List<String> findAllPathsBetweenTwoTargets(Target s, Target t, String relation)
     {
         Map<String,Boolean> targetNameToVisitStatus = new HashMap<>();
         ArrayList currentPath = new ArrayList<>();
         List<String> toReturn = new ArrayList<>();
 
-        for (Target tt: targetNameToTarget.values())
-        {
+        if(relation.compareTo("REQUIRED_FOR") == 0){
+            Target temp = t;
+            t = s;
+            s = temp;
+        }
+
+        for (Target tt: targetNameToTarget.values())        {
             targetNameToVisitStatus.put(tt.getName(),false);
         }
 
         currentPath.add(s);
         dfs(s, t, targetNameToVisitStatus, currentPath, toReturn,true);
+        List<String> tmp = new ArrayList<>();
+        tmp.addAll(toReturn);
 
+
+        if(relation.compareTo("REQUIRED_FOR") == 0){
+            toReturn.clear();
+            for (String str:tmp){
+                StringBuilder stringBuilder = new StringBuilder();
+                stringBuilder.delete(0,stringBuilder.capacity());
+                stringBuilder.append(str,1,str.length()-1);
+                stringBuilder.reverse();
+                stringBuilder.insert(stringBuilder.length(),"]");
+                stringBuilder.insert(0,"[");
+                toReturn.add(stringBuilder.toString());
+            }
+        }
         return toReturn;
     }
 

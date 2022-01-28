@@ -169,32 +169,6 @@ public class Manager implements Serializable {
         return new TargetDTO(t);
     }
 
-    public PathsBetweenTwoTargetsDTO findALlPathsBetweenTwoTargetsMG(String graphName, String source, String destination, DependencyRelation relation) throws TargetNotFoundException, XMLException {
-
-        if (!this.fileLoaded)
-            throw new XMLException("XML not loaded");
-
-        List<String> res = new ArrayList<>();
-        List<String> tmp;
-        StringBuilder stringBuilder = new StringBuilder();
-
-        if(relation == DependencyRelation.DEPENDS_ON)
-            res = graphManager.getGraphs().get(graphName).findAllPathsBetweenTwoTargets(this.graphManager.getGraphs().get(graphName).getTargetByName(source),this.graphManager.getGraphs().get(graphName).getTargetByName(destination));
-        else{
-            tmp = graphManager.getGraphs().get(graphName).findAllPathsBetweenTwoTargets(this.graphManager.getGraphs().get(graphName).getTargetByName(destination),this.graphManager.getGraphs().get(graphName).getTargetByName(source));
-            for (String str:tmp)
-            {
-                stringBuilder.delete(0,stringBuilder.capacity());
-                stringBuilder.append(str,1,str.length()-1);
-                stringBuilder.reverse();
-                stringBuilder.insert(stringBuilder.length(),"]");
-                stringBuilder.insert(0,"[");
-                res.add(stringBuilder.toString());
-            }
-        }
-        return new PathsBetweenTwoTargetsDTO(res);
-    }
-
     private void createGraphByUserSelection(String graphName, List<String> selectedTargets) throws TargetNotFoundException {
         List<String> oldInTargetList, oldOutTargetList;
         this.tempGraph = new Graph("aaa");//todo
