@@ -131,7 +131,10 @@ public class DashboardController implements Controller {
                 this.mainAppController.loadAllDetailsToSubComponents();
             }
         }
-        catch (Exception e) {};
+        catch (Exception e) {
+            System.out.println(e);
+            System.out.println("eeeeror");
+        };
     }
 
     @FXML

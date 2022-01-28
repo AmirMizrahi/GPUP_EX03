@@ -3,34 +3,23 @@ package components.basicInformation;
 import DTO.GraphDTO;
 import DTO.SerialSetsDTO;
 import DTO.TargetDTO;
-import Utils.Constants;
-import Utils.HttpClientUtil;
-import components.graphMainComponent.Test2Controller;
+import components.graphMainComponent.GraphMainComponentController;
 import components.mainApp.Controller;
 import components.mainApp.MainAppController;
-import exceptions.TargetNotFoundException;
-import exceptions.XMLException;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.HttpUrl;
-import okhttp3.Response;
-import org.jetbrains.annotations.NotNull;
-import sun.applet.Main;
 
-import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
 public class BasicInformationController implements Controller {
 
     //Controllers
-    private Test2Controller mainAppControllerTest;
+    private GraphMainComponentController mainAppControllerTest;
     private MainAppController mainAppController;
     private Node nodeController;
     //
@@ -66,7 +55,7 @@ public class BasicInformationController implements Controller {
         this.mainAppController = newMainAppController;
     }
 
-    public void setMainAppControllerTest(Test2Controller newMainAppController) {
+    public void setMainAppControllerTest(GraphMainComponentController newMainAppController) {
         this.mainAppControllerTest = newMainAppController;
     }
 
@@ -146,6 +135,7 @@ public class BasicInformationController implements Controller {
     }
 
     private void updateSummary(GraphDTO graphDTO){
+        //System.out.println(this.mainAppControllerTest.test());
         summaryTargetsAmountLabel.setText(graphDTO.getAmountOfTargets().toString());
         summaryIndependentsLabel.setText(graphDTO.getIndependentAmount().toString());
         summaryLeafLabel.setText(graphDTO.getLeafAmount().toString());

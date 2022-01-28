@@ -5,13 +5,12 @@ import DTO.TargetDTO;
 
 import Utils.HttpClientUtil;
 import components.activateTask.mainActivateTask.MainActivateTaskController;
-import components.basicInformation.BasicInformationController;
 import components.basicInformation.TargetsTableViewRow;
 import components.cycle.CycleController;
 import components.dashboard.DashboardController;
 import components.findPath.FindPathController;
 import components.gifAnimation.gifAnimationController;
-import components.graphMainComponent.Test2Controller;
+import components.graphMainComponent.GraphMainComponentController;
 import components.graphviz.GraphvizController;
 import components.login.LoginController;
 import components.welcomeAnimation.welcomeAnimationController;
@@ -77,10 +76,10 @@ public class MainAppController implements Closeable {
     private SimpleStringProperty selectedGraph;
     // Controllers
     @FXML private LoginController loginController;
-    @FXML private Test2Controller test2Controller;
+    @FXML private GraphMainComponentController graphMainComponentController;
     @FXML private welcomeToGPUPController welcomeToGpupController;
     @FXML private welcomeAnimationController welcomeAnimationController;
-    @FXML private BasicInformationController basicInformationController;
+    //@FXML private BasicInformationController basicInformationController;
     @FXML private FindPathController findPathController;
     @FXML private CycleController cycleController;
     @FXML private WhatIfController whatIfController;
@@ -113,11 +112,12 @@ public class MainAppController implements Closeable {
         this.animationButton.disableProperty().bind(isFileSelected.not());
         this.graphvizButton.disableProperty().bind(isFileSelected.not());
 
-        test2Controller = (Test2Controller) genericControllersInit("/components/graphMainComponent/test2.fxml");
+        graphMainComponentController = (GraphMainComponentController) genericControllersInit("/components/graphMainComponent/graphMainComponent.fxml");
+        graphMainComponentController.anotherTest(); //todo change this? this is setting mainapp controller to SUB COMPONENT
         loginController = (LoginController) genericControllersInit("/components/login/login.fxml");
         welcomeToGpupController = (welcomeToGPUPController) genericControllersInit("/components/welcomeToGPUP/welcomeToGPUP.fxml");
         welcomeAnimationController = (welcomeAnimationController) genericControllersInit("/components/welcomeAnimation/welcomeAnimation.fxml");
-        basicInformationController = (BasicInformationController) genericControllersInit("/components/basicInformation/basicInformation.fxml");
+        //basicInformationController = (BasicInformationController) genericControllersInit("/components/basicInformation/basicInformation.fxml");
         findPathController = (FindPathController) genericControllersInit("/components/findPath/findPath.fxml");
         cycleController = (CycleController) genericControllersInit("/components/cycle/cycle.fxml");
         whatIfController = (WhatIfController) genericControllersInit("/components/whatIf/whatIf.fxml");
@@ -195,13 +195,6 @@ public class MainAppController implements Closeable {
         maxParallelTaskAmount = manager.getParallelTaskAmount(); //todo remove this
         isFileSelected.set(true);
 
-            //switchToBasicInformation();
- //       } catch (TargetNotFoundException | JAXBException | XMLException | IOException e) {
- //           p.setContentText(e.getMessage());
-  //      }
- //       finally {
- //           p.show();
- //       }
     }
 
     public void loadAllDetailsToSubComponents() throws XMLException, IOException {
@@ -210,7 +203,8 @@ public class MainAppController implements Closeable {
         //gridPaneMainAppRight.getChildren().add(this.welcomeAnimationController.getNodeController());
         //this.welcomeAnimationController.initialize(null,null);
 
-        this.basicInformationController.initializeBasicInformationController();
+        //this.basicInformationController.initializeBasicInformationController();
+        this.graphMainComponentController.initTest(); //todo change this? --> this is calling the init of basicInfoGraph ( the sub-component that inside the main one)
         this.findPathController.initializeFindPath();
         this.cycleController.initializeCycle();
         this.whatIfController.initializeWhatIfController();
@@ -220,7 +214,7 @@ public class MainAppController implements Closeable {
     @FXML
     private void showGraphInformationAction(ActionEvent event) throws XMLException {
         gridPaneMainAppRight.getChildren().remove(0);
-        gridPaneMainAppRight.getChildren().add(this.basicInformationController.getNodeController());
+       // gridPaneMainAppRight.getChildren().add(this.basicInformationController.getNodeController());
     }
 
     @FXML
@@ -327,7 +321,8 @@ public class MainAppController implements Closeable {
     }
 
     public TableView<TargetsTableViewRow> getTargetsTableView(){
-        return this.basicInformationController.getTargetTable();
+        //return this.basicInformationController.getTargetTable();
+        return null; //todo
     }
 
     public void activateSimTask(List<String> selectedTargets, Integer time, SimulationTask.TIME_OPTION time_option, Double successRates,
@@ -386,7 +381,8 @@ public class MainAppController implements Closeable {
     }
 
     public ObservableList<CheckBox> getCheckBoxesFromMainAppController() {
-        return this.basicInformationController.getCheckBoxes();
+        //return this.basicInformationController.getCheckBoxes();
+        return null; //todo
     }
 
     public List<TargetDTO> getAllTargetsThatWereActivated() {
@@ -440,7 +436,6 @@ public class MainAppController implements Closeable {
     @FXML
     void ActionsOnGraphAction(ActionEvent event) {
         gridPaneMainAppRight.getChildren().remove(0);
-        gridPaneMainAppRight.getChildren().add(this.test2Controller.getNodeController());
+        gridPaneMainAppRight.getChildren().add(this.graphMainComponentController.getNodeController());
     }
-
 }
