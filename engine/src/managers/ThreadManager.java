@@ -1,6 +1,8 @@
 package managers;
 
 import bridges.PrinterBridge;
+import exceptions.TargetNotFoundException;
+import graph.Graph;
 import graph.SerialSet;
 import targets.Target;
 import tasks.SimulationTask;
@@ -23,9 +25,10 @@ public class ThreadManager {
     private final Task task;
     private Map<String,List<SerialSet>> targetToListOfSerialSets;
     private Object isPaused;
+    private final Graph graph;
 
     public ThreadManager(Object keyForMainExecute, List<Target> targetList, ThreadPoolExecutor threadPool, List<Consumer<String>> consumerList,
-                         Task task, Map<String, List<SerialSet>> targetToListOfSerialSets, Object isPaused) {
+                         Task task, Map<String, List<SerialSet>> targetToListOfSerialSets, Object isPaused, Graph graph) {
         this.keyForMainExecute = keyForMainExecute;
         this.keyForSerialSet = new Object();
         this.targetList = targetList;
@@ -35,9 +38,10 @@ public class ThreadManager {
         this.task = task;
         this.targetToListOfSerialSets = targetToListOfSerialSets;
         this.isPaused = isPaused;
+        this.graph = graph;
     }
 
-    public void onFinishedTarget(Target target,List<Consumer<String>> consumerList, Consumer<File> consumeWhenFinished){
+    public void onFinishedTarget(Target target,List<Consumer<String>> consumerList, Consumer<File> consumeWhenFinished) throws TargetNotFoundException {
         setStatusAfterTaskForAllEffected(target,this.targetList,consumerList, consumeWhenFinished);
         if (isJobDone()){
             synchronized (keyForMainExecute) {
@@ -55,7 +59,7 @@ public class ThreadManager {
         return res;
     }
 
-    private void setStatusAfterTaskForAllEffected(Target target, List<Target> targets,List<Consumer<String>> consumerList, Consumer<File> consumeWhenFinished) {
+    private void setStatusAfterTaskForAllEffected(Target target, List<Target> targets,List<Consumer<String>> consumerList, Consumer<File> consumeWhenFinished) throws TargetNotFoundException {
         if(target.getStatusAfterTask() == Target.StatusAfterTask.FAILURE) {
             Map<Target, DFS_COLOR> M = new HashMap<>();
             for (Target t: targets) {
@@ -70,25 +74,28 @@ public class ThreadManager {
     }
 
     //TargetStatus = WAITING, IN_PROCESS, SKIPPED, FROZEN, FINISHED --> NEVER DELETE ME!
-    private void skippedDFS(Target target, Target origin, Map<Target, DFS_COLOR> M,List<Consumer<String>> consumerList){
+    private void skippedDFS(Target target, Target origin, Map<Target, DFS_COLOR> M,List<Consumer<String>> consumerList) throws TargetNotFoundException {
         M.replace(target, DFS_COLOR.GREY); // to avoid cycle
 
         if(!target.equals(origin)){
             target.setStatus(Target.TargetStatus.SKIPPED);
             this.printerBridge.printStringToFileWithTimeStamp(String.format("Target %s is SKIPPED", target.getName()),consumerList);
         }
-        for (Target neighbor:target.getInTargets()) {
+        for (String neighborName:target.getInTargets()) {
+            Target neighbor = this.graph.getTargetByName(neighborName);
             if (M.get(neighbor) == DFS_COLOR.WHITE)
                 skippedDFS(neighbor, origin, M,consumerList);
         }
         M.replace(target, DFS_COLOR.BLACK);
     }
 
-    private void maybeWaitingChain(Target target,List<Consumer<String>> consumerList, Consumer<File> consumeWhenFinished) {
+    private void maybeWaitingChain(Target target,List<Consumer<String>> consumerList, Consumer<File> consumeWhenFinished) throws TargetNotFoundException {
         boolean allMyOutAreSuccess = true;
-        for (Target current : target.getInTargets()) {
+        for (String currentName : target.getInTargets()) {
+            Target current = this.graph.getTargetByName(currentName);
             if (current.getStatus() == Target.TargetStatus.FROZEN) {
-                for (Target outTarget : current.getOutTargets()) {
+                for (String outTargetName : current.getOutTargets()) {
+                    Target outTarget = this.graph.getTargetByName(outTargetName);
                     if (outTarget.getStatusAfterTask() != Target.StatusAfterTask.SUCCESS && outTarget.getStatusAfterTask() != Target.StatusAfterTask.WARNING) {
                         allMyOutAreSuccess = false;
                         break;
@@ -152,7 +159,7 @@ public class ThreadManager {
                     System.out.println("Thread name: " + Thread.currentThread().getName() + " Target: " + t.getName() + " 5555555555555555555555555555555555555555555555 end");//need to delete
                 }
             }
-            catch (InterruptedException | IOException ignored) {}
+            catch (InterruptedException | IOException | TargetNotFoundException ignored) {}
         };
         return r;
     }

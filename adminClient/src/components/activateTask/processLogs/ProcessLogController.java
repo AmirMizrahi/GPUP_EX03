@@ -353,12 +353,12 @@ public class ProcessLogController implements ActivateTaskController {
             this.targetInfoListView.getItems().add("Target data: " + targetDTO.getTargetData());
             try {
                 printAccordingToCurrentStatus(targetDTO);
-            } catch (TargetNotFoundException ignore) {}
+            } catch (TargetNotFoundException | XMLException ignore) {}
 
         });
     }
 
-    private void printAccordingToCurrentStatus(TargetDTO targetDTO) throws TargetNotFoundException {
+    private void printAccordingToCurrentStatus(TargetDTO targetDTO) throws TargetNotFoundException, XMLException {
         if(targetDTO.getTargetStatus().compareTo("FROZEN") == 0){
             String buffer ="Targets which keeps '" +targetDTO.getTargetName() + "' FROZEN: ";
             //List<String> transitives = targetDTO.getTransitiveOutList();

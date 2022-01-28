@@ -84,10 +84,10 @@ public class Manager implements Serializable {
         }
     }
 
-    private boolean checkIfTargetInlist(LinkedList<Target> list,Target targetToSearch){
+    private boolean checkIfTargetInlist(LinkedList<String> list,Target targetToSearch){
         boolean res = false;
-        for (Target current:list) {
-            if (current.getName().compareToIgnoreCase(targetToSearch.getName()) == 0) {
+        for (String current : list) {
+            if (current.compareToIgnoreCase(targetToSearch.getName()) == 0) {
                 res = true;
                 break;
             }
@@ -136,12 +136,14 @@ public class Manager implements Serializable {
         Target x;
         for (GPUPTarget gpupTarget: descriptor.getGPUPTargets().getGPUPTarget()) {
             x = graph.getTargetByName(gpupTarget.getName().trim());
-            for (Target y: x.getOutTargets()) {
-                if(y.getOutTargets().contains(x))
+            for (String yName: x.getOutTargets()) {
+                Target y = graph.getTargetByName(yName);
+                if(y.getOutTargets().contains(x.getName()))
                     throw new XMLException("Can't load file as there is a 2 targets cycle contains: " + x.getName() + " & " + y.getName());
             }
-            for (Target y: x.getInTargets()) {
-                if(y.getInTargets().contains(x))
+            for (String yName: x.getInTargets()) {
+                Target y = graph.getTargetByName(yName);
+                if(y.getInTargets().contains(x.getName()))
                     throw new XMLException("Can't load file as there is a 2 targets cycle contains: " + x.getName() + " & " + y.getName());
             }
         }
@@ -194,7 +196,7 @@ public class Manager implements Serializable {
     }
 
     private void createGraphByUserSelection(String graphName, List<String> selectedTargets) throws TargetNotFoundException {
-        List<Target> oldInTargetList, oldOutTargetList;
+        List<String> oldInTargetList, oldOutTargetList;
         this.tempGraph = new Graph("aaa");//todo
 
         for (String targetName : selectedTargets) { //Create new targets in the new graph (without in/out list)
@@ -211,12 +213,14 @@ public class Manager implements Serializable {
             oldInTargetList = graphManager.getGraphs().get(graphName).getTargetByName(currentTargetInTempGraph.getName()).getInTargets();
             oldOutTargetList = graphManager.getGraphs().get(graphName).getTargetByName(currentTargetInTempGraph.getName()).getOutTargets();
 
-            for (Target oldTarget : oldInTargetList) {
+            for (String oldTargetName : oldInTargetList) {
+                Target oldTarget = this.graphManager.getGraphs().get(graphName).getTargetByName(oldTargetName);
                 if (selectedTargets.contains(oldTarget.getName())) {
                     currentTargetInTempGraph.addToInTargetsList(tempGraph.getTargetByName(oldTarget.getName()));
                 }
             }
-            for (Target oldTarget : oldOutTargetList) {
+            for (String oldTargetName : oldOutTargetList) {
+                Target oldTarget = this.graphManager.getGraphs().get(graphName).getTargetByName(oldTargetName);
                 if (selectedTargets.contains(oldTarget.getName())) {
                     currentTargetInTempGraph.addToOutTargetsList(tempGraph.getTargetByName(oldTarget.getName()));
                 }
@@ -243,7 +247,7 @@ public class Manager implements Serializable {
     }
 
     public void activateSimulationTask(List<String> selectedTargets , Integer taskTime, SimulationTask.TIME_OPTION op, Double ChanceToSucceed, Double SucceedWithWarning,
-                                   AbstractTask.WAYS_TO_START_SIM_TASK way, List<Consumer<String>> consumerList,Consumer<File> consumeWhenFinished, int threadsNumber) throws TargetNotFoundException, XMLException, IOException, InterruptedException {
+                                   AbstractTask.WAYS_TO_START_SIM_TASK way, List<Consumer<String>> consumerList,Consumer<File> consumeWhenFinished, int threadsNumber, String graphName) throws TargetNotFoundException, XMLException, IOException, InterruptedException {
         if(way == AbstractTask.WAYS_TO_START_SIM_TASK.FROM_SCRATCH);
             //createGraphByUserSelection(selectedTargets); //todo
 
@@ -251,46 +255,38 @@ public class Manager implements Serializable {
         Task simulationTask = new SimulationTask(taskTime,op,ChanceToSucceed, SucceedWithWarning, way, targetList,
                 this.mainSimulationTaskFolderPath, checkIfTaskIsActivatedInFirstTime());
 
-        activateTaskMG(simulationTask, consumerList,consumeWhenFinished, threadsNumber);
+        activateTaskMG(simulationTask, consumerList,consumeWhenFinished, threadsNumber, graphName);
     }
 
     public void activateCompilationTask(List<String> selectedTargets, String source, String destination, AbstractTask.WAYS_TO_START_SIM_TASK way, List<Consumer<String>> consumerList,
-                                        Consumer<File> consumeWhenFinished,int threadsNumber) throws TargetNotFoundException, XMLException, IOException, InterruptedException {
+                                        Consumer<File> consumeWhenFinished,int threadsNumber, String graphName) throws TargetNotFoundException, XMLException, IOException, InterruptedException {
         if(way == AbstractTask.WAYS_TO_START_SIM_TASK.FROM_SCRATCH);
             //createGraphByUserSelection(selectedTargets); //todo
 
         List<Target> targetList = runTaskInFirstTime(way);
         Task compilationTask = new CompilationTask(way, targetList, this.mainSimulationTaskFolderPath, source, destination, checkIfTaskIsActivatedInFirstTime());
 
-        activateTaskMG(compilationTask, consumerList,consumeWhenFinished, threadsNumber);
+        activateTaskMG(compilationTask, consumerList,consumeWhenFinished, threadsNumber, graphName);
     }
     //activateComp =>Task comp = new comp
 
-    private void activateTaskMG(Task task, List<Consumer<String>> consumerList,Consumer<File> consumeWhenFinished, int threadsNumber) throws XMLException, IOException, InterruptedException, IllegalArgumentException, TargetNotFoundException {
+    private void activateTaskMG(Task task, List<Consumer<String>> consumerList,Consumer<File> consumeWhenFinished, int threadsNumber, String graphName) throws XMLException, IOException, InterruptedException, IllegalArgumentException, TargetNotFoundException {
         if (!this.fileLoaded)
             throw new XMLException("XML not loaded");
 
-//        if(way == AbstractTask.WAYS_TO_START_SIM_TASK.FROM_SCRATCH)
-//            createGraphByUserSelection(selectedTargets);
-
-//        List<Target> targetList = runTaskInFirstTime(way);
         Runnable r = () -> {
-//            Task simulationTask = new SimulationTask(taskTime,op,ChanceToSucceed, SucceedWithWarning, way, targetList,
-//                    this.mainSimulationTaskFolderPath, checkIfTaskIsActivatedInFirstTime());
             Map<String,List<SerialSet>> dummy = new HashMap<>();
-            executorManager = new ExecutorManager(task,this.tempGraph.getTargetsList(),consumerList,consumeWhenFinished,dummy,threadsNumber, maxParallelism, isPaused);
+            executorManager = new ExecutorManager(task,this.tempGraph.getTargetsList(),consumerList,consumeWhenFinished,dummy,threadsNumber, maxParallelism,
+                    isPaused, this.graphManager.getGraphs().get(graphName));
             try {
                 executorManager.execute();
-//                Graph newGraph = new Graph();
-//                targets.forEach(x->newGraph.addTarget(x));
-//                this.graphManager = newGraph;
             } catch (InterruptedException | IOException ignored) {}
         };
         Thread activateTaskThread = new Thread(r,"TaskThread");
         activateTaskThread.start();
     }
 
-    private List<Target> runTaskInFirstTime(AbstractTask.WAYS_TO_START_SIM_TASK way){
+    private List<Target> runTaskInFirstTime(AbstractTask.WAYS_TO_START_SIM_TASK way) throws TargetNotFoundException {
         List<Target> targetList = new LinkedList<>();
         switch (way){
             case FROM_SCRATCH:
@@ -329,7 +325,7 @@ public class Manager implements Serializable {
         return targetList;
     }
 
-    private List<Target> runIncremental() {
+    private List<Target> runIncremental() throws TargetNotFoundException {
         List<Target> targetList = this.tempGraph.getTargetsList();
 
         for (Target target: targetList) {
@@ -337,7 +333,8 @@ public class Manager implements Serializable {
             if (myFinishedStatus == Target.StatusAfterTask.SKIPPED || myFinishedStatus == Target.StatusAfterTask.FAILURE) {
                 target.setStatus(Target.TargetStatus.WAITING);
                 System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" + "printed from runIncremental" + target.getName() + "changed is status to waiting" + "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-                for (Target child : target.getOutTargets()) {
+                for (String childName : target.getOutTargets()) {
+                    Target child = this.tempGraph.getTargetByName(childName);
                     if (child.getStatusAfterTask() == Target.StatusAfterTask.FAILURE || (child.getStatusAfterTask() == Target.StatusAfterTask.SKIPPED))
                         target.setStatus(Target.TargetStatus.FROZEN);
                 }

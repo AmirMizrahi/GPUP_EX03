@@ -2,10 +2,8 @@ package components.mainApp;
 
 import DTO.GraphDTO;
 import DTO.PathsBetweenTwoTargetsDTO;
-import DTO.SerialSetsDTO;
 import DTO.TargetDTO;
 
-import Utils.Constants;
 import Utils.HttpClientUtil;
 import components.activateTask.mainActivateTask.MainActivateTaskController;
 import components.basicInformation.BasicInformationController;
@@ -21,9 +19,9 @@ import components.welcomeToGPUP.welcomeToGPUPController;
 import components.whatIf.WhatIfController;
 import exceptions.TargetNotFoundException;
 import exceptions.XMLException;
-import graph.Graph;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -37,13 +35,11 @@ import javafx.stage.Stage;
 import managers.Manager;
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.HttpUrl;
 import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
 import tasks.AbstractTask;
 import tasks.SimulationTask;
 
-import javax.xml.bind.JAXBException;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
@@ -77,6 +73,7 @@ public class MainAppController implements Closeable {
     //Properties
     private SimpleBooleanProperty isFileSelected;
     private SimpleBooleanProperty isLoggedIn;
+    private SimpleStringProperty selectedGraph;
     // Controllers
     @FXML private LoginController loginController;
     @FXML private welcomeToGPUPController welcomeToGpupController;
@@ -98,6 +95,7 @@ public class MainAppController implements Closeable {
         this.manager = new Manager();
         isFileSelected = new SimpleBooleanProperty(false);
         isLoggedIn = new SimpleBooleanProperty(false);
+        selectedGraph = new SimpleStringProperty();
     }
 
     @FXML
@@ -191,11 +189,6 @@ public class MainAppController implements Closeable {
         });
 
         maxParallelTaskAmount = manager.getParallelTaskAmount(); //todo remove this
-        try {
-            loadAllDetailsToSubComponents(); //todo when table is clicked
-        } catch (XMLException | IOException e) {
-            e.printStackTrace();//todo
-        }
         isFileSelected.set(true);
 
             //switchToBasicInformation();
@@ -207,13 +200,13 @@ public class MainAppController implements Closeable {
  //       }
     }
 
-    private void loadAllDetailsToSubComponents() throws XMLException, IOException {
+    public void loadAllDetailsToSubComponents() throws XMLException, IOException {
         this.gridPaneMainAppRight.getChildren().remove(0);
         //gridPaneMainAppRight.getChildren().add(this.welcomeToGpupController.getNodeController());
         gridPaneMainAppRight.getChildren().add(this.welcomeAnimationController.getNodeController());
         //this.welcomeAnimationController.initialize(null,null);
 
-     //   this.basicInformationController.initializeBasicInformationController();
+        this.basicInformationController.initializeBasicInformationController();
      //   this.findPathController.initializeFindPath();
      //   this.cycleController.initializeCycle();
      //   this.whatIfController.initializeWhatIfController();
@@ -273,8 +266,8 @@ public class MainAppController implements Closeable {
         gridPaneMainAppRight.getChildren().add(this.graphvizController.getNodeController());
     }
 
-    public GraphDTO getGraphDTOFromEngine() throws XMLException {
-        return this.manager.showBasicInformationAboutEntireGraphMG("Test"); //todo
+    public GraphDTO getGraphDTOFromDashboard() throws XMLException {
+        return dashboardController.getSelectedGraph();
     }
 
     public List<String> getTargetsNames() throws XMLException {
@@ -299,7 +292,7 @@ public class MainAppController implements Closeable {
         return this.manager.checkIfTargetIsPartOfCycleMG("Test",value).getPathsBetweenTwoTargets();//todo
     }
 
-    public List<String> getAllEffectedTargets(String targetName, String selectedRadioButton) throws TargetNotFoundException {
+    public List<String> getAllEffectedTargets(String targetName, String selectedRadioButton) throws TargetNotFoundException, XMLException {
         Manager.DependencyRelation relation;
         List<String> returnedList =  new LinkedList<>();
 
@@ -308,12 +301,15 @@ public class MainAppController implements Closeable {
         else
             relation = Manager.DependencyRelation.REQUIRED_FOR;
 
-        List<TargetDTO> dtos = this.manager.getAllEffectedTargets("Test",targetName,relation);//todo
-        dtos.forEach(targetDTO ->returnedList.add(targetDTO.getTargetName()));
+        GraphDTO currentGraph = getGraphDTOFromDashboard();
+        //currentGraph.getAllTargets()
+
+        //List<TargetDTO> dtos = this.manager.getAllEffectedTargets("Test",targetName,relation);//todo
+        //dtos.forEach(targetDTO ->returnedList.add(targetDTO.getTargetName()));
         return returnedList;
     }
 
-    public List<String> getAllEffectedTargetsAdapter(String targetName, String textInRadioButton) throws TargetNotFoundException {
+    public List<String> getAllEffectedTargetsAdapter(String targetName, String textInRadioButton) throws TargetNotFoundException, XMLException {
         return getAllEffectedTargets(targetName, textInRadioButton);
     }
 
@@ -336,7 +332,7 @@ public class MainAppController implements Closeable {
         consumerList.add(consumer1);
         try {
             this.startTargetRefresher();
-            this.manager.activateSimulationTask(selectedTargets, time,time_option, successRates,warningRates, way,consumerList, consumeWhenFinished, tasksNumber);
+            this.manager.activateSimulationTask(selectedTargets, time,time_option, successRates,warningRates, way,consumerList, consumeWhenFinished, tasksNumber, "emptyString"); //todo enter current selected graph name
         } catch (XMLException | IOException | InterruptedException | TargetNotFoundException e) {
             e.printStackTrace();
         }
@@ -349,7 +345,7 @@ public class MainAppController implements Closeable {
         consumerList.add(consumer1);
         try {
             this.startTargetRefresher();
-            this.manager.activateCompilationTask(selectedTargets, source, destination, way,consumerList,consumeWhenFinished, tasksNumber);
+            this.manager.activateCompilationTask(selectedTargets, source, destination, way,consumerList,consumeWhenFinished, tasksNumber, "emptyString");//todo enter current selected graph name
         } catch (XMLException | IOException | InterruptedException | TargetNotFoundException e) {
             e.printStackTrace();
         }
@@ -426,7 +422,7 @@ public class MainAppController implements Closeable {
         this.isLoggedIn.set(true);
         gridPaneMainAppRight.getChildren().remove(0); //move to property
         gridPaneMainAppRight.getChildren().add(this.dashboardController.getNodeController());
-        this.dashboardController.initializeDashboardController(this.loginController.userNamePropertyProperty());
+        this.dashboardController.initializeDashboardController(this.loginController.userNamePropertyProperty(), this.selectedGraph);
     }
 
 

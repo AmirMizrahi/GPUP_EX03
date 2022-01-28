@@ -11,9 +11,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.List;
-import java.util.Map;
-import java.util.TimerTask;
+import java.util.*;
 import java.util.function.Consumer;
 
 import static Utils.Constants.GSON_INSTANCE;
@@ -31,7 +29,8 @@ public class GraphListRefresher extends TimerTask {
         HttpClientUtil.runAsync(Constants.GRAPHS_LIST, new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                //httpRequestLoggerConsumer.accept("Users Request # " + finalRequestNumber + " | Ended with failure...");
+                List<GraphDTO> failed = new LinkedList<>();
+                graphsListConsumer.accept(failed);
                 System.out.println("ERROR");
             }
 

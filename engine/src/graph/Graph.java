@@ -6,7 +6,7 @@ import targets.*;
 import java.util.*;
 
 public class Graph {
-    private String graphName;
+    private final String graphName;
     private final Map<String, Target> targetNameToTarget;
     private final int[] targetTypeArray;
     private boolean needToCalculate;
@@ -95,8 +95,9 @@ public class Graph {
             return;
         }
 
-        for (Target i : u.getOutTargets())
+        for (String targetName : u.getOutTargets())
         {
+            Target i = this.targetNameToTarget.get(targetName);
             if (!beingVisited.get(i.getName()))
             {
                 currentPath.add(i);
@@ -106,33 +107,6 @@ public class Graph {
         }
         beingVisited.replace(u.getName(),false);
     }
-//
-//    public List<Target> topologicalSort(){
-//        Queue<Target> Q = new LinkedList<>();
-//        List<Target> L = new ArrayList<>();
-//        Map<Target,Integer> M = new HashMap<>();
-//
-//        for (Target t:this.targetNameToTarget.values()) {
-//            M.put(t,t.getOutTargets().size());
-//        }
-//
-//        for (Target tt:M.keySet()) {
-//            if(M.get(tt) == 0)
-//                Q.add(tt);
-//        }
-//
-//        while (!Q.isEmpty()){
-//            Target currentTarget = Q.remove();
-//            L.add(currentTarget);
-//
-//            for (Target targetToDecrease:currentTarget.getInTargets()) {
-//                M.replace(targetToDecrease,M.get(targetToDecrease)-1);
-//                if(M.get(targetToDecrease)== 0)
-//                    Q.add(targetToDecrease);
-//            }
-//        }
-//        return L;
-//    }
 
     //DFS Based (aka realDFS)
     public List<String> checkIfTargetIsPartOfCycle(Target TargetToLookFor){
@@ -153,7 +127,8 @@ public class Graph {
 
     private void visit(Map<Target,Integer> targetToColor, Target current, Target TargetToLookFor, List<Target> currentPath, List<String> output){
         targetToColor.put(current,1);
-        for (Target t: current.getOutTargets()) {
+        for (String targetName: current.getOutTargets()) {
+            Target t = this.targetNameToTarget.get(targetName);
             if(targetToColor.get(t) == 0){
                 currentPath.add(t);
                 visit(targetToColor,t,TargetToLookFor,currentPath,  output);
@@ -170,7 +145,7 @@ public class Graph {
     //BFS based
     public List<Target> findAllEffectedTargets(Target target, Manager.DependencyRelation relation) {
         Queue<Target> queue = new LinkedList<>();
-        List<Target> inOrOutList;
+        List<String> inOrOutList;
         List<Target> toReturn = new LinkedList<>();
         Map<Target,Boolean> targetToVisitStatus = new HashMap<>();
         targetNameToTarget.values().forEach(x->targetToVisitStatus.put(x,false));
@@ -184,10 +159,14 @@ public class Graph {
             else
                 inOrOutList = current.getInTargets();
             inOrOutList.forEach(neighborOfCurrent ->{
-                if(!targetToVisitStatus.get(neighborOfCurrent)) {
-                    queue.add(neighborOfCurrent);
-                    targetToVisitStatus.put(neighborOfCurrent,true);
-                    toReturn.add(neighborOfCurrent);
+                try {
+                    if(!targetToVisitStatus.get(this.getTargetByName(neighborOfCurrent))) {
+                        queue.add(this.targetNameToTarget.get(neighborOfCurrent));
+                        targetToVisitStatus.put(this.targetNameToTarget.get(neighborOfCurrent),true);
+                        toReturn.add(this.targetNameToTarget.get(neighborOfCurrent));
+                    }
+                } catch (TargetNotFoundException e) {
+                    e.printStackTrace();
                 }
             });
         }

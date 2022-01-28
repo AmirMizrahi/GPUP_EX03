@@ -66,7 +66,7 @@ public class BasicInformationController implements Controller {
     }
 
     public void initializeBasicInformationController() throws XMLException {
-        updateData(mainAppController.getGraphDTOFromEngine());
+        updateData(mainAppController.getGraphDTOFromDashboard());
     }
 
     public void updateData(GraphDTO graphDTO){
@@ -84,7 +84,7 @@ public class BasicInformationController implements Controller {
             try {
                 rows.add(new TargetsTableViewRow(row, ++counter[0], mainAppController.getAllEffectedTargetsAdapter(row.getTargetName(),"Depends On").size(), mainAppController.getAllEffectedTargetsAdapter(row.getTargetName(), "Required For").size(),false));
                 checkBoxes.add(rows.get(rows.size()-1).getCheckBox());
-            } catch (TargetNotFoundException ignored){}
+            } catch (TargetNotFoundException | XMLException ignored){}
         });
 
         final ObservableList<TargetsTableViewRow> data = FXCollections.observableArrayList(rows);

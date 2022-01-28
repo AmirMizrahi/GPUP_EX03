@@ -43,6 +43,9 @@ public class DashboardController implements Controller {
     @FXML private TableColumn<UserTableViewRow, String> typeTableColumn;
     @FXML private Label loggedInLabel;
    //
+    //Properties
+    private SimpleStringProperty selectedGraph;
+    private List<GraphDTO> allGraphsDTOS;
 
     @Override
     public void setMainAppController(MainAppController newMainAppController) {
@@ -59,6 +62,7 @@ public class DashboardController implements Controller {
 
     @FXML
     private void initialize() throws IOException {
+        allGraphsDTOS = new LinkedList<>();
         userTimer = new Timer();
         graphTimer = new Timer();
         startDashboardRefresher();
@@ -93,6 +97,7 @@ public class DashboardController implements Controller {
 
     private void updateGraphList(List<GraphDTO> graphDTOS) {
         List<String> rows = new LinkedList<>();
+        this.allGraphsDTOS = graphDTOS;
 
         graphDTOS.forEach(graph -> rows.add(graph.getGraphName()));
 
@@ -104,15 +109,29 @@ public class DashboardController implements Controller {
         });
     }
 
-        private void wireColumnForUserList(TableColumn column, String property) {
+    private void wireColumnForUserList(TableColumn column, String property) {
         column.setCellValueFactory(
-                new PropertyValueFactory<>(property)
-        );
+            new PropertyValueFactory<>(property));
     }
 
     @FXML
     void graphsTableViewOnClicked(MouseEvent event) {
-
+        //Get the pressed target name from the tables
+        String temp = event.getPickResult().toString();
+        int start = temp.indexOf("'");
+        int last = temp.lastIndexOf("'");
+        if(start == -1){
+            start = temp.indexOf("\"");
+            last = temp.lastIndexOf("\"");
+        }
+        try {
+            String name = temp.substring(++start, last);
+            if(name.compareTo("null") != 0) {
+                this.selectedGraph.set(name);
+                this.mainAppController.loadAllDetailsToSubComponents();
+            }
+        }
+        catch (Exception e) {};
     }
 
     @FXML
@@ -120,7 +139,17 @@ public class DashboardController implements Controller {
 
     }
 
-    public void initializeDashboardController(SimpleStringProperty userNameProperty) {
+    public void initializeDashboardController(SimpleStringProperty userNameProperty, SimpleStringProperty selectedGraph) {
         loggedInLabel.textProperty().bind(userNameProperty);
+        this.selectedGraph = selectedGraph;
+    }
+
+    public GraphDTO getSelectedGraph(){
+        GraphDTO toReturn = null;
+        for (GraphDTO graph : allGraphsDTOS) {
+            if (graph.getGraphName().compareTo(this.selectedGraph.get()) == 0)
+                toReturn = graph;
+        }
+        return toReturn;
     }
 }

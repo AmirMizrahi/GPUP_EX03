@@ -22,9 +22,10 @@ public class ExecutorManager {
     private Consumer<File> consumeWhenFinished;
     private ThreadPoolExecutor threadExecutor;
     private int maxThreads;
+    private final Graph graph;
 
     public ExecutorManager(Task task, List<Target> targetList, List<Consumer<String>> consumerList, Consumer<File> consumeWhenFinished,
-                           Map<String,List<SerialSet>> targetToListOfSerialSets, int threadsAmount, int maxThreads, Object isPaused) {
+                           Map<String,List<SerialSet>> targetToListOfSerialSets, int threadsAmount, int maxThreads, Object isPaused, Graph graph) {
         this.task = task;
         this.targetList = targetList;
         this.consumerList = consumerList;
@@ -33,6 +34,7 @@ public class ExecutorManager {
         this.isPaused = isPaused;
         this.consumeWhenFinished = consumeWhenFinished;
         this.maxThreads = maxThreads;
+        this.graph = graph;
     }
 
     public void execute() throws InterruptedException, IOException {
@@ -41,7 +43,7 @@ public class ExecutorManager {
         this.threadExecutor = new ThreadPoolExecutor(this.threadsAmount,maxThreads,1, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
         Object keyForMainExecute = new Object();
         threadManager = new ThreadManager(keyForMainExecute,this.targetList,threadExecutor,this.consumerList,this.task
-                , this.targetToListOfSerialSets, isPaused);
+                , this.targetToListOfSerialSets, isPaused, graph);
 
         synchronized (keyForMainExecute) {
             for (Target target : this.targetList) {

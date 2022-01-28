@@ -9,8 +9,8 @@ public class Target{
     private TargetType category;
     private TargetStatus status;
     private StatusAfterTask statusAfterTask;
-    private final LinkedList<Target> outTargets;
-    private final LinkedList<Target> inTargets;
+    private final LinkedList<String> outTargets;
+    private final LinkedList<String> inTargets;
     private final String data;
     private Instant startingTime;
 
@@ -60,13 +60,14 @@ public class Target{
         return data;
     }
 
-    public LinkedList<Target> getOutTargets() {
+    public LinkedList<String> getOutTargets() {
         return outTargets;
     }
 
-    public LinkedList<Target> getInTargets() {
+    public LinkedList<String> getInTargets() {
         return inTargets;
     }
+
     public void setCategory(TargetType category) {
         this.category = category;
     }
@@ -86,11 +87,11 @@ public class Target{
     }
 
     public void addToOutTargetsList(Target newOutTarget) {
-        this.outTargets.add(newOutTarget);
+        this.outTargets.add(newOutTarget.getName());
     }
 
     public void addToInTargetsList(Target newInTarget) {
-        this.inTargets.add(newInTarget);
+        this.inTargets.add(newInTarget.getName());
     }
 
     @Override

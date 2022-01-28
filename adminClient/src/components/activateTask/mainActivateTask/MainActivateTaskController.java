@@ -157,7 +157,7 @@ public class MainActivateTaskController implements Controller {
                             List<String> listOfEffected = mainAppController.getAllEffectedTargetsAdapter(x.getTargetName(), "Depends On");
                             selectAllInvolved(listOfEffected);
 
-                        } catch (TargetNotFoundException ignore) {}
+                        } catch (TargetNotFoundException | XMLException ignore) {}
                     }
 
                     if (isWithParentsSelected.get()) {
@@ -165,7 +165,7 @@ public class MainActivateTaskController implements Controller {
                         try {
                             List<String> listOfEffected = mainAppController.getAllEffectedTargetsAdapter(x.getTargetName(), "Required For");
                             selectAllInvolved(listOfEffected);
-                        } catch (TargetNotFoundException ignore) {}
+                        } catch (TargetNotFoundException | XMLException ignore) {}
                     }
                     parentsAndChildrenIndicator = false;
                 }
@@ -334,7 +334,7 @@ public class MainActivateTaskController implements Controller {
         this.mainAppController.informPauseToMainAppController(pause);
     }
 
-    public List<String> getAllEffectedTargets(String targetName, String depends_on) throws TargetNotFoundException {
+    public List<String> getAllEffectedTargets(String targetName, String depends_on) throws TargetNotFoundException, XMLException {
         return this.mainAppController.getAllEffectedTargets(targetName,depends_on);
     }
 

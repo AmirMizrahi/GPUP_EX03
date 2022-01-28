@@ -18,15 +18,17 @@ public class TargetDTO {
     public Target.TargetType getTargetCategory(){return this.target.getCategory();}
 
     public List<String> getOutList(){
-        List<String> res = new LinkedList<>();
-        this.target.getOutTargets().forEach(t->res.add(t.getName()));
-        return res;
+        //List<String> res = new LinkedList<>();
+        //this.target.getOutTargets().forEach(t->res.add(t.getName()));
+        //return res;
+        return target.getOutTargets();
     }
 
     public List<String> getInList(){
-        List<String> res = new LinkedList<>();
-        this.target.getInTargets().forEach(t->res.add(t.getName()));
-        return res;
+        //List<String> res = new LinkedList<>();
+        //this.target.getInTargets().forEach(t->res.add(t.getName()));
+        //return res;
+        return target.getInTargets();
     }
 
     public Instant getTargetStartingTime(){

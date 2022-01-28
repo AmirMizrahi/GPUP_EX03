@@ -14,8 +14,6 @@ import javafx.scene.image.ImageView;
 
 import java.io.*;
 
-import static Utils.Constants.GRAPHVIZ_LOCATION;
-
 public class GraphvizController implements Controller {
 
     //Controllers
@@ -42,7 +40,7 @@ public class GraphvizController implements Controller {
     }
 
     public void initializeGraphvizController(String fileName) throws XMLException, IOException {
-        GraphDTO graph = this.mainAppController.getGraphDTOFromEngine();
+        GraphDTO graph = this.mainAppController.getGraphDTOFromDashboard();
 
         if(fileName.endsWith(".png") || fileName.endsWith(".viz"))
            fileName = fileName.substring(0,fileName.length()-4);
