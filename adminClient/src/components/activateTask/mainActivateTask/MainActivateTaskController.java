@@ -11,6 +11,8 @@ import components.mainApp.MainAppController;
 import exceptions.TargetNotFoundException;
 import exceptions.XMLException;
 import javafx.application.Platform;
+import javafx.beans.Observable;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -47,18 +49,15 @@ public class MainActivateTaskController implements Controller {
     private Node nodeController;
     private boolean parentsAndChildrenIndicator = false;
     //UI
-    @FXML private Spinner<Integer> parallelTaskAmountSpinner;
-    @FXML private ToggleGroup performTaskToggle;
-    @FXML private RadioButton fromScratchRadio;
-    @FXML private RadioButton incrementalRadio;
     @FXML private ComboBox<String> taskTypeCombo;
-    @FXML private GridPane gridPaneMainActivateTaskRight;
     @FXML private GridPane taskSettingsGridPane;
     @FXML private GridPane targetListGridPane;
     @FXML private CheckBox withParentsCheckBox;
     @FXML private CheckBox withChildrenCheckBox;
     @FXML private Button deselectAllTargetsButton; //new
     @FXML private Button selectAllTargetsButton; //new
+    @FXML private Button uploadTaskButton;
+    @FXML private TextField taskNameTextField;
     private TableView<TargetsTableViewRow> table;
     //Properties
     private SimpleBooleanProperty isWithChildrenSelected;
@@ -94,14 +93,10 @@ public class MainActivateTaskController implements Controller {
     }
 
     public void initializeMainActivateTask(){
-        int parallelTaskAmount = mainAppController.getMaxParallelTaskAmount();
         isCompilationSelected.set(false);
-        SpinnerValueFactory factory = new SpinnerValueFactory.IntegerSpinnerValueFactory(1,parallelTaskAmount,1);
-        this.parallelTaskAmountSpinner.setValueFactory(factory);
         this.processLogController.initializeProcessLog();
         this.compilationTaskController.initializeCompilationTask();
-        this.processLogController.bindTargetsToButton();
-        //this.taskTypeCombo.getItems().clear();
+        bindTargetsToButton();
         if (this.taskTypeCombo.getItems().size() == 0) {
             List<String> TasksNames = this.mainAppController.getTasksNames();
             this.taskTypeCombo.getItems().addAll(TasksNames);
@@ -136,8 +131,6 @@ public class MainActivateTaskController implements Controller {
                     });};
             }
         });
-
-        this.parallelTaskAmountSpinner.disableProperty().bind(this.processLogController.getEnableThreadsChangeProperty().not());
         updateTargetTable();
         doWhenWhatIfsAreSelected();
     }
@@ -199,8 +192,19 @@ public class MainActivateTaskController implements Controller {
         table.setEditable(true);
 
         targetListGridPane.add(table,0,1);
-        gridPaneMainActivateTaskRight.getChildren().clear();
-        gridPaneMainActivateTaskRight.getChildren().add(this.processLogController.getNodeController());
+    }
+
+    private void bindTargetsToButton(){
+        ObservableList<CheckBox> checkBoxes = getCheckBoxes();
+        SimpleBooleanProperty isCompilation = getIsCompilationSelectedProperty();
+        SimpleBooleanProperty isSourceSelected = getIsSourceSelectedProperty();
+        SimpleBooleanProperty isDestinationSelected = getIsDestinationSelectedProperty();
+        this.uploadTaskButton.disableProperty().bind(
+                Bindings.createBooleanBinding(
+                        ()->!checkBoxes.stream().anyMatch(CheckBox::isSelected),
+                        checkBoxes.stream().map(x->x.selectedProperty()).toArray(Observable[]::new)
+                ).or(this.taskNameTextField.textProperty().isEmpty()).or(isCompilation.and(isSourceSelected.not().or(isDestinationSelected.not())))
+        );
     }
 
     private ActivateTaskController genericControllersInit(String str) throws IOException {
@@ -248,9 +252,6 @@ public class MainActivateTaskController implements Controller {
     }
 
     public void activateTask(Consumer<File> consumeWhenFinished) {
-        String temp = ((RadioButton)this.performTaskToggle.getSelectedToggle()).getText().toUpperCase();
-        int tasksNumber = this.parallelTaskAmountSpinner.getValue();
-        AbstractTask.WAYS_TO_START_SIM_TASK way = AbstractTask.WAYS_TO_START_SIM_TASK.valueOf(temp.replace(" ","_"));
         List<String> selectedTargets = new LinkedList<>();
         for (TargetsTableViewRow row : table.getItems()) {
             if (row.getCheckBox().isSelected())
@@ -262,36 +263,14 @@ public class MainActivateTaskController implements Controller {
             SimulationTask.TIME_OPTION time_option = SimulationTask.TIME_OPTION.valueOf(simulationTaskController.getTimeOption().toUpperCase());
             Double successRates = this.simulationTaskController.getSuccessRates();
             Double warningRates = this.simulationTaskController.getWarningRates();
-            this.mainAppController.activateSimTask(selectedTargets, time,time_option,successRates,warningRates,way, tasksNumber, consumeWhenFinished);
+            this.mainAppController.activateSimTask(selectedTargets, time,time_option,successRates,warningRates, AbstractTask.WAYS_TO_START_SIM_TASK.FROM_SCRATCH, consumeWhenFinished);
         }
         else{
             String source = this.compilationTaskController.getSourceFolder();
             String destination = this.compilationTaskController.getDestinationFolder();
-            this.mainAppController.activateCompTask(selectedTargets, source, destination, way , tasksNumber,consumeWhenFinished);
+            this.mainAppController.activateCompTask(selectedTargets, source, destination, AbstractTask.WAYS_TO_START_SIM_TASK.FROM_SCRATCH ,consumeWhenFinished);
 
         }
-    }
-
-    @FXML
-    void incrementalRadioAction(ActionEvent event) {
-        ObservableList<CheckBox> checkBoxes = this.mainAppController.getCheckBoxesFromMainAppController();
-        List<TargetDTO> targetsThatWereActivated = this.mainAppController.getAllTargetsThatWereActivated();
-        List<String> targetsThatWereActivatedByName = new LinkedList<>();
-        targetsThatWereActivated.forEach(targetDTO -> targetsThatWereActivatedByName.add(targetDTO.getTargetName()));
-
-        checkBoxes.forEach(checkBox -> {
-            checkBox.setDisable(true);
-            if (targetsThatWereActivatedByName.contains(checkBox.getAccessibleText()))
-                checkBox.setSelected(true);
-            else
-                checkBox.setSelected(false);
-        });
-    }
-
-    @FXML
-    void fromScratchRadioAction(ActionEvent event) {
-        ObservableList<CheckBox> checkBoxes = this.mainAppController.getCheckBoxesFromMainAppController();
-        checkBoxes.forEach(checkBox -> checkBox.setDisable(false));
     }
 
     public void updateProcessLog(List<TargetDTO> newTargetStatus) {
@@ -342,9 +321,4 @@ public class MainActivateTaskController implements Controller {
         return this.mainAppController.getPrimaryStage();
     }
 
-    @FXML
-    void parallelTaskAmountOnMouseClicked(MouseEvent event) {
-        if(this.processLogController.isPause())
-            this.mainAppController.setNewThreadAmount(this.parallelTaskAmountSpinner.getValue());
-    }
 }

@@ -2,16 +2,16 @@ package components.graphMainComponent;
 
 
 import components.basicInformation.BasicInformationController;
+import components.basicInformation.TargetsTableViewRow;
 import components.cycle.CycleController;
 import components.findPath.FindPathController;
 import components.mainApp.Controller;
 import components.mainApp.MainAppController;
 import components.whatIf.WhatIfController;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 
 public class GraphMainComponentController implements Controller {
@@ -66,7 +66,6 @@ public class GraphMainComponentController implements Controller {
             this.checkForCycleComponentController.initializeCycle();
             this.findPathComponentController.initializeFindPath();
             this.whatIfComponentController.initializeWhatIfController();
-
         }
         catch (Exception e){ //todo delete when done
             System.out.println(e);
@@ -78,4 +77,11 @@ public class GraphMainComponentController implements Controller {
         return "TESSSSSSSSSSSSSSSSYYYYYTTTTTTTTTTTTTTTt";
     } //todo delete when done
 
+    public TableView<TargetsTableViewRow> getTargetTable() {
+        return this.showGraphInformationComponentController.getTargetTable();
+    }
+
+    public ObservableList<CheckBox> getCheckBoxes() {
+        return this.showGraphInformationComponentController.getCheckBoxes();
+    }
 }

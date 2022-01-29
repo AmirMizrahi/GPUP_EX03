@@ -4,6 +4,7 @@ import DTO.GraphDTO;
 import components.mainApp.Controller;
 import components.mainApp.MainAppController;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -74,7 +75,7 @@ public class DashboardController implements Controller {
 
     private void startDashboardRefresher(){
         userRefresher = new UserListRefresher(this::updateUsersList);
-        graphRefresher = new GraphListRefresher(this::updateGraphList);
+        graphRefresher = new GraphListRefresher(this.mainAppController.getServerOnProperty(),this::updateGraphList);
 
         userTimer.schedule(userRefresher, DASHBOARD_REFRESH_RATE, DASHBOARD_REFRESH_RATE);
         graphTimer.schedule(graphRefresher, DASHBOARD_REFRESH_RATE, DASHBOARD_REFRESH_RATE);
@@ -116,8 +117,10 @@ public class DashboardController implements Controller {
 
     @FXML
     void graphsTableViewOnClicked(MouseEvent event) {
-        //Get the pressed target name from the tables
+        //Get the pressed graph name from the tables
         String temp = event.getPickResult().toString();
+        if(!temp.contains("TableColumn"))
+            return;
         int start = temp.indexOf("'");
         int last = temp.lastIndexOf("'");
         if(start == -1){
@@ -148,8 +151,6 @@ public class DashboardController implements Controller {
         this.graphsListView.getItems().add("Total Leaf Targets Amount: " + graphToShow.getLeafAmount());
         this.graphsListView.getItems().add("Total Middle Targets Amount: " + graphToShow.getMiddleAmount());
         this.graphsListView.getItems().add("Total Independent Targets Amount: " + graphToShow.getIndependentAmount());
-
-
     }
 
     @FXML
@@ -157,7 +158,7 @@ public class DashboardController implements Controller {
 
     }
 
-    public void initializeDashboardController(SimpleStringProperty userNameProperty, SimpleStringProperty selectedGraph) {
+    public void initializeDashboardController(SimpleStringProperty userNameProperty, SimpleStringProperty selectedGraph, BooleanProperty isServerOn) {
         loggedInLabel.textProperty().bind(userNameProperty);
         this.selectedGraph = selectedGraph;
     }

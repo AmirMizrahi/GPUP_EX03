@@ -403,18 +403,7 @@ public class ProcessLogController implements ActivateTaskController {
             this.targetInfoListView.getItems().add("Target status after task: " + targetDTO.getTargetStatusAfterTask());
     }
 
-    public void bindTargetsToButton(){
-        ObservableList<CheckBox> checkBoxes = this.mainActivateTaskController.getCheckBoxes();
-        SimpleBooleanProperty isCompilation = this.mainActivateTaskController.getIsCompilationSelectedProperty();
-        SimpleBooleanProperty isSourceSelected = this.mainActivateTaskController.getIsSourceSelectedProperty();
-        SimpleBooleanProperty isDestinationSelected = this.mainActivateTaskController.getIsDestinationSelectedProperty();
-        this.startButton.disableProperty().bind(
-                Bindings.createBooleanBinding(
-                        ()->!checkBoxes.stream().anyMatch(CheckBox::isSelected),
-                        checkBoxes.stream().map(x->x.selectedProperty()).toArray(Observable[]::new)
-                ).or(this.taskInAction).or(isCompilation.and(isSourceSelected.not().or(isDestinationSelected.not())))
-        );
-    }
+
 
     public void initializeProcessLog() {
         Platform.runLater(()->{

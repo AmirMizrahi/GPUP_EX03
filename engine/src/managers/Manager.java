@@ -19,6 +19,7 @@ import java.util.function.Predicate;
 
 public class Manager implements Serializable {
     private GraphManager graphManager;
+    private TaskManager taskManager;
     private Graph tempGraph;
     private final static String JAXB_XML_GAME_PACKAGE_NAME = "resources.jaxb.schema.generated";
     private String mainSimulationTaskFolderPath; //
@@ -220,8 +221,8 @@ public class Manager implements Serializable {
         }
     }
 
-    public void activateSimulationTask(List<String> selectedTargets , Integer taskTime, SimulationTask.TIME_OPTION op, Double ChanceToSucceed, Double SucceedWithWarning,
-                                   AbstractTask.WAYS_TO_START_SIM_TASK way, List<Consumer<String>> consumerList,Consumer<File> consumeWhenFinished, int threadsNumber, String graphName) throws TargetNotFoundException, XMLException, IOException, InterruptedException {
+    public void activateSimulationTask(List<String> selectedTargets, Integer taskTime, SimulationTask.TIME_OPTION op, Double ChanceToSucceed, Double SucceedWithWarning,
+                                       AbstractTask.WAYS_TO_START_SIM_TASK way, List<Consumer<String>> consumerList, Consumer<File> consumeWhenFinished, String graphName) throws TargetNotFoundException, XMLException, IOException, InterruptedException {
         if(way == AbstractTask.WAYS_TO_START_SIM_TASK.FROM_SCRATCH);
             //createGraphByUserSelection(selectedTargets); //todo
 
@@ -229,28 +230,28 @@ public class Manager implements Serializable {
         Task simulationTask = new SimulationTask(taskTime,op,ChanceToSucceed, SucceedWithWarning, way, targetList,
                 this.mainSimulationTaskFolderPath, checkIfTaskIsActivatedInFirstTime());
 
-        activateTaskMG(simulationTask, consumerList,consumeWhenFinished, threadsNumber, graphName);
+        activateTaskMG(simulationTask, consumerList,consumeWhenFinished, graphName);
     }
 
     public void activateCompilationTask(List<String> selectedTargets, String source, String destination, AbstractTask.WAYS_TO_START_SIM_TASK way, List<Consumer<String>> consumerList,
-                                        Consumer<File> consumeWhenFinished,int threadsNumber, String graphName) throws TargetNotFoundException, XMLException, IOException, InterruptedException {
+                                        Consumer<File> consumeWhenFinished, String graphName) throws TargetNotFoundException, XMLException, IOException, InterruptedException {
         if(way == AbstractTask.WAYS_TO_START_SIM_TASK.FROM_SCRATCH);
             //createGraphByUserSelection(selectedTargets); //todo
 
         List<Target> targetList = runTaskInFirstTime(way);
         Task compilationTask = new CompilationTask(way, targetList, this.mainSimulationTaskFolderPath, source, destination, checkIfTaskIsActivatedInFirstTime());
 
-        activateTaskMG(compilationTask, consumerList,consumeWhenFinished, threadsNumber, graphName);
+        activateTaskMG(compilationTask, consumerList,consumeWhenFinished,graphName);
     }
     //activateComp =>Task comp = new comp
 
-    private void activateTaskMG(Task task, List<Consumer<String>> consumerList,Consumer<File> consumeWhenFinished, int threadsNumber, String graphName) throws XMLException, IOException, InterruptedException, IllegalArgumentException, TargetNotFoundException {
+    private void activateTaskMG(Task task, List<Consumer<String>> consumerList,Consumer<File> consumeWhenFinished, String graphName) throws XMLException, IOException, InterruptedException, IllegalArgumentException, TargetNotFoundException {
         if (!this.fileLoaded)
             throw new XMLException("XML not loaded");
 
         Runnable r = () -> {
             Map<String,List<SerialSet>> dummy = new HashMap<>();
-            executorManager = new ExecutorManager(task,this.tempGraph.getTargetsList(),consumerList,consumeWhenFinished,dummy,threadsNumber, maxParallelism,
+            executorManager = new ExecutorManager(task,this.tempGraph.getTargetsList(),consumerList,consumeWhenFinished,dummy,1 /*todo change this*/, maxParallelism,
                     isPaused, this.graphManager.getGraphs().get(graphName));
             try {
                 executorManager.execute();

@@ -1,5 +1,5 @@
 package components.mainApp;
-
+//In order to change "Actions On Graph" info per graph, please press the wanted graph from the dashboard list
 import DTO.GraphDTO;
 import DTO.TargetDTO;
 
@@ -64,11 +64,7 @@ public class MainAppController implements Closeable {
     @FXML private Button dashboardButton;
     @FXML private Button loadXMLButton;
     @FXML private Button actionsOnGraphButton;
-    @FXML private Button showGraphInformationButton;
-    @FXML private Button findPathBetweenTwoTargetsButton;
-    @FXML private Button checkIfTargetInCycleButton;
     @FXML private Button activateTaskButton;
-    @FXML private Button whatIfButton;
     @FXML private Button animationButton;
     @FXML private Button graphvizButton;
     @FXML private ComboBox<String> changeSkinComboBox;
@@ -77,22 +73,16 @@ public class MainAppController implements Closeable {
     private SimpleBooleanProperty isFileSelected;
     private BooleanProperty isLoggedIn; //changed from SimpleBooleanProperty - does it matter?
     private SimpleStringProperty selectedGraph;
+    private static BooleanProperty isServerOn;
     // Controllers
     @FXML private LoginController loginController;
     @FXML private GraphMainComponentController graphMainComponentController;
     @FXML private welcomeToGPUPController welcomeToGpupController;
     @FXML private welcomeAnimationController welcomeAnimationController;
-    //@FXML private BasicInformationController basicInformationController;
-    @FXML private FindPathController findPathController;
-    @FXML private CycleController cycleController;
-    @FXML private WhatIfController whatIfController;
     @FXML private MainActivateTaskController mainActivateTaskController;
     @FXML private gifAnimationController gifAnimationController;
     @FXML private GraphvizController graphvizController;
     @FXML private DashboardController dashboardController;
-    //
-    //Consts
-
     //
 
     public MainAppController(){
@@ -104,34 +94,27 @@ public class MainAppController implements Closeable {
 
     @FXML
     private void initialize() throws IOException {
+        isServerOn = new SimpleBooleanProperty(false);
         this.dashboardButton.disableProperty().bind(isLoggedIn.not());
         this.loadXMLButton.disableProperty().bind(isLoggedIn.not());
-        this.actionsOnGraphButton.disableProperty().bind(isFileSelected.not());
-        this.showGraphInformationButton.disableProperty().bind(isFileSelected.not());
-        this.findPathBetweenTwoTargetsButton.disableProperty().bind(isFileSelected.not());
-        this.checkIfTargetInCycleButton.disableProperty().bind(isFileSelected.not());
-        this.activateTaskButton.disableProperty().bind(isFileSelected.not());
-        this.whatIfButton.disableProperty().bind(isFileSelected.not());
-        this.animationButton.disableProperty().bind(isFileSelected.not());
-        this.graphvizButton.disableProperty().bind(isFileSelected.not());
+        this.actionsOnGraphButton.disableProperty().bind(selectedGraph.isEmpty());
+        this.activateTaskButton.disableProperty().bind(selectedGraph.isEmpty());
+        this.animationButton.disableProperty().bind(selectedGraph.isEmpty());
+        this.graphvizButton.disableProperty().bind(selectedGraph.isEmpty());
         this.serverStatusLabel.textProperty().bind(Bindings.createStringBinding(() -> {
             String str;
-            if (isLoggedIn.get()) //todo need to change for whenever the server is connected!
+            if (isServerOn.get()) //todo need to change for whenever the server is connected!
                 str = "Server is ON";
             else
                 str = "Server is OFF";
             return str;
-        }, this.isLoggedIn));
+        }, isServerOn));
 
         graphMainComponentController = (GraphMainComponentController) genericControllersInit("/components/graphMainComponent/graphMainComponent.fxml");
         graphMainComponentController.initializeGraphMainComponent(); //todo change this? this is setting mainapp controller to all SUB COMPONENTS
         loginController = (LoginController) genericControllersInit("/components/login/login.fxml");
         welcomeToGpupController = (welcomeToGPUPController) genericControllersInit("/components/welcomeToGPUP/welcomeToGPUP.fxml");
         welcomeAnimationController = (welcomeAnimationController) genericControllersInit("/components/welcomeAnimation/welcomeAnimation.fxml");
-        //basicInformationController = (BasicInformationController) genericControllersInit("/components/basicInformation/basicInformation.fxml");
-        findPathController = (FindPathController) genericControllersInit("/components/findPath/findPath.fxml");
-        cycleController = (CycleController) genericControllersInit("/components/cycle/cycle.fxml");
-        whatIfController = (WhatIfController) genericControllersInit("/components/whatIf/whatIf.fxml");
         mainActivateTaskController = (MainActivateTaskController) genericControllersInit("/components/activateTask/mainActivateTask/mainActivateTask.fxml");
         gifAnimationController = (gifAnimationController) genericControllersInit("/components/gifAnimation/gifAnimation.fxml");
         graphvizController = (GraphvizController) genericControllersInit("/components/graphviz/graphviz.fxml");
@@ -209,41 +192,8 @@ public class MainAppController implements Closeable {
     }
 
     public void loadAllDetailsToSubComponents() {
-        //this.gridPaneMainAppRight.getChildren().remove(0);
-        //gridPaneMainAppRight.getChildren().add(this.welcomeToGpupController.getNodeController());
-        //gridPaneMainAppRight.getChildren().add(this.welcomeAnimationController.getNodeController());
-        //this.welcomeAnimationController.initialize(null,null);
-
-        //this.basicInformationController.initializeBasicInformationController();
         this.graphMainComponentController.initializeGraphMainSubComponent(); //todo change this? --> this is calling the init of basicInfoGraph ( the sub-component that inside the main one)
-        this.findPathController.initializeFindPath();
-        this.cycleController.initializeCycle();
-        this.whatIfController.initializeWhatIfController();
-     //   this.mainActivateTaskController.initializeMainActivateTask();
-    }
-
-    @FXML
-    private void showGraphInformationAction(ActionEvent event) {
-        gridPaneMainAppRight.getChildren().remove(0);
-       // gridPaneMainAppRight.getChildren().add(this.basicInformationController.getNodeController());
-    }
-
-    @FXML
-    private void findPathBetweenTwoTargetsAction(ActionEvent event) {
-        gridPaneMainAppRight.getChildren().remove(0); //move to property
-        gridPaneMainAppRight.getChildren().add(this.findPathController.getNodeController());
-    }
-
-    @FXML
-    private void checkIfTargetInCycleAction(ActionEvent event) {
-        gridPaneMainAppRight.getChildren().remove(0); //move to property
-        gridPaneMainAppRight.getChildren().add(this.cycleController.getNodeController());
-    }
-
-    @FXML
-    private void whatIfAction(ActionEvent event) {
-        gridPaneMainAppRight.getChildren().remove(0); //move to property
-        gridPaneMainAppRight.getChildren().add(this.whatIfController.getNodeController());
+        this.mainActivateTaskController.initializeMainActivateTask();
     }
 
     @FXML
@@ -303,18 +253,9 @@ public class MainAppController implements Closeable {
 
     //Used by What-if
     public List<String> getAllEffectedTargets(String targetName, String selectedRadioButton) {
-       // Manager.DependencyRelation relation;
         List<String> returnedList =  new LinkedList<>();
 
-        //if (selectedRadioButton.contains("Depends On"))
-        //    relation = Manager.DependencyRelation.DEPENDS_ON;
-        //else
-        //    relation = Manager.DependencyRelation.REQUIRED_FOR;
-
-        GraphDTO currentGraph = getGraphDTOFromDashboard();
-        //currentGraph.getAllTargets()
-
-        List<TargetDTO> dtos = getGraphDTOFromDashboard().getAllEffected(targetName,selectedRadioButton);//todo
+        List<TargetDTO> dtos = getGraphDTOFromDashboard().getAllEffected(targetName,selectedRadioButton);
         dtos.forEach(targetDTO ->returnedList.add(targetDTO.getTargetName()));
         return returnedList;
     }
@@ -332,31 +273,30 @@ public class MainAppController implements Closeable {
     }
 
     public TableView<TargetsTableViewRow> getTargetsTableView(){
-        //return this.basicInformationController.getTargetTable();
-        return null; //todo
+        return this.graphMainComponentController.getTargetTable();
     }
 
     public void activateSimTask(List<String> selectedTargets, Integer time, SimulationTask.TIME_OPTION time_option, Double successRates,
-                                Double warningRates, AbstractTask.WAYS_TO_START_SIM_TASK way, int tasksNumber, Consumer<File> consumeWhenFinished) {
+                                Double warningRates, AbstractTask.WAYS_TO_START_SIM_TASK way, Consumer<File> consumeWhenFinished) {
         List<Consumer<String>> consumerList = new LinkedList<>();
         Consumer<String> consumer1 = System.out::println;
         consumerList.add(consumer1);
         try {
             this.startTargetRefresher();
-            this.manager.activateSimulationTask(selectedTargets, time,time_option, successRates,warningRates, way,consumerList, consumeWhenFinished, tasksNumber, "emptyString"); //todo enter current selected graph name
+            this.manager.activateSimulationTask(selectedTargets, time,time_option, successRates,warningRates, way,consumerList, consumeWhenFinished, "emptyString"); //todo enter current selected graph name
         } catch (XMLException | IOException | InterruptedException | TargetNotFoundException e) {
             e.printStackTrace();
         }
     }
 
     public void activateCompTask(List<String> selectedTargets, String source, String destination, AbstractTask.WAYS_TO_START_SIM_TASK way,
-                                 int tasksNumber, Consumer<File> consumeWhenFinished) {
+                                 Consumer<File> consumeWhenFinished) {
         List<Consumer<String>> consumerList = new LinkedList<>();
         Consumer<String> consumer1 = System.out::println;
         consumerList.add(consumer1);
         try {
             this.startTargetRefresher();
-            this.manager.activateCompilationTask(selectedTargets, source, destination, way,consumerList,consumeWhenFinished, tasksNumber, "emptyString");//todo enter current selected graph name
+            this.manager.activateCompilationTask(selectedTargets, source, destination, way,consumerList,consumeWhenFinished, "emptyString");//todo enter current selected graph name
         } catch (XMLException | IOException | InterruptedException | TargetNotFoundException e) {
             e.printStackTrace();
         }
@@ -392,8 +332,7 @@ public class MainAppController implements Closeable {
     }
 
     public ObservableList<CheckBox> getCheckBoxesFromMainAppController() {
-        //return this.basicInformationController.getCheckBoxes();
-        return null; //todo
+        return this.graphMainComponentController.getCheckBoxes();
     }
 
     public List<TargetDTO> getAllTargetsThatWereActivated() {
@@ -434,9 +373,8 @@ public class MainAppController implements Closeable {
         this.isLoggedIn.set(true);
         gridPaneMainAppRight.getChildren().remove(0); //move to property
         gridPaneMainAppRight.getChildren().add(this.dashboardController.getNodeController());
-        this.dashboardController.initializeDashboardController(this.loginController.userNamePropertyProperty(), this.selectedGraph);
+        this.dashboardController.initializeDashboardController(this.loginController.userNamePropertyProperty(), this.selectedGraph, isServerOn);
     }
-
 
     @FXML
     void dashboardButtonAction(ActionEvent event) {
@@ -448,5 +386,9 @@ public class MainAppController implements Closeable {
     void ActionsOnGraphAction(ActionEvent event) {
         gridPaneMainAppRight.getChildren().remove(0);
         gridPaneMainAppRight.getChildren().add(this.graphMainComponentController.getNodeController());
+    }
+
+    public static BooleanProperty getServerOnProperty() {
+        return isServerOn;
     }
 }

@@ -41,7 +41,7 @@ public class HttpClientUtil {
                         .build();
 
         Request request = new Request.Builder()
-                .url(LOAD_XML+"?userName="+userName)
+                .url(LOAD_XML + userName)
                 .post(body)
                 .build();
 

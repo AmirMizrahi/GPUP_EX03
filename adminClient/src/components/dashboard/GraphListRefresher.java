@@ -4,6 +4,8 @@ import DTO.GraphDTO;
 import Utils.Constants;
 import Utils.HttpClientUtil;
 import com.google.gson.reflect.TypeToken;
+import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
@@ -19,9 +21,11 @@ import static Utils.Constants.GSON_INSTANCE;
 public class GraphListRefresher extends TimerTask {
 
     private final Consumer<List<GraphDTO>> graphsListConsumer;
+    private final BooleanProperty isServerOn;
 
-    public GraphListRefresher(Consumer<List<GraphDTO>> graphsListConsumer) {
+    public GraphListRefresher(BooleanProperty isServerOn, Consumer<List<GraphDTO>> graphsListConsumer) {
         this.graphsListConsumer = graphsListConsumer;
+        this.isServerOn = isServerOn;
     }
 
     @Override
@@ -31,12 +35,12 @@ public class GraphListRefresher extends TimerTask {
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
                 List<GraphDTO> failed = new LinkedList<>();
                 graphsListConsumer.accept(failed);
-                System.out.println("ERROR");
+                Platform.runLater(()->isServerOn.set(false));
             }
 
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                System.out.println("GOOD2");
+                Platform.runLater(()->isServerOn.set(true));
                 String jsonArrayOfUsersNames = response.body().string();
                 System.out.println("222" +jsonArrayOfUsersNames);
                 //httpRequestLoggerConsumer.accept("Users Request # " + finalRequestNumber + " | Response: " + jsonArrayOfUsersNames);

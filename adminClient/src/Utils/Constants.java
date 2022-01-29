@@ -12,7 +12,7 @@ public class Constants {
     public final static String LOGIN_ADDRESS = SERVER_ADDRESS + "/loginShortResponse";
     public final static String USERS_LIST = SERVER_ADDRESS + "/userslist";
     public final static String GRAPHS_LIST = SERVER_ADDRESS + "/graphslist";
-    public final static String LOAD_XML = SERVER_ADDRESS + ENGINE_ADDRESS + "/loadxml";
+    public final static String LOAD_XML = SERVER_ADDRESS + ENGINE_ADDRESS + "/loadxml?userName=";
     // GSON instance
     public final static Gson GSON_INSTANCE = new Gson();
 

@@ -33,21 +33,6 @@
                         <TableColumn fx:id="targetsDirectReqCol" minWidth="30.0" text="Direct Required" />
                         <TableColumn fx:id="targetsTotalReqCol" minWidth="30.0" text="Total Required" />
                         <TableColumn fx:id="targetsDataCol" minWidth="30.0" text="Data" />
-                        <TableColumn fx:id="targetsSSAmountCol" minWidth="30.0" text="Serial Set Amount" />
-                    </columns>
-                     <columnResizePolicy>
-                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-                     </columnResizePolicy>
-                  </TableView>
-               </content>
-            </ScrollPane>
-            <ScrollPane fitToHeight="true" fitToWidth="true" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
-               <content>
-                  <TableView fx:id="serialSetTableView" minHeight="300.0" minWidth="600.0">
-                    <columns>
-                      <TableColumn fx:id="serialSetHashCol" text="#" />
-                      <TableColumn fx:id="serialSetNameCol" prefWidth="129.0" text="Serial Set Name" />
-                        <TableColumn fx:id="serialSetTargetListCol" minWidth="0.0" prefWidth="147.0" text="Target Included" />
                     </columns>
                      <columnResizePolicy>
                         <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />

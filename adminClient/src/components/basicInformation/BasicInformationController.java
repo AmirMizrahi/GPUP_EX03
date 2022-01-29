@@ -35,12 +35,6 @@ public class BasicInformationController implements Controller {
     @FXML private TableColumn<TargetsTableViewRow, String> targetsDirectReqCol;
     @FXML private TableColumn<TargetsTableViewRow, String> targetsTotalReqCol;
     @FXML private TableColumn<TargetsTableViewRow, String> targetsDataCol;
-    @FXML private TableColumn<TargetsTableViewRow, String> targetsSSAmountCol; //todo
-    //serialSetTableView
-    @FXML private TableView<SerialSetTableViewRow> serialSetTableView;
-    @FXML private TableColumn<SerialSetTableViewRow, String> serialSetHashCol;
-    @FXML private TableColumn<SerialSetTableViewRow, String> serialSetNameCol;
-    @FXML private TableColumn<SerialSetTableViewRow, String> serialSetTargetListCol;
     //summary
     @FXML private Label summaryTargetsAmountLabel;
     @FXML private Label summaryIndependentsLabel;
@@ -78,7 +72,6 @@ public class BasicInformationController implements Controller {
         List<TargetDTO> allTargets = graphDTO.getAllTargets();
 
         updateTargetsTableView(allTargets, graphDTO);
-        //updateSerialSetTableView(serialSetsDTO);
         updateSummary(graphDTO);
     }
 
@@ -107,26 +100,6 @@ public class BasicInformationController implements Controller {
 
         targetsTableView.getColumns().addAll(targetsNumberCol,targetsNameCol,targetsTypeCol, targetsDirectDepCol, targetsTotalDepCol,targetsDirectReqCol,targetsTotalReqCol ,targetsDataCol);
         Platform.runLater(() -> targetsTableView.refresh());
-    }
-
-
-    private void updateSerialSetTableView(SerialSetsDTO dto){
-        List<SerialSetTableViewRow> rows = new LinkedList<>();
-        final int[] counter = {0};
-        dto.getSetList().forEach(row->rows.add(new SerialSetTableViewRow(row,++counter[0])));
-
-        //final ObservableList<TargetDTO> data = FXCollections.observableArrayList(allTargets);
-        final ObservableList<SerialSetTableViewRow> data = FXCollections.observableArrayList(rows);
-        // final ObservableList<TableColumn<TargetsTableViewRow,?>> datass = FXCollections.observableArrayList(targetsTableView.getColumns());
-
-        wireColumn(serialSetHashCol, "serialSetHash" );
-        wireColumn(serialSetNameCol, "serialSetName" );
-        wireColumn(serialSetTargetListCol, "serialSetTargetList" );
-
-        serialSetTableView.setItems(data);
-        serialSetTableView.getColumns().clear();
-        serialSetTableView.getColumns().addAll(serialSetHashCol,serialSetNameCol,serialSetTargetListCol);
-
     }
 
     private void wireColumn(TableColumn column, String property){
