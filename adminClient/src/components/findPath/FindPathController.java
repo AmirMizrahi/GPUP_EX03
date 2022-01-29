@@ -1,5 +1,6 @@
 package components.findPath;
 
+import components.graphMainComponent.GraphMainComponentController;
 import components.mainApp.Controller;
 import components.mainApp.MainAppController;
 import exceptions.TargetNotFoundException;
@@ -18,6 +19,7 @@ public class FindPathController implements Controller {
 
     //Controllers
     private MainAppController mainAppController;
+    private GraphMainComponentController mainAppControllerTest;
     private Node nodeController;
     //
     //UI
@@ -49,6 +51,10 @@ public class FindPathController implements Controller {
     @Override
     public void setNodeController(Node node){
         this.nodeController = node;
+    }
+
+    public void setMainAppControllerTest(GraphMainComponentController newMainAppController) {
+        this.mainAppControllerTest = newMainAppController;
     }
 
     @FXML

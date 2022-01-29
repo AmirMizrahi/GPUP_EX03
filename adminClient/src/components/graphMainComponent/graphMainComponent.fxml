@@ -37,7 +37,7 @@
                     </rowConstraints>
                      <children>
                         <ScrollPane prefHeight="200.0" prefWidth="200.0" />
-                        <fx:include source="../cycle/cycle.fxml" />
+                        <fx:include fx:id="checkForCycleComponent" source="../cycle/cycle.fxml" />
                      </children>
                   </GridPane>
                </content>
@@ -53,7 +53,7 @@
                      </rowConstraints>
                      <children>
                         <ScrollPane prefHeight="200.0" prefWidth="200.0" />
-                        <fx:include source="../findPath/findPath.fxml" />
+                        <fx:include fx:id="findPathComponent" source="../findPath/findPath.fxml" />
                      </children>
                   </GridPane>
                </content>
@@ -69,7 +69,7 @@
                      </rowConstraints>
                      <children>
                         <ScrollPane prefHeight="200.0" prefWidth="200.0" />
-                        <fx:include source="../whatIf/whatIf.fxml" />
+                        <fx:include fx:id="whatIfComponent" source="../whatIf/whatIf.fxml" />
                      </children>
                   </GridPane>
                </content>

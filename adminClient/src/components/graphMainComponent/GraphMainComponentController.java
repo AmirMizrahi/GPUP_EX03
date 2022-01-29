@@ -2,8 +2,11 @@ package components.graphMainComponent;
 
 
 import components.basicInformation.BasicInformationController;
+import components.cycle.CycleController;
+import components.findPath.FindPathController;
 import components.mainApp.Controller;
 import components.mainApp.MainAppController;
+import components.whatIf.WhatIfController;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
@@ -16,19 +19,24 @@ public class GraphMainComponentController implements Controller {
     private MainAppController mainAppController;
     private Node nodeController;
 
-//    @FXML private TabPane test;
-//    @FXML private Tab test2;
-//    @FXML private GridPane test3;
     @FXML private ScrollPane showGraphInformationComponent;
     @FXML private BasicInformationController showGraphInformationComponentController;
+
+    @FXML private ScrollPane checkForCycleComponent;
+    @FXML private CycleController checkForCycleComponentController;
+
+    @FXML private ScrollPane findPathComponent;
+    @FXML private FindPathController findPathComponentController;
+
+    @FXML private ScrollPane whatIfComponent;
+    @FXML private WhatIfController whatIfComponentController;
 
     @FXML
     private void initialize(){
         showGraphInformationComponentController.setMainAppControllerTest(this);
-    }
-
-    public void anotherTest(){
-        showGraphInformationComponentController.setMainAppController(this.mainAppController);
+        checkForCycleComponentController.setMainAppControllerTest(this);
+        findPathComponentController.setMainAppControllerTest(this);
+        whatIfComponentController.setMainAppControllerTest(this);
     }
 
     @Override
@@ -44,12 +52,23 @@ public class GraphMainComponentController implements Controller {
         this.nodeController = node;
     }
 
-    public void initTest() {
+    public void initializeGraphMainComponent(){
+        showGraphInformationComponentController.setMainAppController(this.mainAppController);
+        checkForCycleComponentController.setMainAppController(this.mainAppController);
+        findPathComponentController.setMainAppController(this.mainAppController);
+        whatIfComponentController.setMainAppController(this.mainAppController);
+    }
+
+    public void initializeGraphMainSubComponent() {
         //this.showGraphInformationComponentController = basicInformationController;
         try {
             this.showGraphInformationComponentController.initializeBasicInformationController();
+            this.checkForCycleComponentController.initializeCycle();
+            this.findPathComponentController.initializeFindPath();
+            this.whatIfComponentController.initializeWhatIfController();
+
         }
-        catch (Exception e){
+        catch (Exception e){ //todo delete when done
             System.out.println(e);
         }
     }
@@ -57,6 +76,6 @@ public class GraphMainComponentController implements Controller {
     public String test()
     {
         return "TESSSSSSSSSSSSSSSSYYYYYTTTTTTTTTTTTTTTt";
-    }
+    } //todo delete when done
 
 }

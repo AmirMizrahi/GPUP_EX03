@@ -36,7 +36,7 @@ public class DashboardController implements Controller {
     @FXML private TableView<?> tasksTableView;
     @FXML private ListView<?> tasksListView;
     @FXML private TableView<String> graphsTableView;
-    @FXML private ListView<?> graphsListView;
+    @FXML private ListView<String> graphsListView;
     @FXML private TableColumn<String, String> graphTableColumn;
     @FXML private TableView<UserTableViewRow> usersTableView;
     @FXML private TableColumn<UserTableViewRow, String> userTableColumn;
@@ -128,6 +128,7 @@ public class DashboardController implements Controller {
             String name = temp.substring(++start, last);
             if(name.compareTo("null") != 0) {
                 this.selectedGraph.set(name);
+                loadGraphInfoToListView();
                 this.mainAppController.loadAllDetailsToSubComponents();
             }
         }
@@ -135,6 +136,20 @@ public class DashboardController implements Controller {
             System.out.println(e);
             System.out.println("eeeeror");
         };
+    }
+
+    private void loadGraphInfoToListView() {
+        GraphDTO graphToShow = getSelectedGraph();
+        this.graphsListView.getItems().clear();
+        this.graphsListView.getItems().add("Graph Name: " + graphToShow.getGraphName());
+        this.graphsListView.getItems().add("Graph Upload By: " + graphToShow.getUploaderName());
+        this.graphsListView.getItems().add("Total Targets Amount: " + graphToShow.getAllTargets().size());
+        this.graphsListView.getItems().add("Total Root Targets Amount: " + graphToShow.getRootAmount());
+        this.graphsListView.getItems().add("Total Leaf Targets Amount: " + graphToShow.getLeafAmount());
+        this.graphsListView.getItems().add("Total Middle Targets Amount: " + graphToShow.getMiddleAmount());
+        this.graphsListView.getItems().add("Total Independent Targets Amount: " + graphToShow.getIndependentAmount());
+
+
     }
 
     @FXML
@@ -145,6 +160,12 @@ public class DashboardController implements Controller {
     public void initializeDashboardController(SimpleStringProperty userNameProperty, SimpleStringProperty selectedGraph) {
         loggedInLabel.textProperty().bind(userNameProperty);
         this.selectedGraph = selectedGraph;
+    }
+
+    public String getLoggedInUserName(){
+        String str = loggedInLabel.getText();
+        String tmp = str.substring(str.indexOf("[") +1, str.indexOf("]"));
+        return tmp;
     }
 
     public GraphDTO getSelectedGraph(){

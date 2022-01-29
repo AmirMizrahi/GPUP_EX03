@@ -25,13 +25,13 @@ public class AdministratorClient extends Application {
 
 
         // set stage
-        primaryStage.setTitle("G.P.U.P");
+        primaryStage.setTitle("G.P.U.P - Admin Client");
         Scene scene = new Scene(rootContainer);
         //css
         //scene.getStylesheets().add(getClass().getResource("/cssSkins/OldSchoolTheme.css").toExternalForm());
         primaryStage.setMinHeight(400f);
         primaryStage.setMinWidth(600f);
-        primaryStage.setHeight(800f);
+        primaryStage.setHeight(950f);
         primaryStage.setWidth(1500f);
         primaryStage.setScene(scene);
         primaryStage.show();

@@ -1,5 +1,6 @@
 package components.whatIf;
 
+import components.graphMainComponent.GraphMainComponentController;
 import components.mainApp.Controller;
 import components.mainApp.MainAppController;
 import exceptions.TargetNotFoundException;
@@ -21,6 +22,7 @@ public class WhatIfController implements Controller {
 
     //Controllers
     private MainAppController mainAppController;
+    private GraphMainComponentController mainAppControllerTest;
     private Node nodeController;
     //
     //UI
@@ -46,6 +48,11 @@ public class WhatIfController implements Controller {
     public void setMainAppController(MainAppController newMainAppController) {
         this.mainAppController = newMainAppController;
     }
+
+    public void setMainAppControllerTest(GraphMainComponentController newMainAppController) {
+        this.mainAppControllerTest = newMainAppController;
+    }
+
     @Override
     public Node getNodeController(){
         return this.nodeController;

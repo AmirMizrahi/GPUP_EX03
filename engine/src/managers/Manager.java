@@ -34,7 +34,7 @@ public class Manager implements Serializable {
         this.taskNames.add("Simulation");
         this.taskNames.add("Compilation");
         this.graphManager = new GraphManager();
-        this.tempGraph = new Graph("aaa");//todo
+        this.tempGraph = new Graph("aaa", "aaa");//todo
         pauseOccurred = false;
         isPaused = new Object();
     }
@@ -95,14 +95,14 @@ public class Manager implements Serializable {
         return res;
     }
 
-    public void loadXMLFileMG(InputStream inputStream) throws TargetNotFoundException, JAXBException, FileNotFoundException, XMLException {
+    public void loadXMLFileMG(InputStream inputStream, String uploaderName) throws TargetNotFoundException, JAXBException, XMLException {
         ArrayList<String> duplicatedTargets = new ArrayList<>();
         Boolean flag;
         //checkIfFileEndsWithXML(fullPathFileName.trim()); //todo
         //InputStream inputStream = new FileInputStream(new File(fullPathFileName.trim()));
         GPUPDescriptor descriptor = deserializeFrom(inputStream);
         String graphName = descriptor.getGPUPConfiguration().getGPUPGraphName().trim();
-        Graph newGraph = new Graph(graphName);
+        Graph newGraph = new Graph(graphName, uploaderName);
         //Create target by name only
         for (GPUPTarget gpupTarget: descriptor.getGPUPTargets().getGPUPTarget()) {
             flag =  newGraph.addTarget(new Target(gpupTarget.getName().trim(), gpupTarget.getGPUPUserData()));
@@ -171,7 +171,7 @@ public class Manager implements Serializable {
 
     private void createGraphByUserSelection(String graphName, List<String> selectedTargets) throws TargetNotFoundException {
         List<String> oldInTargetList, oldOutTargetList;
-        this.tempGraph = new Graph("aaa");//todo
+        this.tempGraph = new Graph("aaa", "aaa");//todo
 
         for (String targetName : selectedTargets) { //Create new targets in the new graph (without in/out list)
             Target originalTarget = this.graphManager.getGraphs().get(graphName).getTargetByName(targetName);

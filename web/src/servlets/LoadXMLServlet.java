@@ -39,7 +39,7 @@ public class LoadXMLServlet extends HttpServlet {
             Part p = parts.iterator().next(); //get the file
             Manager manager = ServletUtils.getManager(getServletContext());
             try {
-                manager.loadXMLFileMG(p.getInputStream());
+                manager.loadXMLFileMG(p.getInputStream(), request.getParameter("userName"));
                 response.setStatus(HttpServletResponse.SC_OK);
                 response.getOutputStream().print("Loaded file successfully!");
             } catch (TargetNotFoundException | JAXBException | XMLException e) {

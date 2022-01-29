@@ -11,8 +11,9 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
-<ScrollPane fitToHeight="true" fitToWidth="true" minHeight="10.0" minWidth="10.0" prefHeight="500.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/8.0.301" xmlns:fx="http://javafx.com/fxml/1" fx:controller="components.mainApp.MainAppController">
+<ScrollPane fitToHeight="true" fitToWidth="true" minHeight="10.0" minWidth="10.0" prefHeight="800.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/8.0.301" xmlns:fx="http://javafx.com/fxml/1" fx:controller="components.mainApp.MainAppController">
    <content>
       <GridPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
         <columnConstraints>
@@ -27,6 +28,7 @@
                <content>
                   <VBox alignment="CENTER_LEFT" fillWidth="false" minHeight="500.0" minWidth="100.0" spacing="25.0">
                      <children>
+                        <Label fx:id="serverStatusLabel" text="[Server Status]" />
                         <Label text="Main Menu" />
                         <Button fx:id="dashboardButton" layoutX="20.0" layoutY="7.0" mnemonicParsing="false" onAction="#dashboardButtonAction" text="Dashboard" />
                         <Button fx:id="loadXMLButton" mnemonicParsing="false" onAction="#loadXMLAction" text="Load XML" />
@@ -37,6 +39,10 @@
                         <Button fx:id="whatIfButton" mnemonicParsing="false" onAction="#whatIfAction" text="What If" />
                         <Button fx:id="activateTaskButton" layoutX="10.0" layoutY="134.0" mnemonicParsing="false" onAction="#activateTaskAction" text="Create New Task" />
                         <Separator prefWidth="200.0" />
+                        <Label prefWidth="200.0" text="In order to change &quot;Actions On Graph&quot; info per graph, please press the wanted graph from the dashboard list" textOverrun="CLIP" wrapText="true">
+                           <font>
+                              <Font name="System Bold" size="15.0" />
+                           </font></Label>
                         <Button fx:id="animationButton" mnemonicParsing="false" onAction="#animationAction" text="Animation" />
                         <Button fx:id="graphvizButton" layoutX="20.0" layoutY="343.0" mnemonicParsing="false" onAction="#graphvizAction" text="Graphviz" />
                         <Label layoutX="20.0" layoutY="40.0" text="Switch Skin:" />

@@ -25,7 +25,7 @@ public class WorkerClient extends Application {
 
 
         // set stage
-        primaryStage.setTitle("G.P.U.P");
+        primaryStage.setTitle("G.P.U.P - Worker Client");
         Scene scene = new Scene(rootContainer);
         //css
         //scene.getStylesheets().add(getClass().getResource("/cssSkins/OldSchoolTheme.css").toExternalForm());

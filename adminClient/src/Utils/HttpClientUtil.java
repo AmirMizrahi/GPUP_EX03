@@ -34,14 +34,14 @@ public class HttpClientUtil {
         call.enqueue(callback);
     }
 
-    public static void uploadFile(File file, Callback callback){
+    public static void uploadFile(File file ,String userName, Callback callback){
         RequestBody body =
                 new MultipartBody.Builder()
                         .addFormDataPart("file1", file.getName(), RequestBody.create(file, MediaType.parse("text/plain")))
                         .build();
 
         Request request = new Request.Builder()
-                .url(LOAD_XML)
+                .url(LOAD_XML+"?userName="+userName)
                 .post(body)
                 .build();
 

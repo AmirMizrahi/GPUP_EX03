@@ -7,12 +7,14 @@ import java.util.*;
 
 public class Graph {
     private final String graphName;
+    private final String uploaderName;
     private final Map<String, Target> targetNameToTarget;
     private final int[] targetTypeArray;
     private boolean needToCalculate;
 
-    public Graph(String graphName) {
+    public Graph(String graphName, String uploaderName) {
         this.graphName = graphName;
+        this.uploaderName = uploaderName;
         this.targetNameToTarget = new HashMap<>();
         this.targetTypeArray = new int[] {0,0,0,0};
         this.needToCalculate = true;
@@ -193,5 +195,9 @@ public class Graph {
         toReturn.remove(target);
 
         return toReturn;
+    }
+
+    public String getUploaderName() {
+        return this.uploaderName;
     }
 }

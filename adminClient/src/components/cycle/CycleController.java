@@ -1,5 +1,6 @@
 package components.cycle;
 
+import components.graphMainComponent.GraphMainComponentController;
 import components.mainApp.Controller;
 import components.mainApp.MainAppController;
 import exceptions.TargetNotFoundException;
@@ -19,6 +20,7 @@ public class CycleController implements Controller {
     //Controllers
     private MainAppController mainAppController;
     private Node nodeController;
+    private GraphMainComponentController mainAppControllerTest;
     //
     //UI
     @FXML private Button startButton;
@@ -36,6 +38,11 @@ public class CycleController implements Controller {
     public void setMainAppController(MainAppController newMainAppController) {
         this.mainAppController = newMainAppController;
     }
+
+    public void setMainAppControllerTest(GraphMainComponentController newMainAppController) {
+        this.mainAppControllerTest = newMainAppController;
+    }
+
     @Override
     public Node getNodeController(){
         return this.nodeController;

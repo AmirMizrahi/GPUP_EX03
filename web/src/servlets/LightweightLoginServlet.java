@@ -69,5 +69,4 @@ public class LightweightLoginServlet extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_OK);
         }
     }
-
 }

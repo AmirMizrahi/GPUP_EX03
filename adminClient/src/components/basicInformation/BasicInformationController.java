@@ -6,6 +6,7 @@ import DTO.TargetDTO;
 import components.graphMainComponent.GraphMainComponentController;
 import components.mainApp.Controller;
 import components.mainApp.MainAppController;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -105,7 +106,7 @@ public class BasicInformationController implements Controller {
         targetsTableView.getColumns().clear();
 
         targetsTableView.getColumns().addAll(targetsNumberCol,targetsNameCol,targetsTypeCol, targetsDirectDepCol, targetsTotalDepCol,targetsDirectReqCol,targetsTotalReqCol ,targetsDataCol);
-        //Platform.runLater(() -> targetsTableView.refresh());
+        Platform.runLater(() -> targetsTableView.refresh());
     }
 
 

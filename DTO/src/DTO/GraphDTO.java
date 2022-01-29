@@ -75,4 +75,8 @@ public class GraphDTO {
         }
         return toReturn;
     }
+
+    public String getUploaderName() {
+        return this.graph.getUploaderName();
+    }
 }

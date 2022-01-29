@@ -19,6 +19,8 @@ import components.whatIf.WhatIfController;
 import exceptions.TargetNotFoundException;
 import exceptions.XMLException;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
@@ -70,9 +72,10 @@ public class MainAppController implements Closeable {
     @FXML private Button animationButton;
     @FXML private Button graphvizButton;
     @FXML private ComboBox<String> changeSkinComboBox;
+    @FXML private Label serverStatusLabel;
     //Properties
     private SimpleBooleanProperty isFileSelected;
-    private SimpleBooleanProperty isLoggedIn;
+    private BooleanProperty isLoggedIn; //changed from SimpleBooleanProperty - does it matter?
     private SimpleStringProperty selectedGraph;
     // Controllers
     @FXML private LoginController loginController;
@@ -111,9 +114,17 @@ public class MainAppController implements Closeable {
         this.whatIfButton.disableProperty().bind(isFileSelected.not());
         this.animationButton.disableProperty().bind(isFileSelected.not());
         this.graphvizButton.disableProperty().bind(isFileSelected.not());
+        this.serverStatusLabel.textProperty().bind(Bindings.createStringBinding(() -> {
+            String str;
+            if (isLoggedIn.get()) //todo need to change for whenever the server is connected!
+                str = "Server is ON";
+            else
+                str = "Server is OFF";
+            return str;
+        }, this.isLoggedIn));
 
         graphMainComponentController = (GraphMainComponentController) genericControllersInit("/components/graphMainComponent/graphMainComponent.fxml");
-        graphMainComponentController.anotherTest(); //todo change this? this is setting mainapp controller to SUB COMPONENT
+        graphMainComponentController.initializeGraphMainComponent(); //todo change this? this is setting mainapp controller to all SUB COMPONENTS
         loginController = (LoginController) genericControllersInit("/components/login/login.fxml");
         welcomeToGpupController = (welcomeToGPUPController) genericControllersInit("/components/welcomeToGPUP/welcomeToGPUP.fxml");
         welcomeAnimationController = (welcomeAnimationController) genericControllersInit("/components/welcomeAnimation/welcomeAnimation.fxml");
@@ -162,7 +173,7 @@ public class MainAppController implements Closeable {
 
         if (file == null)
             return;
-        HttpClientUtil.uploadFile(file, new Callback() {
+        HttpClientUtil.uploadFile(file, this.dashboardController.getLoggedInUserName(), new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
                 Platform.runLater(() -> {
@@ -197,14 +208,14 @@ public class MainAppController implements Closeable {
 
     }
 
-    public void loadAllDetailsToSubComponents() throws XMLException, IOException {
+    public void loadAllDetailsToSubComponents() {
         //this.gridPaneMainAppRight.getChildren().remove(0);
         //gridPaneMainAppRight.getChildren().add(this.welcomeToGpupController.getNodeController());
         //gridPaneMainAppRight.getChildren().add(this.welcomeAnimationController.getNodeController());
         //this.welcomeAnimationController.initialize(null,null);
 
         //this.basicInformationController.initializeBasicInformationController();
-        this.graphMainComponentController.initTest(); //todo change this? --> this is calling the init of basicInfoGraph ( the sub-component that inside the main one)
+        this.graphMainComponentController.initializeGraphMainSubComponent(); //todo change this? --> this is calling the init of basicInfoGraph ( the sub-component that inside the main one)
         this.findPathController.initializeFindPath();
         this.cycleController.initializeCycle();
         this.whatIfController.initializeWhatIfController();
@@ -212,7 +223,7 @@ public class MainAppController implements Closeable {
     }
 
     @FXML
-    private void showGraphInformationAction(ActionEvent event) throws XMLException {
+    private void showGraphInformationAction(ActionEvent event) {
         gridPaneMainAppRight.getChildren().remove(0);
        // gridPaneMainAppRight.getChildren().add(this.basicInformationController.getNodeController());
     }
