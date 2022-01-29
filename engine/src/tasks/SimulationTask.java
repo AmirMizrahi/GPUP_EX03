@@ -13,9 +13,9 @@ public class SimulationTask extends AbstractTask implements Task{
     private final Double succeedWithWarning;
 
 
-    public SimulationTask(Integer taskTime, TIME_OPTION op, Double chanceToSucceed, Double succeedWithWarning , AbstractTask.WAYS_TO_START_SIM_TASK way,
-                          List<Target> targetsToRunOn, String pathName, boolean firstTime) throws IllegalArgumentException {
-        super(way, firstTime, targetsToRunOn, pathName, "Simulation");
+    public SimulationTask(Integer taskTime, TIME_OPTION op, Double chanceToSucceed, Double succeedWithWarning, WAYS_TO_START_SIM_TASK way,
+                          List<Target> targetsToRunOn, String pathName, boolean firstTime, String userName) throws IllegalArgumentException {
+        super(way, firstTime, targetsToRunOn, pathName, "Simulation", userName);
         this.taskTime = taskTime;
         this.op = op;
         this.chanceToSucceed = chanceToSucceed;
@@ -55,7 +55,7 @@ public class SimulationTask extends AbstractTask implements Task{
 //        //
 
         Integer sleepingTime = calculateSleepingTime();
-        targetsToRunningTime.put(current.getName(),sleepingTime);//////////////////
+        targetsToRunningTime.put(current,sleepingTime);//////////////////
         totalRunningTime += sleepingTime;///////////
         printDetailsBeforeSleep(sleepingTime,consumeImmediately);
         Thread.sleep(sleepingTime);

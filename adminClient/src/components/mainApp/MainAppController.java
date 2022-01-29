@@ -391,4 +391,8 @@ public class MainAppController implements Closeable {
     public static BooleanProperty getServerOnProperty() {
         return isServerOn;
     }
+
+    public String getCurrentUserName() {
+        return this.dashboardController.getLoggedInUserName();
+    }
 }

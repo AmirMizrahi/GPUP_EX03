@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.function.Consumer;
 
 import static Utils.Constants.LOAD_XML;
+import static Utils.Constants.UPLOAD_TASK;
 
 public class HttpClientUtil {
 
@@ -25,7 +26,7 @@ public class HttpClientUtil {
         simpleCookieManager.removeCookiesOf(domain);
     }
 
-    public static void runAsync(String finalUrl, Callback callback) {
+    public static void runSync(String finalUrl, Callback callback) {
         Request request = new Request.Builder()
                 .url(finalUrl)
                 .build();
@@ -46,6 +47,18 @@ public class HttpClientUtil {
                 .build();
 
         Call call = HTTP_CLIENT.newCall(request);
+        call.enqueue(callback);
+    }
+
+    public static void uploadTask(RequestBody body, Callback callback){
+        Request request = new Request.Builder()
+                .url(UPLOAD_TASK)
+                // .addHeader("Content-Type", "text/plain")
+                .post(body)
+                .build();
+
+        Call call = HTTP_CLIENT.newCall(request);
+
         call.enqueue(callback);
     }
 

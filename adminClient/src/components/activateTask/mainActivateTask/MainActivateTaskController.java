@@ -2,6 +2,10 @@ package components.activateTask.mainActivateTask;
 
 import DTO.SerialSetDTO;
 import DTO.TargetDTO;
+import Utils.HttpClientUtil;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
 import components.activateTask.compilationTask.CompilationTaskController;
 import components.activateTask.processLogs.ProcessLogController;
 import components.activateTask.simulationTask.SimulationTaskController;
@@ -28,6 +32,8 @@ import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
+import okhttp3.*;
+import org.jetbrains.annotations.NotNull;
 import tasks.AbstractTask;
 import tasks.SimulationTask;
 
@@ -38,6 +44,8 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
+
+import static Utils.Constants.LINE_SEPARATOR;
 
 public class MainActivateTaskController implements Controller {
 
@@ -252,25 +260,7 @@ public class MainActivateTaskController implements Controller {
     }
 
     public void activateTask(Consumer<File> consumeWhenFinished) {
-        List<String> selectedTargets = new LinkedList<>();
-        for (TargetsTableViewRow row : table.getItems()) {
-            if (row.getCheckBox().isSelected())
-                selectedTargets.add(row.getTargetName());
-        }
 
-        if(this.taskTypeCombo.getSelectionModel().getSelectedItem().compareTo("Simulation") == 0){
-            Integer time = (int) this.simulationTaskController.getProcessTime();
-            SimulationTask.TIME_OPTION time_option = SimulationTask.TIME_OPTION.valueOf(simulationTaskController.getTimeOption().toUpperCase());
-            Double successRates = this.simulationTaskController.getSuccessRates();
-            Double warningRates = this.simulationTaskController.getWarningRates();
-            this.mainAppController.activateSimTask(selectedTargets, time,time_option,successRates,warningRates, AbstractTask.WAYS_TO_START_SIM_TASK.FROM_SCRATCH, consumeWhenFinished);
-        }
-        else{
-            String source = this.compilationTaskController.getSourceFolder();
-            String destination = this.compilationTaskController.getDestinationFolder();
-            this.mainAppController.activateCompTask(selectedTargets, source, destination, AbstractTask.WAYS_TO_START_SIM_TASK.FROM_SCRATCH ,consumeWhenFinished);
-
-        }
     }
 
     public void updateProcessLog(List<TargetDTO> newTargetStatus) {
@@ -319,6 +309,51 @@ public class MainActivateTaskController implements Controller {
 
     public Stage getPrimaryStage() {
         return this.mainAppController.getPrimaryStage();
+    }
+
+    @FXML
+    void uploadTaskButtonAction(ActionEvent event) {
+        List<String> selectedTargets = new LinkedList<>();
+        for (TargetsTableViewRow row : table.getItems()) {
+            if (row.getCheckBox().isSelected())
+                selectedTargets.add(row.getTargetName());
+        }
+
+        if(this.taskTypeCombo.getSelectionModel().getSelectedItem().compareTo("Simulation") == 0){
+            Integer time = (int) this.simulationTaskController.getProcessTime();
+            String time_option = simulationTaskController.getTimeOption().toUpperCase();
+            Double successRates = this.simulationTaskController.getSuccessRates();
+            Double warningRates = this.simulationTaskController.getWarningRates();
+
+            String body = "targets=" + new Gson().toJson(selectedTargets) + LINE_SEPARATOR +
+                    "time="+ time + LINE_SEPARATOR +
+                    "time_option=" +time_option + LINE_SEPARATOR +
+                    "successRates=" + successRates + LINE_SEPARATOR +
+                    "warningRates=" + warningRates + LINE_SEPARATOR +
+                    "userName=" + this.mainAppController.getCurrentUserName() + LINE_SEPARATOR +
+                    "graphName=" + this.mainAppController.getGraphDTOFromDashboard().getGraphName() + LINE_SEPARATOR +
+                    "taskName=" + this.taskNameTextField.getText();
+
+            HttpClientUtil.uploadTask(RequestBody.create(body.getBytes()) , new Callback() {
+                @Override
+                public void onFailure(@NotNull Call call, @NotNull IOException e) {
+
+                }
+
+                @Override
+                public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+
+                }
+            });
+        }
+        else{
+        //   String source = this.compilationTaskController.getSourceFolder();
+        //   String destination = this.compilationTaskController.getDestinationFolder();
+        //   this.mainAppController.activateCompTask(selectedTargets, source, destination, AbstractTask.WAYS_TO_START_SIM_TASK.FROM_SCRATCH ,consumeWhenFinished);
+
+        }
+
+
     }
 
 }

@@ -82,7 +82,7 @@
                                                 </HBox>
                                                 <HBox alignment="CENTER" layoutX="20.0" layoutY="63.0">
                                                    <children>
-                                                      <Button fx:id="uploadTaskButton" mnemonicParsing="false" text="Upload Task">
+                                                      <Button fx:id="uploadTaskButton" mnemonicParsing="false" onAction="#uploadTaskButtonAction" text="Upload Task">
                                                          <HBox.margin>
                                                             <Insets />
                                                          </HBox.margin>

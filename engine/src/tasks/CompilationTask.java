@@ -13,7 +13,7 @@ public class CompilationTask extends AbstractTask implements Task {
     private String destinationName;
 
     public CompilationTask(AbstractTask.WAYS_TO_START_SIM_TASK way,List<Target> targetsToRunOn, String pathName, String sourceName, String destinationName, boolean firstTime){
-        super(way, firstTime, targetsToRunOn, pathName, "Compilation");
+        super(way, firstTime, targetsToRunOn, pathName, "Compilation", "blabla change me");
         this.sourceName = sourceName;
         this.destinationName = destinationName;
     }
@@ -37,7 +37,7 @@ public class CompilationTask extends AbstractTask implements Task {
 
         printDetailsBeforeSleep(consumeImmediately);
         targetRunningTime = compileTarget(current, consumeImmediately);
-        targetsToRunningTime.put(current.getName(),targetRunningTime);//////////////////
+        targetsToRunningTime.put(current,targetRunningTime);//////////////////
         totalRunningTime += targetRunningTime;///////////
 
         //setStatusAfterTask(current); //result of build!

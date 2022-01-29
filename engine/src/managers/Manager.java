@@ -17,6 +17,8 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import static Utils.Constants.DEFAULT_WORKING_DIR;
+
 public class Manager implements Serializable {
     private GraphManager graphManager;
     private TaskManager taskManager;
@@ -35,6 +37,7 @@ public class Manager implements Serializable {
         this.taskNames.add("Simulation");
         this.taskNames.add("Compilation");
         this.graphManager = new GraphManager();
+        this.taskManager = new TaskManager();
         this.tempGraph = new Graph("aaa", "aaa");//todo
         pauseOccurred = false;
         isPaused = new Object();
@@ -228,7 +231,7 @@ public class Manager implements Serializable {
 
         List<Target> targetList = runTaskInFirstTime(way);
         Task simulationTask = new SimulationTask(taskTime,op,ChanceToSucceed, SucceedWithWarning, way, targetList,
-                this.mainSimulationTaskFolderPath, checkIfTaskIsActivatedInFirstTime());
+                this.mainSimulationTaskFolderPath, checkIfTaskIsActivatedInFirstTime(), "bla bla change me");
 
         activateTaskMG(simulationTask, consumerList,consumeWhenFinished, graphName);
     }
@@ -366,6 +369,16 @@ public class Manager implements Serializable {
         return toReturn;
     }
 
+    public List<TaskDTO> getAllTasks() {
+        List<TaskDTO> toReturn = new LinkedList<>();
+
+        for (Map.Entry<String, Task> entry : this.taskManager.getTasks().entrySet()) {
+            toReturn.add(new TaskDTO(entry.getKey(),(AbstractTask)entry.getValue())); //todo check if cast is alright!!!!!
+        }
+
+        return toReturn;
+    }
+
     public enum DependencyRelation
     {
         DEPENDS_ON, REQUIRED_FOR, KA
@@ -414,5 +427,18 @@ public class Manager implements Serializable {
         List<TargetDTO> status = new LinkedList<>();
         this.tempGraph.getTargetsList().forEach(target -> status.add(new TargetDTO(target)));
         return status;
+    }
+
+    public void addNewTask(Integer time, String time_option, Double successRates, Double warningRates, String userName, String graphName,String taskName, List<String> selectedTargetsNames) {
+        List<Target> selectedTargets = new LinkedList<>();
+        selectedTargetsNames.forEach(targetName-> {
+            try {
+                selectedTargets.add(this.graphManager.getGraphs().get(graphName).getTargetByName(targetName));
+            } catch (TargetNotFoundException e) {
+                e.printStackTrace(); //todo remove
+            }
+        });
+        Task task = new SimulationTask(time, SimulationTask.TIME_OPTION.valueOf(time_option.toUpperCase()), successRates, warningRates, AbstractTask.WAYS_TO_START_SIM_TASK.FROM_SCRATCH, selectedTargets, DEFAULT_WORKING_DIR ,true, userName);
+        taskManager.addTask(taskName,task);
     }
 }

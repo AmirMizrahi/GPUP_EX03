@@ -1,6 +1,7 @@
 package components.dashboard;
 
 import DTO.GraphDTO;
+import DTO.TaskDTO;
 import components.mainApp.Controller;
 import components.mainApp.MainAppController;
 import javafx.application.Platform;
@@ -30,11 +31,16 @@ public class DashboardController implements Controller {
     private Node nodeController;
     private Timer userTimer;
     private Timer graphTimer;
+    private Timer taskTimer;
     private TimerTask userRefresher;
     private TimerTask graphRefresher;
+    private TimerTask taskRefresher;
+    private List<GraphDTO> allGraphsDTOS;
+    private List<TaskDTO> allTasksDTOS;
     //
     //UI
-    @FXML private TableView<?> tasksTableView;
+    @FXML private TableView<String> tasksTableView;
+    @FXML private TableColumn<String, String> taskTableColumn;
     @FXML private ListView<?> tasksListView;
     @FXML private TableView<String> graphsTableView;
     @FXML private ListView<String> graphsListView;
@@ -46,7 +52,7 @@ public class DashboardController implements Controller {
    //
     //Properties
     private SimpleStringProperty selectedGraph;
-    private List<GraphDTO> allGraphsDTOS;
+
 
     @Override
     public void setMainAppController(MainAppController newMainAppController) {
@@ -64,21 +70,27 @@ public class DashboardController implements Controller {
     @FXML
     private void initialize() throws IOException {
         allGraphsDTOS = new LinkedList<>();
+        allTasksDTOS = new LinkedList<>();
         userTimer = new Timer();
         graphTimer = new Timer();
+        taskTimer = new Timer();
         startDashboardRefresher();
         wireColumnForUserList(userTableColumn,"userName");
         wireColumnForUserList(typeTableColumn,"userType");
         graphTableColumn.setCellValueFactory(cellData ->
+                new ReadOnlyStringWrapper(cellData.getValue()));
+        taskTableColumn.setCellValueFactory(cellData ->
                 new ReadOnlyStringWrapper(cellData.getValue()));
     }
 
     private void startDashboardRefresher(){
         userRefresher = new UserListRefresher(this::updateUsersList);
         graphRefresher = new GraphListRefresher(this.mainAppController.getServerOnProperty(),this::updateGraphList);
+        taskRefresher = new TaskListRefresher(this::updateTaskList);
 
         userTimer.schedule(userRefresher, DASHBOARD_REFRESH_RATE, DASHBOARD_REFRESH_RATE);
         graphTimer.schedule(graphRefresher, DASHBOARD_REFRESH_RATE, DASHBOARD_REFRESH_RATE);
+        taskTimer.schedule(taskRefresher, DASHBOARD_REFRESH_RATE, DASHBOARD_REFRESH_RATE);
     }
 
     private void updateUsersList(Map<String,String> usersNames) {
@@ -107,6 +119,20 @@ public class DashboardController implements Controller {
             graphsTableView.setItems(data);
             graphsTableView.getColumns().clear();
             graphsTableView.getColumns().addAll(graphTableColumn);
+        });
+    }
+
+    private void updateTaskList(List<TaskDTO> taskDTOS) {
+        List<String> rows = new LinkedList<>();
+        this.allTasksDTOS = taskDTOS;
+
+        taskDTOS.forEach(task -> rows.add(task.getTaskName()));
+
+        Platform.runLater(() -> {
+            final ObservableList<String> data = FXCollections.observableArrayList(rows);
+            tasksTableView.setItems(data);
+            tasksTableView.getColumns().clear();
+            tasksTableView.getColumns().addAll(taskTableColumn);
         });
     }
 

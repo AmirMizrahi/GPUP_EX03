@@ -1,9 +1,7 @@
 package components.dashboard;
 
-import DTO.GraphDTO;
 import Utils.Constants;
 import Utils.HttpClientUtil;
-import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -34,8 +32,8 @@ public class UserListRefresher extends TimerTask {
     @Override
     public void run() {
         final int finalRequestNumber = ++requestNumber;
-        //httpRequestLoggerConsumer.accept("About to invoke: " + Constants.USERS_LIST + " | Users Request # " + finalRequestNumber);
-        HttpClientUtil.runAsync(Constants.USERS_LIST, new Callback() {
+        //httpRequestLoggerConsumer.accept("About to invoke: " + Utils.Constants.USERS_LIST + " | Users Request # " + finalRequestNumber);
+        HttpClientUtil.runSync(Constants.USERS_LIST, new Callback() {
 
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {

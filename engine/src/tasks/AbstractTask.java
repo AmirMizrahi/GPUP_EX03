@@ -15,21 +15,23 @@ public abstract class AbstractTask implements Task{
 
     protected final AbstractTask.WAYS_TO_START_SIM_TASK chosenWay;
     protected final Boolean firstTime;
+    private final String uploadedUserName;
     protected int orderOfProcess = 1, totalRunningTime = 0;
     protected final List<Target> relevantTargetsForSummaryLogFile;
-    protected final Map<String,Integer> targetsToRunningTime;
+    protected final Map<Target,Integer> targetsToRunningTime;
     protected String fileFullName;
     protected final PrinterBridge printerBridge;
 
     protected AbstractTask(WAYS_TO_START_SIM_TASK chosenWay, boolean firstTime, List<Target> targetsToRunOn,
-                           String pathName, String taskName) {
+                           String pathName, String taskName, String userName) {
         this.chosenWay = chosenWay;
         this.firstTime = firstTime;
         this.relevantTargetsForSummaryLogFile = new ArrayList<>();
         this.targetsToRunningTime = new HashMap<>();
         this.printerBridge = new PrinterBridge();
         this.fileFullName = createTaskFolder(pathName,taskName);
-        targetsToRunOn.forEach(t -> targetsToRunningTime.put(t.getName(), 0));
+        this.uploadedUserName = userName;
+        targetsToRunOn.forEach(t -> targetsToRunningTime.put(t, 0));
     }
 
     protected Consumer<String> consumerBuilder(String path){
@@ -82,7 +84,7 @@ public abstract class AbstractTask implements Task{
         consumeWhenFinished.accept(summaryLogFile);
     }
 
-    private void printToSummaryLogFile(List<Consumer<String>> consumerList ,int totalRunningTime, List<Target> targetList, Map<String,Integer> targetsToRunningTime, List<Target> skippedTargetsForSummaryLogFile){
+    private void printToSummaryLogFile(List<Consumer<String>> consumerList ,int totalRunningTime, List<Target> targetList, Map<Target,Integer> targetsToRunningTime, List<Target> skippedTargetsForSummaryLogFile){
         String totalRunningTimeInFormat = calcTotalRunningTimeToSummaryFile(totalRunningTime);
         if(firstTime && this.chosenWay == AbstractTask.WAYS_TO_START_SIM_TASK.INCREMENTAL)
             this.printerBridge.acceptListOfConsumers(consumerList,"Chosen 'INCREMENTAL' but this is the first time you activated the current task!");
@@ -91,9 +93,9 @@ public abstract class AbstractTask implements Task{
         String statusAfterTaskInFormat = calcStatisticsForStatusAfterTaskToSummaryLogFile(targetList, skippedTargetsForSummaryLogFile.size());
         this.printerBridge.acceptListOfConsumers(consumerList,statusAfterTaskInFormat);
 
-        targetList.forEach(t->{
-            String name = t.getName();
-            Target.StatusAfterTask sat = t.getStatusAfterTask();
+        targetList.forEach(name->{
+            //String name = t.getName();
+            Target.StatusAfterTask sat = name.getStatusAfterTask();
             String runningTime = calcTotalRunningTimeToSummaryFile(targetsToRunningTime.get(name));
             this.printerBridge.acceptListOfConsumers(consumerList,String.format("Target name: %s\nStatus after task: %s\nRunning time: %s\n",name,sat,runningTime));
         });
@@ -138,6 +140,10 @@ public abstract class AbstractTask implements Task{
         this.printerBridge.acceptListOfConsumers(consumerList,this.printerBridge.getStringWithTimeStampAttached("Target process finished!"));
         this.printerBridge.acceptListOfConsumers(consumerList,this.printerBridge.getStringWithTimeStampAttached("New Target status: " + target.getStatus()));
         this.printerBridge.acceptListOfConsumers(consumerList,this.printerBridge.getStringWithTimeStampAttached("Target status after task is: " + target.getStatusAfterTask()+"\n"));
+    }
+
+    public String getUploaderName() {
+        return this.uploadedUserName;
     }
 
 

@@ -1,7 +1,7 @@
 package components.login;
 
 //import chat.client.component.main.ChatAppMainController;
-//import chat.client.util.Constants;
+//import chat.client.util.Utils.Constants;
 //import chat.client.util.http.HttpClientUtil;
 import Utils.Constants;
 import Utils.HttpClientUtil;
@@ -75,7 +75,7 @@ public class LoginController implements Controller {
 
         //updateHttpStatusLine("New request is launched for: " + finalUrl);
 
-        HttpClientUtil.runAsync(finalUrl, new Callback() {
+        HttpClientUtil.runSync(finalUrl, new Callback() {
 
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {

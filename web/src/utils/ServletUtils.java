@@ -9,7 +9,7 @@ import managers.UserManager;
 import static utils.Constants.MANAGER_ATTRIBUTE_NAME;
 import static utils.Constants.USER_MANAGER_ATTRIBUTE_NAME;
 
-//import static chat.constants.Constants.INT_PARAMETER_ERROR;
+//import static chat.constants.Utils.Constants.INT_PARAMETER_ERROR;
 
 public class ServletUtils {
 	/*
