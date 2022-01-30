@@ -3,7 +3,6 @@ package Utils;
 import okhttp3.*;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.function.Consumer;
 
 import static Utils.Constants.LOAD_XML;

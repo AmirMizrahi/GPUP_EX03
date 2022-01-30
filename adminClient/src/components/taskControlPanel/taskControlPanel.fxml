@@ -6,6 +6,7 @@
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TableColumn?>
@@ -17,7 +18,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<ScrollPane fitToHeight="true" fitToWidth="true" xmlns="http://javafx.com/javafx/8.0.301" xmlns:fx="http://javafx.com/fxml/1" fx:controller="components.activateTask.processLogs.ProcessLogController">
+<ScrollPane fitToHeight="true" fitToWidth="true" xmlns="http://javafx.com/javafx/8.0.301" xmlns:fx="http://javafx.com/fxml/1" fx:controller="components.taskControlPanel.TaskControlPanelController">
    <content>
       <GridPane minHeight="400.0" minWidth="300.0">
          <columnConstraints>
@@ -36,24 +37,61 @@
                             <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" minWidth="10.0" />
                           </columnConstraints>
                           <rowConstraints>
-                            <RowConstraints valignment="CENTER" vgrow="NEVER" />
-                              <RowConstraints maxHeight="20.0" minHeight="10.0" prefHeight="20.0" valignment="CENTER" vgrow="NEVER" />
-                            <RowConstraints minHeight="10.0" prefHeight="500.0" valignment="CENTER" vgrow="ALWAYS" />
+                            <RowConstraints minHeight="40.0" valignment="CENTER" vgrow="NEVER" />
+                              <RowConstraints valignment="CENTER" vgrow="NEVER" />
+                            <RowConstraints minHeight="40.0" valignment="CENTER" vgrow="NEVER" />
+                              <RowConstraints valignment="CENTER" vgrow="NEVER" />
+                              <RowConstraints minHeight="40.0" valignment="CENTER" vgrow="NEVER" />
+                              <RowConstraints valignment="CENTER" vgrow="NEVER" />
+                              <RowConstraints valignment="CENTER" vgrow="NEVER" />
+                              <RowConstraints minHeight="10.0" prefHeight="130.0" valignment="CENTER" vgrow="NEVER" />
+                              <RowConstraints minHeight="10.0" prefHeight="500.0" valignment="CENTER" vgrow="ALWAYS" />
                               <RowConstraints minHeight="10.0" prefHeight="32.0" valignment="CENTER" vgrow="ALWAYS" />
-                            <RowConstraints minHeight="10.0" valignment="CENTER" vgrow="ALWAYS" />
+                              <RowConstraints minHeight="10.0" valignment="CENTER" vgrow="ALWAYS" />
+                              <RowConstraints valignment="CENTER" vgrow="ALWAYS" />
+                              <RowConstraints minHeight="10.0" prefHeight="32.0" valignment="CENTER" vgrow="ALWAYS" />
                               <RowConstraints minHeight="10.0" prefHeight="32.0" valignment="CENTER" vgrow="ALWAYS" />
                           </rowConstraints>
                            <children>
-                              <HBox alignment="CENTER" spacing="20.0">
+                              <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="30.0">
+                                 <children>
+                                    <Label text="Task Name:" />
+                                    <Label fx:id="taskNameLabel" text="Label" />
+                                    <Label text="Graph Name:" />
+                                    <Label fx:id="graphNameLabel" text="Label" />
+                                 </children>
+                              </HBox>
+                              <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="30.0" GridPane.rowIndex="2">
+                                 <children>
+                                    <Label alignment="CENTER_RIGHT" text="Targets Amount:" />
+                                    <Label fx:id="summaryTargetsAmountLabel" />
+                                    <Label alignment="CENTER_RIGHT" text="Independents:" />
+                                    <Label fx:id="summaryIndependentsLabel" />
+                                    <Label alignment="CENTER_RIGHT" text="Leaf:" />
+                                    <Label fx:id="summaryLeafLabel" />
+                                    <Label alignment="CENTER_RIGHT" text="Middle:" />
+                                    <Label fx:id="summaryMiddleLabel" />
+                                    <Label alignment="CENTER_RIGHT" text="Root:" />
+                                    <Label fx:id="summaryRootLabel" />
+                                 </children>
+                              </HBox>
+                              <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" GridPane.rowIndex="4">
+                                 <children>
+                                    <Label text="Registered Workers: " />
+                                    <Label fx:id="registeredWorkersLabel" text="Label" />
+                                 </children>
+                              </HBox>
+                              <HBox alignment="CENTER" spacing="20.0" GridPane.rowIndex="6">
                                  <children>
                                     <Button fx:id="startButton" mnemonicParsing="false" onAction="#startButtonAction" text="Start" />
                                     <Button fx:id="pauseResumeButton" mnemonicParsing="false" onAction="#pauseResumeButtonAction" text="Pause" />
+                                    <Button fx:id="stopButton" mnemonicParsing="false" onAction="#stopButtonAction" text="Stop" />
                                  </children>
                                  <GridPane.margin>
                                     <Insets top="5.0" />
                                  </GridPane.margin>
                               </HBox>
-                              <HBox alignment="CENTER" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS">
+                              <HBox alignment="CENTER" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="8" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS">
                                  <GridPane.margin>
                                     <Insets />
                                  </GridPane.margin>
@@ -124,9 +162,18 @@
                                     </GridPane>
                                  </children>
                               </HBox>
-                              <ListView fx:id="targetInfoListView" GridPane.rowIndex="4" />
-                              <ProgressBar fx:id="taskProgressBar" maxWidth="1.7976931348623157E308" progress="0.0" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="5" GridPane.valignment="BOTTOM" GridPane.vgrow="ALWAYS" />
-                              <Label fx:id="progressBarLabel" text="0.0%" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="BOTTOM" />
+                              <ListView fx:id="targetInfoListView" GridPane.rowIndex="10" />
+                              <HBox alignment="CENTER" GridPane.rowIndex="11">
+                                 <children>
+                                    <Label text="Targets On Work / Possible Targets To Work On : " />
+                                    <Label fx:id="currentWorkingTargetsLabel" text="Label" />
+                                 </children>
+                              </HBox>
+                              <ProgressBar fx:id="taskProgressBar" maxWidth="1.7976931348623157E308" progress="0.0" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="13" GridPane.valignment="BOTTOM" GridPane.vgrow="ALWAYS" />
+                              <Label fx:id="progressBarLabel" text="0.0%" GridPane.halignment="CENTER" GridPane.rowIndex="13" GridPane.valignment="BOTTOM" />
+                              <Separator prefWidth="200.0" GridPane.rowIndex="1" />
+                              <Separator prefWidth="200.0" GridPane.rowIndex="3" />
+                              <Separator prefWidth="200.0" GridPane.rowIndex="5" />
                            </children>
                         </GridPane>
                      </content>

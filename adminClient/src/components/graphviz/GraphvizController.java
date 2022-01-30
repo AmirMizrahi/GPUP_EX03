@@ -40,7 +40,7 @@ public class GraphvizController implements Controller {
     }
 
     public void initializeGraphvizController(String fileName) throws XMLException, IOException {
-        GraphDTO graph = this.mainAppController.getGraphDTOFromDashboard();
+        GraphDTO graph = this.mainAppController.getSelectedGraphDTOFromDashboard();
 
         if(fileName.endsWith(".png") || fileName.endsWith(".viz"))
            fileName = fileName.substring(0,fileName.length()-4);

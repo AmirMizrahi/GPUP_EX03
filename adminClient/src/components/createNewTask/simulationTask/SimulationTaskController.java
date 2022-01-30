@@ -1,17 +1,17 @@
-package components.activateTask.simulationTask;
+package components.createNewTask.simulationTask;
 
-import components.activateTask.mainActivateTask.ActivateTaskController;
-import components.activateTask.mainActivateTask.MainActivateTaskController;
+import components.createNewTask.createTask.TaskController;
+import components.createNewTask.createTask.CreateTaskController;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 
-public class SimulationTaskController implements ActivateTaskController {
+public class SimulationTaskController implements TaskController {
 
     //Controllers
-    private MainActivateTaskController mainActivateTaskController;
+    private CreateTaskController createTaskController;
     private Node nodeController;
     //
     //UI
@@ -24,8 +24,8 @@ public class SimulationTaskController implements ActivateTaskController {
     //
 
     @Override
-    public void setMainActivateTaskController(MainActivateTaskController mainActivateTaskController) {
-        this.mainActivateTaskController = mainActivateTaskController;
+    public void setMainActivateTaskController(CreateTaskController createTaskController) {
+        this.createTaskController = createTaskController;
     }
 
     @Override

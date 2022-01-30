@@ -3,19 +3,18 @@ package components.mainApp;
 import DTO.GraphDTO;
 import DTO.TargetDTO;
 
+import DTO.TaskDTO;
 import Utils.HttpClientUtil;
-import components.activateTask.mainActivateTask.MainActivateTaskController;
+import components.createNewTask.createTask.CreateTaskController;
 import components.basicInformation.TargetsTableViewRow;
-import components.cycle.CycleController;
 import components.dashboard.DashboardController;
-import components.findPath.FindPathController;
 import components.gifAnimation.gifAnimationController;
 import components.graphMainComponent.GraphMainComponentController;
 import components.graphviz.GraphvizController;
 import components.login.LoginController;
+import components.taskControlPanel.TaskControlPanelController;
 import components.welcomeAnimation.welcomeAnimationController;
 import components.welcomeToGPUP.welcomeToGPUPController;
-import components.whatIf.WhatIfController;
 import exceptions.TargetNotFoundException;
 import exceptions.XMLException;
 import javafx.application.Platform;
@@ -64,25 +63,29 @@ public class MainAppController implements Closeable {
     @FXML private Button dashboardButton;
     @FXML private Button loadXMLButton;
     @FXML private Button actionsOnGraphButton;
-    @FXML private Button activateTaskButton;
+    @FXML private Button createNewTaskButton;
+    @FXML private Button taskControlPanelButton;
     @FXML private Button animationButton;
     @FXML private Button graphvizButton;
     @FXML private ComboBox<String> changeSkinComboBox;
     @FXML private Label serverStatusLabel;
     //Properties
     private SimpleBooleanProperty isFileSelected;
+    private final SimpleBooleanProperty matchingUserName;
     private BooleanProperty isLoggedIn; //changed from SimpleBooleanProperty - does it matter?
     private SimpleStringProperty selectedGraph;
+    private SimpleStringProperty selectedTask;
     private static BooleanProperty isServerOn;
     // Controllers
-    @FXML private LoginController loginController;
-    @FXML private GraphMainComponentController graphMainComponentController;
-    @FXML private welcomeToGPUPController welcomeToGpupController;
-    @FXML private welcomeAnimationController welcomeAnimationController;
-    @FXML private MainActivateTaskController mainActivateTaskController;
-    @FXML private gifAnimationController gifAnimationController;
-    @FXML private GraphvizController graphvizController;
-    @FXML private DashboardController dashboardController;
+    private LoginController loginController;
+    private GraphMainComponentController graphMainComponentController;
+    private welcomeToGPUPController welcomeToGpupController;
+    private welcomeAnimationController welcomeAnimationController;
+    private CreateTaskController createTaskController;
+    private TaskControlPanelController taskControlPanelController;
+    private gifAnimationController gifAnimationController;
+    private GraphvizController graphvizController;
+    private DashboardController dashboardController;
     //
 
     public MainAppController(){
@@ -90,7 +93,14 @@ public class MainAppController implements Closeable {
         isFileSelected = new SimpleBooleanProperty(false);
         isLoggedIn = new SimpleBooleanProperty(false);
         selectedGraph = new SimpleStringProperty();
+        selectedTask = new SimpleStringProperty();
+        matchingUserName = new SimpleBooleanProperty(false);
     }
+
+
+    @FXML private Label actionsOnGraphLabelDummy;
+    @FXML private Label createNewTaskLabelDummy;
+    @FXML private Label taskControlPanelLabelDummy;
 
     @FXML
     private void initialize() throws IOException {
@@ -98,12 +108,19 @@ public class MainAppController implements Closeable {
         this.dashboardButton.disableProperty().bind(isLoggedIn.not());
         this.loadXMLButton.disableProperty().bind(isLoggedIn.not());
         this.actionsOnGraphButton.disableProperty().bind(selectedGraph.isEmpty());
-        this.activateTaskButton.disableProperty().bind(selectedGraph.isEmpty());
+        this.actionsOnGraphLabelDummy.setTooltip(new Tooltip("In order to use this option, click graph from Dashboard table"));
+        this.actionsOnGraphButton.setTooltip(new Tooltip("In order to use this option, click graph from Dashboard table"));
+        this.createNewTaskButton.disableProperty().bind(selectedGraph.isEmpty());
+        this.createNewTaskLabelDummy.setTooltip(new Tooltip("In order to use this option, click graph from Dashboard table"));
+        this.createNewTaskButton.setTooltip(new Tooltip("In order to use this option, click graph from Dashboard table"));
+        this.taskControlPanelButton.disableProperty().bind(this.matchingUserName.not());
+        this.taskControlPanelLabelDummy.setTooltip(new Tooltip("In order to use this option, click task (only ones you created) from Dashboard table"));
+        this.taskControlPanelButton.setTooltip(new Tooltip("In order to use this option, click task (only ones you created) from Dashboard table"));
         this.animationButton.disableProperty().bind(selectedGraph.isEmpty());
         this.graphvizButton.disableProperty().bind(selectedGraph.isEmpty());
         this.serverStatusLabel.textProperty().bind(Bindings.createStringBinding(() -> {
             String str;
-            if (isServerOn.get()) //todo need to change for whenever the server is connected!
+            if (isServerOn.get())
                 str = "Server is ON";
             else
                 str = "Server is OFF";
@@ -115,7 +132,8 @@ public class MainAppController implements Closeable {
         loginController = (LoginController) genericControllersInit("/components/login/login.fxml");
         welcomeToGpupController = (welcomeToGPUPController) genericControllersInit("/components/welcomeToGPUP/welcomeToGPUP.fxml");
         welcomeAnimationController = (welcomeAnimationController) genericControllersInit("/components/welcomeAnimation/welcomeAnimation.fxml");
-        mainActivateTaskController = (MainActivateTaskController) genericControllersInit("/components/activateTask/mainActivateTask/mainActivateTask.fxml");
+        createTaskController = (CreateTaskController) genericControllersInit("/components/createNewTask/createTask/createTask.fxml");
+        taskControlPanelController = (TaskControlPanelController) genericControllersInit("/components/taskControlPanel/taskControlPanel.fxml");
         gifAnimationController = (gifAnimationController) genericControllersInit("/components/gifAnimation/gifAnimation.fxml");
         graphvizController = (GraphvizController) genericControllersInit("/components/graphviz/graphviz.fxml");
         dashboardController = (DashboardController) genericControllersInit("/components/dashboard/dashboard.fxml");
@@ -193,14 +211,21 @@ public class MainAppController implements Closeable {
 
     public void loadAllDetailsToSubComponents() {
         this.graphMainComponentController.initializeGraphMainSubComponent(); //todo change this? --> this is calling the init of basicInfoGraph ( the sub-component that inside the main one)
-        this.mainActivateTaskController.initializeMainActivateTask();
+        this.createTaskController.initializeMainActivateTask();
     }
 
     @FXML
-    private void activateTaskAction(ActionEvent event) {
+    private void createNewTaskAction(ActionEvent event) {
         gridPaneMainAppRight.getChildren().remove(0); //move to property
         //this.mainActivateTaskController.setParallelTaskAmount(parallelTaskAmount);
-        gridPaneMainAppRight.getChildren().add(this.mainActivateTaskController.getNodeController());
+        gridPaneMainAppRight.getChildren().add(this.createTaskController.getNodeController());
+    }
+
+    @FXML
+    void taskControlPanelButtonAction(ActionEvent event) {
+        gridPaneMainAppRight.getChildren().remove(0); //move to property
+        //this.mainActivateTaskController.setParallelTaskAmount(parallelTaskAmount);
+        gridPaneMainAppRight.getChildren().add(this.taskControlPanelController.getNodeController());
     }
 
     @FXML
@@ -225,13 +250,17 @@ public class MainAppController implements Closeable {
         gridPaneMainAppRight.getChildren().add(this.graphvizController.getNodeController());
     }
 
-    public GraphDTO getGraphDTOFromDashboard() {
+    public GraphDTO getSelectedGraphDTOFromDashboard() {
         return dashboardController.getSelectedGraph();
+    }
+
+    public TaskDTO getSelectedTaskDTOFromDashboard() {
+        return dashboardController.getSelectedTask();
     }
 
     public List<String> getTargetsNames() {
         List<String> targetsNames = new LinkedList<>();
-        this.getGraphDTOFromDashboard().getAllTargets().forEach(targetDTO -> targetsNames.add(targetDTO.getTargetName()));
+        this.getSelectedGraphDTOFromDashboard().getAllTargets().forEach(targetDTO -> targetsNames.add(targetDTO.getTargetName()));
         return targetsNames;
     }
 
@@ -242,20 +271,20 @@ public class MainAppController implements Closeable {
         else
             relation = Manager.DependencyRelation.REQUIRED_FOR.name();
 
-        List<String> path = this.getGraphDTOFromDashboard().findAllPathsBetweenTwoTargets(source, destination, relation);
+        List<String> path = this.getSelectedGraphDTOFromDashboard().findAllPathsBetweenTwoTargets(source, destination, relation);
 
         return path;
     }
 
     public List<String> getCyclePath(String value) {
-        return getGraphDTOFromDashboard().checkIfTargetIsPartOfCycle(value);
+        return getSelectedGraphDTOFromDashboard().checkIfTargetIsPartOfCycle(value);
     }
 
     //Used by What-if
     public List<String> getAllEffectedTargets(String targetName, String selectedRadioButton) {
         List<String> returnedList =  new LinkedList<>();
 
-        List<TargetDTO> dtos = getGraphDTOFromDashboard().getAllEffected(targetName,selectedRadioButton);
+        List<TargetDTO> dtos = getSelectedGraphDTOFromDashboard().getAllEffected(targetName,selectedRadioButton);
         dtos.forEach(targetDTO ->returnedList.add(targetDTO.getTargetName()));
         return returnedList;
     }
@@ -282,7 +311,7 @@ public class MainAppController implements Closeable {
         Consumer<String> consumer1 = System.out::println;
         consumerList.add(consumer1);
         try {
-            this.startTargetRefresher();
+            this.startTaskControlPanelRefresher();
             this.manager.activateSimulationTask(selectedTargets, time,time_option, successRates,warningRates, way,consumerList, consumeWhenFinished, "emptyString"); //todo enter current selected graph name
         } catch (XMLException | IOException | InterruptedException | TargetNotFoundException e) {
             e.printStackTrace();
@@ -295,14 +324,14 @@ public class MainAppController implements Closeable {
         Consumer<String> consumer1 = System.out::println;
         consumerList.add(consumer1);
         try {
-            this.startTargetRefresher();
+            this.startTaskControlPanelRefresher();
             this.manager.activateCompilationTask(selectedTargets, source, destination, way,consumerList,consumeWhenFinished, "emptyString");//todo enter current selected graph name
         } catch (XMLException | IOException | InterruptedException | TargetNotFoundException e) {
             e.printStackTrace();
         }
     }
 
-    private void startTargetRefresher(){
+    private void startTaskControlPanelRefresher(){
         //Consumer =>
                             /// List<TargetDTO> a = getFromEngine
                             /// UpdateAllTables(a)
@@ -310,8 +339,9 @@ public class MainAppController implements Closeable {
         Consumer<Boolean> refresherConsumer = new Consumer() {
             @Override
             public void accept(Object o) {
-                List<TargetDTO> newTargetStatus = manager.getCurrentTargetsStatus();
-                mainActivateTaskController.updateProcessLog(newTargetStatus);
+                //List<TargetDTO> newTargetStatus = manager.getCurrentTargetsStatus();
+                //createTaskController.updateProcessLog(newTargetStatus);
+                taskControlPanelController.refreshPanel(getSelectedTaskDTOFromDashboard());
             }
         };
 
@@ -373,7 +403,8 @@ public class MainAppController implements Closeable {
         this.isLoggedIn.set(true);
         gridPaneMainAppRight.getChildren().remove(0); //move to property
         gridPaneMainAppRight.getChildren().add(this.dashboardController.getNodeController());
-        this.dashboardController.initializeDashboardController(this.loginController.userNamePropertyProperty(), this.selectedGraph, isServerOn);
+        this.dashboardController.initializeDashboardController(this.loginController.userNamePropertyProperty(), this.selectedGraph, this.selectedTask, this.matchingUserName, isServerOn);
+        startTaskControlPanelRefresher();
     }
 
     @FXML

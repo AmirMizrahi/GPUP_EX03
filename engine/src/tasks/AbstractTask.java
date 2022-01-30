@@ -4,10 +4,7 @@ import bridges.PrinterBridge;
 import targets.Target;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
@@ -16,6 +13,7 @@ public abstract class AbstractTask implements Task{
     protected final AbstractTask.WAYS_TO_START_SIM_TASK chosenWay;
     protected final Boolean firstTime;
     private final String uploadedUserName;
+    private final String graphName;
     protected int orderOfProcess = 1, totalRunningTime = 0;
     protected final List<Target> relevantTargetsForSummaryLogFile;
     protected final Map<Target,Integer> targetsToRunningTime;
@@ -23,7 +21,7 @@ public abstract class AbstractTask implements Task{
     protected final PrinterBridge printerBridge;
 
     protected AbstractTask(WAYS_TO_START_SIM_TASK chosenWay, boolean firstTime, List<Target> targetsToRunOn,
-                           String pathName, String taskName, String userName) {
+                           String pathName, String taskName, String userName, String graphName) {
         this.chosenWay = chosenWay;
         this.firstTime = firstTime;
         this.relevantTargetsForSummaryLogFile = new ArrayList<>();
@@ -31,6 +29,7 @@ public abstract class AbstractTask implements Task{
         this.printerBridge = new PrinterBridge();
         this.fileFullName = createTaskFolder(pathName,taskName);
         this.uploadedUserName = userName;
+        this.graphName = graphName;
         targetsToRunOn.forEach(t -> targetsToRunningTime.put(t, 0));
     }
 
@@ -146,6 +145,13 @@ public abstract class AbstractTask implements Task{
         return this.uploadedUserName;
     }
 
+    public String getGraphName() {
+        return this.graphName;
+    }
+
+    public Set<Target> getTargets() {
+        return this.targetsToRunningTime.keySet();
+    }
 
     public enum WAYS_TO_START_SIM_TASK
     {

@@ -14,7 +14,7 @@
 				<GPUG-Dependency type="requiredFor">D</GPUG-Dependency>
 			</GPUP-Target-Dependencies>			
 		</GPUP-Target>
-		<GPUP-Target name="B">			
+		<GPUP-Target name="B">
 			<GPUP-Target-Dependencies>
 				<GPUG-Dependency type="requiredFor">D</GPUG-Dependency>
 				<GPUG-Dependency type="requiredFor">E</GPUG-Dependency>

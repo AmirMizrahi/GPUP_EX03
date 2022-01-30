@@ -17,7 +17,7 @@
       <GridPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
         <columnConstraints>
           <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="10.0" prefWidth="250.0" />
-          <ColumnConstraints fx:id="asd" hgrow="SOMETIMES" minWidth="10.0" prefWidth="324.0" />
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="324.0" />
         </columnConstraints>
         <rowConstraints>
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
@@ -31,8 +31,21 @@
                         <Label text="Main Menu" />
                         <Button fx:id="dashboardButton" layoutX="20.0" layoutY="7.0" mnemonicParsing="false" onAction="#dashboardButtonAction" text="Dashboard" />
                         <Button fx:id="loadXMLButton" mnemonicParsing="false" onAction="#loadXMLAction" text="Load XML" />
-                        <Button fx:id="actionsOnGraphButton" mnemonicParsing="false" onAction="#ActionsOnGraphAction" text="Actions On Graph" />
-                        <Button fx:id="activateTaskButton" layoutX="10.0" layoutY="134.0" mnemonicParsing="false" onAction="#activateTaskAction" text="Create New Task" />
+                        <Label fx:id="actionsOnGraphLabelDummy">
+                           <graphic>
+                              <Button fx:id="actionsOnGraphButton" mnemonicParsing="false" onAction="#ActionsOnGraphAction" text="Actions On Graph" />
+                           </graphic>
+                        </Label>
+                        <Label fx:id="createNewTaskLabelDummy">
+                           <graphic>
+                              <Button fx:id="createNewTaskButton" mnemonicParsing="false" onAction="#createNewTaskAction" text="Create New Task" />
+                           </graphic>
+                        </Label>
+                        <Label fx:id="taskControlPanelLabelDummy">
+                           <graphic>
+                              <Button fx:id="taskControlPanelButton" mnemonicParsing="false" onAction="#taskControlPanelButtonAction" text="Task Control Panel" />
+                           </graphic>
+                        </Label>
                         <Separator prefWidth="200.0" />
                         <Button fx:id="animationButton" mnemonicParsing="false" onAction="#animationAction" text="Animation" />
                         <Button fx:id="graphvizButton" layoutX="20.0" layoutY="343.0" mnemonicParsing="false" onAction="#graphvizAction" text="Graphviz" />

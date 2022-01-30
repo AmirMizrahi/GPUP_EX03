@@ -14,8 +14,8 @@ public class SimulationTask extends AbstractTask implements Task{
 
 
     public SimulationTask(Integer taskTime, TIME_OPTION op, Double chanceToSucceed, Double succeedWithWarning, WAYS_TO_START_SIM_TASK way,
-                          List<Target> targetsToRunOn, String pathName, boolean firstTime, String userName) throws IllegalArgumentException {
-        super(way, firstTime, targetsToRunOn, pathName, "Simulation", userName);
+                          List<Target> targetsToRunOn, String pathName, boolean firstTime, String userName, String graphName) throws IllegalArgumentException {
+        super(way, firstTime, targetsToRunOn, pathName, "Simulation", userName, graphName);
         this.taskTime = taskTime;
         this.op = op;
         this.chanceToSucceed = chanceToSucceed;

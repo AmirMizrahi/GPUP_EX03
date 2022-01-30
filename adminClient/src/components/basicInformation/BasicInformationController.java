@@ -1,7 +1,6 @@
 package components.basicInformation;
 
 import DTO.GraphDTO;
-import DTO.SerialSetsDTO;
 import DTO.TargetDTO;
 import components.graphMainComponent.GraphMainComponentController;
 import components.mainApp.Controller;
@@ -65,7 +64,7 @@ public class BasicInformationController implements Controller {
     }
 
     public void initializeBasicInformationController() {
-        updateData(mainAppController.getGraphDTOFromDashboard());
+        updateData(mainAppController.getSelectedGraphDTOFromDashboard());
     }
 
     public void updateData(GraphDTO graphDTO){

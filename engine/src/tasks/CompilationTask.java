@@ -13,7 +13,7 @@ public class CompilationTask extends AbstractTask implements Task {
     private String destinationName;
 
     public CompilationTask(AbstractTask.WAYS_TO_START_SIM_TASK way,List<Target> targetsToRunOn, String pathName, String sourceName, String destinationName, boolean firstTime){
-        super(way, firstTime, targetsToRunOn, pathName, "Compilation", "blabla change me");
+        super(way, firstTime, targetsToRunOn, pathName, "Compilation", "blabla change me", "change meeeeeee");
         this.sourceName = sourceName;
         this.destinationName = destinationName;
     }

@@ -1,15 +1,13 @@
-package components.activateTask.processLogs;
+package components.taskControlPanel;
 
-import DTO.SerialSetDTO;
 import DTO.TargetDTO;
-import components.activateTask.mainActivateTask.ActivateTaskController;
-import components.activateTask.mainActivateTask.MainActivateTaskController;
+import DTO.TaskDTO;
+import components.mainApp.Controller;
+import components.mainApp.MainAppController;
 import exceptions.TargetNotFoundException;
 import exceptions.XMLException;
 import javafx.application.Platform;
-import javafx.beans.Observable;
-import javafx.beans.binding.Bindings;
-import javafx.beans.property.*;
+import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -18,63 +16,67 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 
-import java.io.*;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.function.Consumer;
 
-public class ProcessLogController implements ActivateTaskController {
+public class TaskControlPanelController implements Controller {
 
     //Controllers
-    private MainActivateTaskController mainActivateTaskController;
+    private MainAppController mainAppController;
     private Node nodeController;
-    //
-    //UI
-    @FXML private Button startButton;
-    @FXML private Button pauseResumeButton;
-    @FXML private TableView<String> frozenTableView;
-    @FXML private TableColumn<String,String> frozenNameCol;
-    @FXML private TableView<String> waitingTableView;
-    @FXML private TableColumn<String,String> waitingNameCol;
-    @FXML private TableView<String> inProgressTableView;
-    @FXML private TableColumn<String, String> inProgressNameCol;
-    @FXML private TableView<String> skippedTableView;
-    @FXML private TableColumn<String,String> skippedNameCol;
-    @FXML private TableView<String> finishedTableView;
-    @FXML private TableColumn<String,String> finishedNameCol;
-    @FXML private ListView<String> targetInfoListView;
-    @FXML private ProgressBar taskProgressBar;
-    @FXML private Label progressBarLabel;
-    @FXML private Button clearButton;
-    @FXML private TextArea logTextArea;
-    //
-    private SimpleBooleanProperty taskInAction;
-    private SimpleBooleanProperty enableThreadsChange;
-    private boolean isPause;
-
     private List<String> inProcessData;
     private List<String> frozenData;
     private List<String> waitingData;
     private List<String> finishedData;
     private List<String> skippedData;
-    private List<TargetDTO> newTargetsStatus;
-    private Instant startTaskTime;
+    private List<TargetDTO> tasksTargets;
+    //
+    //UI
+    //Label
+    @FXML private Label taskNameLabel;
+    @FXML private Label graphNameLabel;
+    @FXML private Label summaryTargetsAmountLabel;
+    @FXML private Label summaryIndependentsLabel;
+    @FXML private Label summaryLeafLabel;
+    @FXML private Label summaryMiddleLabel;
+    @FXML private Label summaryRootLabel;
+    @FXML private Label registeredWorkersLabel;
+    @FXML private Label currentWorkingTargetsLabel;
+    @FXML private Label progressBarLabel;
+    //Button
+    @FXML private Button startButton;
+    @FXML private Button pauseResumeButton;
+    @FXML private Button stopButton;
+    @FXML private Button clearButton;
+    //TableView / Column
+    @FXML private TableView<String> frozenTableView;
+    @FXML private TableColumn<String, String> frozenNameCol;
+    @FXML private TableView<String> waitingTableView;
+    @FXML private TableColumn<String, String> waitingNameCol;
+    @FXML private TableView<String> inProgressTableView;
+    @FXML private TableColumn<String, String> inProgressNameCol;
+    @FXML private TableView<String> skippedTableView;
+    @FXML private TableColumn<String, String> skippedNameCol;
+    @FXML private TableView<String> finishedTableView;
+    @FXML private TableColumn<String, String> finishedNameCol;
+    //Other UI
+    @FXML private ListView<String> targetInfoListView;
+    @FXML private ProgressBar taskProgressBar;
+    @FXML private TextArea logTextArea;
 
-
-    public ProcessLogController(){
+    public TaskControlPanelController(){
         inProcessData = new LinkedList<>();
         frozenData = new LinkedList<>();
         waitingData = new LinkedList<>();
         finishedData = new LinkedList<>();
         skippedData = new LinkedList<>();
-        this.newTargetsStatus = new LinkedList<>();
     }
 
     @Override
-    public void setMainActivateTaskController(MainActivateTaskController mainActivateTaskController) {
-        this.mainActivateTaskController = mainActivateTaskController;
+    public void setMainAppController(MainAppController newMainAppController) {
+        this.mainAppController = newMainAppController;
     }
 
     @Override
@@ -88,16 +90,27 @@ public class ProcessLogController implements ActivateTaskController {
     }
 
     @FXML
-    private void initialize(){
-        this.taskInAction = new SimpleBooleanProperty(false);
-        this.enableThreadsChange = new SimpleBooleanProperty(true);
-        this.isPause = false;
-        this.pauseResumeButton.disableProperty().bind(this.taskInAction.not());
+    void clearButtonAction(ActionEvent event) {
+
     }
 
     @FXML
-    private void whenClickedOnRowAction(MouseEvent event){
+    void pauseResumeButtonAction(ActionEvent event) {
 
+    }
+
+    @FXML
+    void startButtonAction(ActionEvent event) {
+
+    }
+
+    @FXML
+    void stopButtonAction(ActionEvent event) {
+
+    }
+
+    @FXML
+    void whenClickedOnRowAction(MouseEvent event) {
         //Get the pressed target name from the tables
         String temp = event.getPickResult().toString();
         int start = temp.indexOf("'");
@@ -114,72 +127,46 @@ public class ProcessLogController implements ActivateTaskController {
         catch (Exception e) {};
     }
 
-    @FXML
-    void clearButtonAction(ActionEvent event) {
-        this.logTextArea.clear();
+    private void showTargetOnTable(String targetName) throws XMLException {
+        TargetDTO targetDTO = searchForRefreshedTarget(targetName);
+        List<String> serialSets = new LinkedList<>();
+        Platform.runLater(()->{
+            this.targetInfoListView.getItems().clear();
+            this.targetInfoListView.getItems().add("Target name: " + targetDTO.getTargetName());
+            this.targetInfoListView.getItems().add("Target category: " + targetDTO.getTargetCategory());
+            this.targetInfoListView.getItems().add("Target dependOn list: " + targetDTO.getOutList());
+            this.targetInfoListView.getItems().add("Target requiredFor list: " + targetDTO.getInList());
+            this.targetInfoListView.getItems().add("Target data: " + targetDTO.getTargetData());
+            try {
+                printAccordingToCurrentStatus(targetDTO);
+            } catch (TargetNotFoundException | XMLException ignore) {}
+
+        });
     }
 
-    @FXML
-    void pauseResumeButtonAction(ActionEvent event) {
-        boolean pause = false;
-        if(pauseResumeButton.getText().compareTo("Pause") == 0){
-            pauseResumeButton.setText("Resume");
-            pause = true;
-            this.isPause= true;
-            this.enableThreadsChange.set(true);
-        }
-
-        else {
-            pauseResumeButton.setText("Pause");
-            this.isPause= false;
-            this.enableThreadsChange.set(false);
-        }
-
-        this.mainActivateTaskController.informPauseToMainActivateTaskController(pause);
-    }
-
-    @FXML
-    void startButtonAction(ActionEvent event) {
-        this.enableThreadsChange.set(false);
-        startTaskTime = Instant.now();
-        Consumer<File> consumeWhenFinished = new Consumer<File>() {
-            @Override
-            public void accept(File targetLogFile) {
-                BufferedReader br
-                        = null;
-                try {
-                    br = new BufferedReader(new FileReader(targetLogFile));
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
-
-                // Declaring a string variable
-                String st;
-                // Condition holds true till
-                // there is character in a string
-
-                while (true) {
-                    try {
-                        if (!((st = br.readLine()) != null)) break;
-                        String finalSt = st;
-                        Platform.runLater(()->logTextArea.appendText(finalSt + "\n"));
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-
-                }
+    private TargetDTO searchForRefreshedTarget(String targetName){
+        TargetDTO dto = null;
+        for (TargetDTO targetDTO : this.tasksTargets) {
+            if (targetName.compareTo(targetDTO.getTargetName()) == 0){
+                dto = targetDTO;
             }
-        };
-        this.taskInAction.set(true);
-        this.mainActivateTaskController.activateTask(consumeWhenFinished);
+        }
+        return dto;
     }
 
-    public void updateProcess(List<TargetDTO> newTargetsStatus) {
-        //Platform.runlater
-        //Instant now
-        this.newTargetsStatus = newTargetsStatus;
-        updateTables(newTargetsStatus);
-        updateProgressBar();
+    public void refreshPanel(TaskDTO selectedTaskDTOFromDashboard) {
+        if (selectedTaskDTOFromDashboard != null) {
+            this.taskNameLabel.setText(selectedTaskDTOFromDashboard.getTaskName());
+            this.graphNameLabel.setText(selectedTaskDTOFromDashboard.getGraphName());
+            this.summaryTargetsAmountLabel.setText(selectedTaskDTOFromDashboard.getAmountOfTargets().toString());
+            this.summaryLeafLabel.setText(selectedTaskDTOFromDashboard.getLeafAmount().toString());
+            this.summaryIndependentsLabel.setText(selectedTaskDTOFromDashboard.getIndependentAmount().toString());
+            this.summaryMiddleLabel.setText(selectedTaskDTOFromDashboard.getMiddleAmount().toString());
+            this.summaryRootLabel.setText(selectedTaskDTOFromDashboard.getRootAmount().toString());
+            this.tasksTargets = selectedTaskDTOFromDashboard.getAllTargets();
+            updateTables(tasksTargets);
+            updateProgressBar();
+        }
     }
 
     private void updateProgressBar() {
@@ -188,11 +175,11 @@ public class ProcessLogController implements ActivateTaskController {
             taskProgressBar.setProgress(value/100);
             progressBarLabel.setText(String.format("%.1f",value) + "%");
             if (value == 100) {
-                this.taskInAction.set(false);
-                this.enableThreadsChange.set(true);
-                this.mainActivateTaskController.reportTaskFinished();
+                //this.taskInAction.set(false);
+                //this.enableThreadsChange.set(true);
+                //this.createTaskController.reportTaskFinished();
                 this.pauseResumeButton.setText("Pause");
-                this.mainActivateTaskController.informPauseToMainActivateTaskController(false);
+                //this.createTaskController.informPauseToMainActivateTaskController(false);
             }
         });
     }
@@ -248,12 +235,12 @@ public class ProcessLogController implements ActivateTaskController {
             putAllDataInTables(waitingTableView, waitingData, waitingNameCol);
             putAllDataInTables(skippedTableView, skippedData, skippedNameCol);
             putAllDataInTables(finishedTableView, finishedData, finishedNameCol);
-            customiseFactory(finishedNameCol, newTargetsStatus);
+            customiseFactory(finishedNameCol);
             //colorCellsInFinishedTable();
         });
     }
 
-    private void customiseFactory(TableColumn<String, String> calltypel, List<TargetDTO> newTargetsStatus) {
+    private void customiseFactory(TableColumn<String, String> calltypel) {
         calltypel.setCellFactory(column -> {
             return new TableCell<String, String>() {
                 @Override
@@ -281,16 +268,6 @@ public class ProcessLogController implements ActivateTaskController {
                 }
             };
         });
-    }
-
-    private TargetDTO searchForRefreshedTarget(String targetName){
-        TargetDTO dto = null;
-        for (TargetDTO targetDTO : newTargetsStatus) {
-            if (targetName.compareTo(targetDTO.getTargetName()) == 0){
-                dto = targetDTO;
-            }
-        }
-        return dto;
     }
 
     private void putAllDataInTables(TableView<String> table, List<String> list, TableColumn<String,String> col) {
@@ -340,31 +317,13 @@ public class ProcessLogController implements ActivateTaskController {
         }
     }
 
-    private void showTargetOnTable(String targetName) throws XMLException {
-        //TargetDTO targetDTO = this.mainActivateTaskController.getTargetInformationWhenTableClicked(targetName);
-        TargetDTO targetDTO = searchForRefreshedTarget(targetName);
-        List<String> serialSets = new LinkedList<>();
-        Platform.runLater(()->{
-            this.targetInfoListView.getItems().clear();
-            this.targetInfoListView.getItems().add("Target name: " + targetDTO.getTargetName());
-            this.targetInfoListView.getItems().add("Target category: " + targetDTO.getTargetCategory());
-            this.targetInfoListView.getItems().add("Target dependOn list: " + targetDTO.getOutList());
-            this.targetInfoListView.getItems().add("Target requiredFor list: " + targetDTO.getInList());
-            this.targetInfoListView.getItems().add("Target data: " + targetDTO.getTargetData());
-            try {
-                printAccordingToCurrentStatus(targetDTO);
-            } catch (TargetNotFoundException | XMLException ignore) {}
-
-        });
-    }
-
     private void printAccordingToCurrentStatus(TargetDTO targetDTO) throws TargetNotFoundException, XMLException {
         if(targetDTO.getTargetStatus().compareTo("FROZEN") == 0){
             String buffer ="Targets which keeps '" +targetDTO.getTargetName() + "' FROZEN: ";
             //List<String> transitives = targetDTO.getTransitiveOutList();
-            List<String> transitives = this.mainActivateTaskController.getAllEffectedTargets(targetDTO.getTargetName(), "Depends On");
+            List<String> transitives = this.mainAppController.getAllEffectedTargets(targetDTO.getTargetName(), "Depends On");
             for (String transitiveTargetName : transitives) {
-                for (TargetDTO target : this.newTargetsStatus) {
+                for (TargetDTO target : this.tasksTargets) {
                     if(target.getTargetName().compareTo(transitiveTargetName) == 0){
                         if((target.getTargetStatusAfterTask().compareTo("SUCCESS") != 0) && (target.getTargetStatusAfterTask().compareTo("WARNING") != 0))
                             buffer += target.getTargetName() +" ";
@@ -376,15 +335,15 @@ public class ProcessLogController implements ActivateTaskController {
 
         else if(targetDTO.getTargetStatus().compareTo("WAITING") == 0){
             Instant currentTime = Instant.now();
-            long timeElapsed = Duration.between(startTaskTime, currentTime).toMillis();
-            this.targetInfoListView.getItems().add("Target '"+ targetDTO.getTargetName() + "' is waiting for " + timeElapsed +"ms");
+           // long timeElapsed = Duration.between(startTaskTime, currentTime).toMillis(); //todo the starting time will provided start
+           // this.targetInfoListView.getItems().add("Target '"+ targetDTO.getTargetName() + "' is waiting for " + timeElapsed +"ms");
         }
 
         else if(targetDTO.getTargetStatus().compareTo("SKIPPED") == 0){
             String buffer ="Failed targets which caused '" +targetDTO.getTargetName() + "' becoming SKIPPED: ";
-            List<String> transitives = this.mainActivateTaskController.getAllEffectedTargets(targetDTO.getTargetName(), "Depends On");
+            List<String> transitives = this.mainAppController.getAllEffectedTargets(targetDTO.getTargetName(), "Depends On");
             for (String transitiveTargetName : transitives) {
-                for (TargetDTO target : this.newTargetsStatus) {
+                for (TargetDTO target : this.tasksTargets) {
                     if(target.getTargetName().compareTo(transitiveTargetName) == 0){
                         if((target.getTargetStatusAfterTask().compareTo("FAILURE") == 0))
                             buffer += target.getTargetName() +" ";
@@ -403,12 +362,10 @@ public class ProcessLogController implements ActivateTaskController {
             this.targetInfoListView.getItems().add("Target status after task: " + targetDTO.getTargetStatusAfterTask());
     }
 
-
-
     public void initializeProcessLog() {
         Platform.runLater(()->{
-            ObservableList<CheckBox> checkBoxes = this.mainActivateTaskController.getCheckBoxes();
-            checkBoxes.forEach(x->x.setSelected(false));
+            //ObservableList<CheckBox> checkBoxes = this.createTaskController.getCheckBoxes();
+            //checkBoxes.forEach(x->x.setSelected(false));
             frozenTableView.getItems().clear();
             //frozenNameCol
             waitingTableView.getItems().clear();
@@ -420,17 +377,9 @@ public class ProcessLogController implements ActivateTaskController {
             finishedTableView.getItems().clear();
             //finishedNameCol
             targetInfoListView.getItems().clear();
-            taskProgressBar.setProgress(0.0);
+            taskProgressBar.setProgress(0.0); //todo ?????
             progressBarLabel.setText("0.0%");
             logTextArea.clear();
         });
-    }
-
-    public boolean isPause() {
-        return this.isPause;
-    }
-
-    public SimpleBooleanProperty getEnableThreadsChangeProperty() {
-        return enableThreadsChange;
     }
 }

@@ -7,6 +7,7 @@ import components.mainApp.MainAppController;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -19,10 +20,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 
-import java.io.IOException;
 import java.util.*;
-
-import static Utils.Constants.DASHBOARD_REFRESH_RATE;
 
 public class DashboardController implements Controller {
 
@@ -41,7 +39,7 @@ public class DashboardController implements Controller {
     //UI
     @FXML private TableView<String> tasksTableView;
     @FXML private TableColumn<String, String> taskTableColumn;
-    @FXML private ListView<?> tasksListView;
+    @FXML private ListView<String> tasksListView;
     @FXML private TableView<String> graphsTableView;
     @FXML private ListView<String> graphsListView;
     @FXML private TableColumn<String, String> graphTableColumn;
@@ -52,6 +50,8 @@ public class DashboardController implements Controller {
    //
     //Properties
     private SimpleStringProperty selectedGraph;
+    private SimpleStringProperty selectedTask;
+    private SimpleBooleanProperty matchingUserName;
 
 
     @Override
@@ -68,7 +68,7 @@ public class DashboardController implements Controller {
     }
 
     @FXML
-    private void initialize() throws IOException {
+    private void initialize(){
         allGraphsDTOS = new LinkedList<>();
         allTasksDTOS = new LinkedList<>();
         userTimer = new Timer();
@@ -145,7 +145,8 @@ public class DashboardController implements Controller {
     void graphsTableViewOnClicked(MouseEvent event) {
         //Get the pressed graph name from the tables
         String temp = event.getPickResult().toString();
-        if(!temp.contains("TableColumn"))
+        System.out.println(temp);
+        if(!temp.contains("TableColumn") && !temp.contains("Text"))
             return;
         int start = temp.indexOf("'");
         int last = temp.lastIndexOf("'");
@@ -181,18 +182,71 @@ public class DashboardController implements Controller {
 
     @FXML
     void tasksTableViewOnClicked(MouseEvent event) {
-
+//Get the pressed graph name from the tables
+        String temp = event.getPickResult().toString();
+        System.out.println(temp);
+        if(!temp.contains("TableColumn") && !temp.contains("Text"))
+            return;
+        int start = temp.indexOf("'");
+        int last = temp.lastIndexOf("'");
+        if(start == -1){
+            start = temp.indexOf("\"");
+            last = temp.lastIndexOf("\"");
+        }
+        try {
+            String name = temp.substring(++start, last);
+            if(name.compareTo("null") != 0) {
+                this.selectedTask.set(name);
+                loadTaskInfoToListView();
+            }
+            if (getLoggedInUserName().compareTo(getSelectedTask().getUploaderName()) == 0)
+                this.matchingUserName.set(true);
+            else
+                this.matchingUserName.set(false);
+        }
+        catch (Exception e) {
+            System.out.println(e);
+            System.out.println("eeeeror");
+        };
     }
 
-    public void initializeDashboardController(SimpleStringProperty userNameProperty, SimpleStringProperty selectedGraph, BooleanProperty isServerOn) {
+    private void loadTaskInfoToListView() {
+        TaskDTO taskToShow = getSelectedTask();
+        this.tasksListView.getItems().clear();
+        this.tasksListView.getItems().add("Task Name: " + taskToShow.getTaskName());
+        this.tasksListView.getItems().add("Task Upload By: " + taskToShow.getUploaderName());
+        this.tasksListView.getItems().add("Total Targets Amount: " + taskToShow.getAmountOfTargets());
+        this.tasksListView.getItems().add("Total Root Targets Amount: " + taskToShow.getRootAmount());
+        this.tasksListView.getItems().add("Total Leaf Targets Amount: " + taskToShow.getLeafAmount());
+        this.tasksListView.getItems().add("Total Middle Targets Amount: " + taskToShow.getMiddleAmount());
+        this.tasksListView.getItems().add("Total Independent Targets Amount: " + taskToShow.getIndependentAmount());
+        //this.tasksListView.getItems().add("Total Price For Task: " + taskToShow.getIndependentAmount()); //todo add
+        //this.tasksListView.getItems().add("Current Number Of Workers: " + taskToShow.getIndependentAmount());
+    }
+
+    public void initializeDashboardController(SimpleStringProperty userNameProperty, SimpleStringProperty selectedGraph,
+                                              SimpleStringProperty selectedTask, SimpleBooleanProperty matchingUserName, BooleanProperty isServerOn) {
         loggedInLabel.textProperty().bind(userNameProperty);
         this.selectedGraph = selectedGraph;
+        this.selectedTask = selectedTask;
+        this.matchingUserName = matchingUserName;
     }
 
     public String getLoggedInUserName(){
         String str = loggedInLabel.getText();
         String tmp = str.substring(str.indexOf("[") +1, str.indexOf("]"));
         return tmp;
+    }
+
+    public TaskDTO getSelectedTask() {
+        TaskDTO toReturn = null;
+        if(selectedTask.get() != null) {
+            for (TaskDTO task : allTasksDTOS) {
+                if (task.getTaskName().compareTo(this.selectedTask.get()) == 0)
+                    toReturn = task;
+            }
+        }
+        return toReturn;
     }
 
     public GraphDTO getSelectedGraph(){

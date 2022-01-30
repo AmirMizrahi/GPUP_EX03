@@ -16,7 +16,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<ScrollPane fitToHeight="true" fitToWidth="true" minHeight="10.0" minWidth="10.0" prefHeight="500.0" xmlns="http://javafx.com/javafx/8.0.301" xmlns:fx="http://javafx.com/fxml/1" fx:controller="components.activateTask.mainActivateTask.MainActivateTaskController">
+<ScrollPane fitToHeight="true" fitToWidth="true" minHeight="10.0" minWidth="10.0" prefHeight="500.0" xmlns="http://javafx.com/javafx/8.0.301" xmlns:fx="http://javafx.com/fxml/1" fx:controller="components.createNewTask.createTask.CreateTaskController">
    <content>
       <GridPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="400.0" minWidth="400.0">
         <columnConstraints>

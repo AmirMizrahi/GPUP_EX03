@@ -1,14 +1,11 @@
-package components.activateTask.mainActivateTask;
+package components.createNewTask.createTask;
 
-import DTO.SerialSetDTO;
 import DTO.TargetDTO;
 import Utils.HttpClientUtil;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import components.activateTask.compilationTask.CompilationTaskController;
-import components.activateTask.processLogs.ProcessLogController;
-import components.activateTask.simulationTask.SimulationTaskController;
+import components.createNewTask.compilationTask.CompilationTaskController;
+import components.createNewTask.processLogs.ProcessLogController;
+import components.createNewTask.simulationTask.SimulationTaskController;
 import components.basicInformation.TargetsTableViewRow;
 import components.mainApp.Controller;
 import components.mainApp.MainAppController;
@@ -28,26 +25,18 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.input.ContextMenuEvent;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
-import tasks.AbstractTask;
-import tasks.SimulationTask;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
 
-import static Utils.Constants.LINE_SEPARATOR;
-
-public class MainActivateTaskController implements Controller {
+public class CreateTaskController implements Controller {
 
     // Controllers
     private SimulationTaskController simulationTaskController;
@@ -77,9 +66,9 @@ public class MainActivateTaskController implements Controller {
     @FXML
     private void initialize() throws IOException {
         isCompilationSelected = new SimpleBooleanProperty(false);
-        this.simulationTaskController = (SimulationTaskController) genericControllersInit("/components/activateTask/simulationTask/simulationTask.fxml");
-        this.compilationTaskController = (CompilationTaskController) genericControllersInit("/components/activateTask/compilationTask/compilationTask.fxml");
-        this.processLogController = (ProcessLogController) genericControllersInit("/components/activateTask/processLogs/processLogs.fxml");
+        this.simulationTaskController = (SimulationTaskController) genericControllersInit("/components/createNewTask/simulationTask/simulationTask.fxml");
+        this.compilationTaskController = (CompilationTaskController) genericControllersInit("/components/createNewTask/compilationTask/compilationTask.fxml");
+        this.processLogController = (ProcessLogController) genericControllersInit("/components/createNewTask/processLogs/processLogs.fxml");
         isWithChildrenSelected = new SimpleBooleanProperty(false);
         isWithParentsSelected = new SimpleBooleanProperty(false);
 
@@ -215,11 +204,11 @@ public class MainActivateTaskController implements Controller {
         );
     }
 
-    private ActivateTaskController genericControllersInit(String str) throws IOException {
+    private TaskController genericControllersInit(String str) throws IOException {
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource(str));
         Node node = loader.load();
-        ActivateTaskController ctr = loader.getController();
+        TaskController ctr = loader.getController();
         ctr.setNodeController(node);
         ctr.setMainActivateTaskController(this);
 
@@ -313,6 +302,7 @@ public class MainActivateTaskController implements Controller {
 
     @FXML
     void uploadTaskButtonAction(ActionEvent event) {
+        Alert p = new Alert(Alert.AlertType.ERROR);
         List<String> selectedTargets = new LinkedList<>();
         for (TargetsTableViewRow row : table.getItems()) {
             if (row.getCheckBox().isSelected())
@@ -331,18 +321,36 @@ public class MainActivateTaskController implements Controller {
                     "successRates=" + successRates + LINE_SEPARATOR +
                     "warningRates=" + warningRates + LINE_SEPARATOR +
                     "userName=" + this.mainAppController.getCurrentUserName() + LINE_SEPARATOR +
-                    "graphName=" + this.mainAppController.getGraphDTOFromDashboard().getGraphName() + LINE_SEPARATOR +
+                    "graphName=" + this.mainAppController.getSelectedGraphDTOFromDashboard().getGraphName() + LINE_SEPARATOR +
                     "taskName=" + this.taskNameTextField.getText();
 
             HttpClientUtil.uploadTask(RequestBody.create(body.getBytes()) , new Callback() {
                 @Override
                 public void onFailure(@NotNull Call call, @NotNull IOException e) {
-
+                    Platform.runLater(() -> {
+                        Alert failLoginPopup = new Alert(Alert.AlertType.ERROR);
+                        failLoginPopup.setHeaderText("Upload Task Error!");
+                        failLoginPopup.setContentText("Something went wrong: " + e.getMessage());
+                        failLoginPopup.show();
+                    });
                 }
 
                 @Override
                 public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-
+                    if (response.code() != 200) {
+                        String responseBody = response.body().string();
+                        p.setHeaderText("Upload Task Error!");
+                        p.setAlertType(Alert.AlertType.ERROR);
+                        p.setContentText("Something went wrong: " + responseBody);
+                    }
+                    else {
+                        p.setContentText(response.body().string());
+                        Platform.runLater(() -> {
+                            p.setAlertType(Alert.AlertType.INFORMATION);
+                            p.setHeaderText("Success!");
+                        });
+                    }
+                    Platform.runLater(() -> p.show() );
                 }
             });
         }

@@ -103,9 +103,11 @@ public class Manager implements Serializable {
         ArrayList<String> duplicatedTargets = new ArrayList<>();
         Boolean flag;
         //checkIfFileEndsWithXML(fullPathFileName.trim()); //todo
-        //InputStream inputStream = new FileInputStream(new File(fullPathFileName.trim()));
         GPUPDescriptor descriptor = deserializeFrom(inputStream);
         String graphName = descriptor.getGPUPConfiguration().getGPUPGraphName().trim();
+        if(graphManager.getGraphs().keySet().contains(graphName)){ //check if graph already uploaded
+            throw new XMLException(graphName + " already uploaded.");
+        }
         Graph newGraph = new Graph(graphName, uploaderName);
         //Create target by name only
         for (GPUPTarget gpupTarget: descriptor.getGPUPTargets().getGPUPTarget()) {
@@ -231,7 +233,7 @@ public class Manager implements Serializable {
 
         List<Target> targetList = runTaskInFirstTime(way);
         Task simulationTask = new SimulationTask(taskTime,op,ChanceToSucceed, SucceedWithWarning, way, targetList,
-                this.mainSimulationTaskFolderPath, checkIfTaskIsActivatedInFirstTime(), "bla bla change me");
+                this.mainSimulationTaskFolderPath, checkIfTaskIsActivatedInFirstTime(), "bla bla change me", "changeMeTOoooooo");
 
         activateTaskMG(simulationTask, consumerList,consumeWhenFinished, graphName);
     }
@@ -373,7 +375,11 @@ public class Manager implements Serializable {
         List<TaskDTO> toReturn = new LinkedList<>();
 
         for (Map.Entry<String, Task> entry : this.taskManager.getTasks().entrySet()) {
-            toReturn.add(new TaskDTO(entry.getKey(),(AbstractTask)entry.getValue())); //todo check if cast is alright!!!!!
+            String taskName = entry.getKey();
+            String uploaderName = entry.getValue().getUploaderName();
+            String graphName = entry.getValue().getGraphName();
+            Set<Target> allTargets = entry.getValue().getTargets();
+            toReturn.add(new TaskDTO(taskName,uploaderName, graphName, allTargets));
         }
 
         return toReturn;
@@ -429,8 +435,14 @@ public class Manager implements Serializable {
         return status;
     }
 
-    public void addNewTask(Integer time, String time_option, Double successRates, Double warningRates, String userName, String graphName,String taskName, List<String> selectedTargetsNames) {
+    public void addNewTask(Integer time, String time_option, Double successRates, Double warningRates, String userName,
+                           String graphName,String taskName, List<String> selectedTargetsNames) throws Exception {
         List<Target> selectedTargets = new LinkedList<>();
+
+        if(taskManager.getTasks().keySet().contains(taskName)){ //check if task already uploaded
+            throw new Exception(taskName + " already created.");
+        }
+
         selectedTargetsNames.forEach(targetName-> {
             try {
                 selectedTargets.add(this.graphManager.getGraphs().get(graphName).getTargetByName(targetName));
@@ -438,7 +450,9 @@ public class Manager implements Serializable {
                 e.printStackTrace(); //todo remove
             }
         });
-        Task task = new SimulationTask(time, SimulationTask.TIME_OPTION.valueOf(time_option.toUpperCase()), successRates, warningRates, AbstractTask.WAYS_TO_START_SIM_TASK.FROM_SCRATCH, selectedTargets, DEFAULT_WORKING_DIR ,true, userName);
+        Task task = new SimulationTask(time, SimulationTask.TIME_OPTION.valueOf(time_option.toUpperCase()), successRates,
+                warningRates, AbstractTask.WAYS_TO_START_SIM_TASK.FROM_SCRATCH, selectedTargets, DEFAULT_WORKING_DIR ,
+                true, userName, graphName);
         taskManager.addTask(taskName,task);
     }
 }

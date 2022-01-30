@@ -57,10 +57,22 @@ public class UploadTaskServlet extends HttpServlet {
 
         if (error != null) {
             response.getWriter().println(error);
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getOutputStream().print(error);
+
         } else {
             Manager manager = ServletUtils.getManager(getServletContext());
             // if taskType == Simulation
-            manager.addNewTask(time,time_option,successRates,warningRates,userName, graphName, taskName, targets);
+            try{
+                manager.addNewTask(time,time_option,successRates,warningRates,userName, graphName, taskName, targets);
+                response.setStatus(HttpServletResponse.SC_OK);
+                response.getOutputStream().print("Task " + taskName + " Created Successfully!");
+            }
+            catch (Exception e){
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                response.getOutputStream().print(e.getMessage());
+            }
+
         }
     }
 

@@ -1,7 +1,7 @@
-package components.activateTask.compilationTask;
+package components.createNewTask.compilationTask;
 
-import components.activateTask.mainActivateTask.ActivateTaskController;
-import components.activateTask.mainActivateTask.MainActivateTaskController;
+import components.createNewTask.createTask.TaskController;
+import components.createNewTask.createTask.CreateTaskController;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -10,15 +10,13 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
 import javafx.stage.DirectoryChooser;
-import javafx.stage.Stage;
 
 import java.io.File;
-import java.nio.file.Paths;
 
-public class CompilationTaskController implements ActivateTaskController {
+public class CompilationTaskController implements TaskController {
 
     //Controllers
-    private MainActivateTaskController mainActivateTaskController;
+    private CreateTaskController createTaskController;
     private Node nodeController;
     //
     @FXML private Button selectSourceButton;
@@ -45,8 +43,8 @@ public class CompilationTaskController implements ActivateTaskController {
     }
 
     @Override
-    public void setMainActivateTaskController(MainActivateTaskController mainActivateTaskController) {
-        this.mainActivateTaskController = mainActivateTaskController;
+    public void setMainActivateTaskController(CreateTaskController createTaskController) {
+        this.createTaskController = createTaskController;
     }
 
     @Override
@@ -65,7 +63,7 @@ public class CompilationTaskController implements ActivateTaskController {
         //String currentPath = Paths.get("engine/src/resources/XOO").toAbsolutePath().normalize().toString();
         //fileChooser.setInitialDirectory(new File(currentPath));
         //
-        File file = fileChooser.showDialog(this.mainActivateTaskController.getPrimaryStage());
+        File file = fileChooser.showDialog(this.createTaskController.getPrimaryStage());
         if (file == null)
             return;
 
@@ -81,7 +79,7 @@ public class CompilationTaskController implements ActivateTaskController {
         //String currentPath = Paths.get("engine/src/resources/XOO/src").toAbsolutePath().normalize().toString();
         //directoryChooser.setInitialDirectory(new File(currentPath));
 
-        File file = directoryChooser.showDialog(this.mainActivateTaskController.getPrimaryStage());
+        File file = directoryChooser.showDialog(this.createTaskController.getPrimaryStage());
         if (file == null)
             return;
 
