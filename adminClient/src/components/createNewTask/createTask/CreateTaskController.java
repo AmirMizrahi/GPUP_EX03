@@ -36,6 +36,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import static Utils.Constants.LINE_SEPARATOR;
+
 public class CreateTaskController implements Controller {
 
     // Controllers

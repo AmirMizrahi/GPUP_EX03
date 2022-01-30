@@ -17,7 +17,7 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import static Utils.Constants.DEFAULT_WORKING_DIR;
+import static Utilss.Constants.DEFAULT_WORKING_DIR;
 
 public class Manager implements Serializable {
     private GraphManager graphManager;

@@ -2,6 +2,7 @@ package components.dashboard;
 
 import DTO.GraphDTO;
 import DTO.TaskDTO;
+import DTO.UserDTO;
 import components.mainApp.Controller;
 import components.mainApp.MainAppController;
 import javafx.application.Platform;
@@ -21,6 +22,8 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 
 import java.util.*;
+
+import static Utils.Constants.DASHBOARD_REFRESH_RATE;
 
 public class DashboardController implements Controller {
 
@@ -93,11 +96,11 @@ public class DashboardController implements Controller {
         taskTimer.schedule(taskRefresher, DASHBOARD_REFRESH_RATE, DASHBOARD_REFRESH_RATE);
     }
 
-    private void updateUsersList(Map<String,String> usersNames) {
+    private void updateUsersList(Map<String, UserDTO> usersNames) {
         List<UserTableViewRow> rows = new LinkedList<>();
 
-        for (Map.Entry<String, String> entry : usersNames.entrySet()) {
-            rows.add(new UserTableViewRow(entry.getKey(), entry.getValue()));
+        for (Map.Entry<String, UserDTO> entry : usersNames.entrySet()) {
+            rows.add(new UserTableViewRow(entry.getKey(), entry.getValue().getType()));
         }
 
         Platform.runLater(() -> {

@@ -1,7 +1,6 @@
 package components.dashboard;
 
 import components.mainApp.ControllerW;
-import components.mainApp.MainAppController;
 import components.mainApp.MainAppControllerW;
 import javafx.fxml.FXML;
 import javafx.scene.Node;

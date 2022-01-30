@@ -10,7 +10,9 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import okhttp3.*;
 import okhttp3.HttpUrl;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
@@ -47,6 +49,7 @@ public class LoginControllerW implements ControllerW {
     @FXML
     void loginButtonAction(ActionEvent event) {
         String userName = userNameTextField.getText();
+        Integer threads = WorkerThreadSpinner.getValue();
         Alert loginPopup = new Alert(Alert.AlertType.ERROR);
         loginPopup.setHeaderText("Login Error");
         if (userName.isEmpty()) {
@@ -61,6 +64,7 @@ public class LoginControllerW implements ControllerW {
                 .newBuilder()
                 .addQueryParameter("username", userName)
                 .addQueryParameter("type", "Worker")
+                .addQueryParameter("threads", threads.toString())
                 .build()
                 .toString();
 
@@ -89,7 +93,7 @@ public class LoginControllerW implements ControllerW {
                     Platform.runLater(() -> {
                         loginPopup.setAlertType(Alert.AlertType.INFORMATION);
                         loginPopup.setHeaderText("Success!");
-                        mainAppController.onLoggedIn();
+                      //  mainAppController.onLoggedIn();
                         userNameProperty.set("Logged as: [" + userNameTextField.getText() + "]      ;    Rank: Admin");
 //                            chatAppMainController.updateUserName(userName);
 //                            chatAppMainController.switchToChatRoom();

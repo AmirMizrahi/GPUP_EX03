@@ -1,5 +1,6 @@
 package components.dashboard;
 
+import DTO.UserDTO;
 import Utils.Constants;
 import Utils.HttpClientUtil;
 import com.google.gson.reflect.TypeToken;
@@ -21,10 +22,10 @@ import static Utils.Constants.GSON_INSTANCE;
 
 public class UserListRefresher extends TimerTask {
 
-    private final Consumer<Map<String,String>> usersListConsumer;
+    private final Consumer<Map<String,UserDTO>> usersListConsumer;
     private int requestNumber;
 
-    public UserListRefresher(Consumer<Map<String,String>> usersListConsumer) {
+    public UserListRefresher(Consumer<Map<String, UserDTO>> usersListConsumer) {
         this.usersListConsumer = usersListConsumer;
         requestNumber = 0;
     }
@@ -38,16 +39,16 @@ public class UserListRefresher extends TimerTask {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
                 //httpRequestLoggerConsumer.accept("Users Request # " + finalRequestNumber + " | Ended with failure...");
-                Map<String,String> failed = new HashMap<>();
-                failed.put("","");
+                Map<String,UserDTO> failed = new HashMap<>();
+                failed.put("",new UserDTO("","",-1));
                 usersListConsumer.accept(failed);
             }
 
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                 String jsonArrayOfUsersNames = response.body().string();
-                Type type = new TypeToken<Map<String, String>>(){}.getType();
-                Map<String, String> usersNames = GSON_INSTANCE.fromJson(jsonArrayOfUsersNames, type);
+                Type type = new TypeToken<Map<String, UserDTO>>(){}.getType();
+                Map<String, UserDTO> usersNames = GSON_INSTANCE.fromJson(jsonArrayOfUsersNames, type);
                 usersListConsumer.accept(usersNames);
             }
         });

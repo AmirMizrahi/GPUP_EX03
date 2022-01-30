@@ -21,6 +21,7 @@ public class LightweightLoginServlet extends HttpServlet {
 
             String usernameFromParameter = request.getParameter("username");
             String userTypeFromParameter = request.getParameter("type");
+            String threadsFromParameter = request.getParameter("threads");
             if (usernameFromParameter == null || usernameFromParameter.isEmpty()) {
                 //no username in session and no username in parameter - not standard situation. it's a conflict
 
@@ -52,7 +53,13 @@ public class LightweightLoginServlet extends HttpServlet {
                     }
                     else {
                         //add the new user to the users list
-                        userManager.addUser(usernameFromParameter, userTypeFromParameter);
+                        if(userTypeFromParameter.compareTo("Worker") == 0){
+                            int threads = Integer.parseInt(threadsFromParameter);
+                            userManager.addUser(usernameFromParameter, userTypeFromParameter, threads);
+                        }
+                        else
+                            userManager.addUser(usernameFromParameter, userTypeFromParameter);
+
                         //set the username in a session so it will be available on each request
                         //the true parameter means that if a session object does not exists yet
                         //create a new one
