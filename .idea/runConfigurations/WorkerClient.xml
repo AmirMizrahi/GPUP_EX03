@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="WorkerClient" type="Application" factoryName="Application">
+  <configuration default="false" name="WorkerClient" type="Application" factoryName="Application" singleton="false">
     <option name="MAIN_CLASS_NAME" value="WorkerClient" />
     <module name="workerClient" />
     <method v="2">

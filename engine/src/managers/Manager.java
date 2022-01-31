@@ -379,7 +379,8 @@ public class Manager implements Serializable {
             String uploaderName = entry.getValue().getUploaderName();
             String graphName = entry.getValue().getGraphName();
             Set<Target> allTargets = entry.getValue().getTargets();
-            toReturn.add(new TaskDTO(taskName,uploaderName, graphName, allTargets));
+            String taskStatus = entry.getValue().getStatus().toString();
+            toReturn.add(new TaskDTO(taskName,uploaderName, graphName, allTargets, taskStatus));
         }
 
         return toReturn;
@@ -454,5 +455,10 @@ public class Manager implements Serializable {
                 warningRates, AbstractTask.WAYS_TO_START_SIM_TASK.FROM_SCRATCH, selectedTargets, DEFAULT_WORKING_DIR ,
                 true, userName, graphName);
         taskManager.addTask(taskName,task);
+    }
+
+
+    public void updateTaskStatus(String taskName, AbstractTask.TASK_STATUS taskStatus) {
+        this.taskManager.updateTaskStatus(taskName,taskStatus);
     }
 }

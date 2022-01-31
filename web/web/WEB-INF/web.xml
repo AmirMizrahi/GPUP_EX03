@@ -48,4 +48,13 @@
         <url-pattern>/engine/uploadtask</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>UpdateTaskStatusServlet</servlet-name>
+        <servlet-class>servlets.UpdateTaskStatusServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>UpdateTaskStatusServlet</servlet-name>
+        <url-pattern>/engine/updatetaskstatus</url-pattern>
+    </servlet-mapping>
+
 </web-app>

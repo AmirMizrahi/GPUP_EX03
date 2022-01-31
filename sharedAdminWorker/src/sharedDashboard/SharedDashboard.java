@@ -7,11 +7,8 @@ import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import sharedControllers.sharedMainAppController;
 
 import java.util.*;
 
@@ -104,7 +101,49 @@ public class SharedDashboard {
             tasksTableView.setItems(data);
             tasksTableView.getColumns().clear();
             tasksTableView.getColumns().addAll(taskTableColumn);
+            customiseFactory(taskTableColumn);
         });
+    }
+
+    private static void customiseFactory(TableColumn<String, String> calltypel) {
+        calltypel.setCellFactory(column -> {
+            return new TableCell<String, String>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+
+                    setText(empty ? "" : getItem().toString());
+                    setGraphic(null);
+
+                    TableRow<String> currentRow = getTableRow();
+                    try {
+                        TaskDTO dto = searchForRefreshedTask(item);
+                        String statusAfter = dto.getTaskStatus();
+
+                        if (!isEmpty()) {
+                            if(statusAfter.compareTo("STOPPED") == 0)
+                                currentRow.setStyle("-fx-background-color:#eaa121");
+                            else if(statusAfter.compareTo("PLAY") == 0)
+                                currentRow.setStyle("-fx-background-color:lightgreen");
+                            else if (statusAfter.compareTo("PAUSED") == 0)
+                                currentRow.setStyle("-fx-background-color:#e3e329");
+                            else if (statusAfter.compareTo("FINISHED") == 0)
+                                currentRow.setStyle("-fx-background-color:lightcoral");
+                        }
+                    } catch (NullPointerException ignore) {};
+                }
+            };
+        });
+    }
+
+    private static TaskDTO searchForRefreshedTask(String taskName){
+        TaskDTO dto = null;
+        for (TaskDTO taskDTO : allTasksDTOS) {
+            if (taskName.compareTo(taskDTO.getTaskName()) == 0){
+                dto = taskDTO;
+            }
+        }
+        return dto;
     }
 
     public static void wireColumnForUserList(TableColumn column, String property) {
@@ -119,6 +158,7 @@ public class SharedDashboard {
     public static void doWhenClickedOnTaskTable(String temp, SimpleStringProperty selectedTask, ListView tasksListView) {
         if(!temp.contains("TableColumn") && !temp.contains("Text"))
             return;
+        System.out.println(temp);//todo from here
         int start = temp.indexOf("'");
         int last = temp.lastIndexOf("'");
         if(start == -1){

@@ -13,4 +13,7 @@ public interface Task {
     String getUploaderName();
     Set<Target> getTargets();
     String getGraphName();
+    void setStatus(AbstractTask.TASK_STATUS taskStatus);
+    AbstractTask.TASK_STATUS getStatus();
+
 }

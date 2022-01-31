@@ -1,12 +1,12 @@
 package Utils;
 
+import javafx.scene.control.Alert;
 import okhttp3.*;
 
 import java.io.File;
 import java.util.function.Consumer;
 
-import static Utils.Constants.LOAD_XML;
-import static Utils.Constants.UPLOAD_TASK;
+import static Utils.Constants.*;
 
 public class HttpClientUtil {
 
@@ -19,6 +19,13 @@ public class HttpClientUtil {
 
     public static void setCookieManagerLoggingFacility(Consumer<String> logConsumer) {
         simpleCookieManager.setLogData(logConsumer);
+    }
+
+    public static Alert createErrorPopup(String header, String content){
+        Alert failLoginPopup = new Alert(Alert.AlertType.ERROR);
+        failLoginPopup.setHeaderText(header);
+        failLoginPopup.setContentText("Something went wrong: " + content);
+        return failLoginPopup;
     }
 
     public static void removeCookiesOf(String domain) {
@@ -49,9 +56,9 @@ public class HttpClientUtil {
         call.enqueue(callback);
     }
 
-    public static void uploadTask(RequestBody body, Callback callback){
+    public static void postRequest(RequestBody body, Callback callback, String url){
         Request request = new Request.Builder()
-                .url(UPLOAD_TASK)
+                .url(url)
                 // .addHeader("Content-Type", "text/plain")
                 .post(body)
                 .build();

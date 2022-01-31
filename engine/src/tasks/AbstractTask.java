@@ -19,6 +19,7 @@ public abstract class AbstractTask implements Task{
     protected final Map<Target,Integer> targetsToRunningTime;
     protected String fileFullName;
     protected final PrinterBridge printerBridge;
+    protected TASK_STATUS taskStatus;
 
     protected AbstractTask(WAYS_TO_START_SIM_TASK chosenWay, boolean firstTime, List<Target> targetsToRunOn,
                            String pathName, String taskName, String userName, String graphName) {
@@ -31,6 +32,7 @@ public abstract class AbstractTask implements Task{
         this.uploadedUserName = userName;
         this.graphName = graphName;
         targetsToRunOn.forEach(t -> targetsToRunningTime.put(t, 0));
+        this.taskStatus = TASK_STATUS.DEFAULT;
     }
 
     protected Consumer<String> consumerBuilder(String path){
@@ -153,8 +155,22 @@ public abstract class AbstractTask implements Task{
         return this.targetsToRunningTime.keySet();
     }
 
+    @Override
+    public void setStatus(TASK_STATUS taskStatus) {
+        this.taskStatus = taskStatus;
+    }
+
+    @Override
+    public AbstractTask.TASK_STATUS getStatus(){
+        return this.taskStatus;
+    }
+
     public enum WAYS_TO_START_SIM_TASK
     {
         FROM_SCRATCH,INCREMENTAL
+    }
+
+    public enum TASK_STATUS{
+        DEFAULT, PLAY, PAUSED, STOPPED, FINISHED
     }
 }

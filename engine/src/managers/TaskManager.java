@@ -1,5 +1,7 @@
 package managers;
 
+import DTO.UserDTO;
+import tasks.AbstractTask;
 import tasks.Task;
 
 import java.util.Collections;
@@ -29,5 +31,14 @@ public class TaskManager {
 
     public boolean isTaskExists(String taskName) {
         return taskNameToTask.containsKey(taskName);
+    }
+
+    public void updateTaskStatus(String taskName, AbstractTask.TASK_STATUS taskStatus) {
+        for (Map.Entry<String, Task> entry : taskNameToTask.entrySet()) {
+            if(entry.getKey().compareTo(taskName) == 0){
+                entry.getValue().setStatus(taskStatus);
+                break;
+            }
+        }
     }
 }

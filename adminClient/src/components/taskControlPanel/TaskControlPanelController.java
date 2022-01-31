@@ -2,6 +2,8 @@ package components.taskControlPanel;
 
 import DTO.TargetDTO;
 import DTO.TaskDTO;
+import Utils.HttpClientUtil;
+import com.google.gson.Gson;
 import components.mainApp.Controller;
 import components.mainApp.MainAppController;
 import exceptions.TargetNotFoundException;
@@ -15,11 +17,19 @@ import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.LinkedList;
 import java.util.List;
+
+import static Utils.Constants.*;
 
 public class TaskControlPanelController implements Controller {
 
@@ -101,6 +111,27 @@ public class TaskControlPanelController implements Controller {
 
     @FXML
     void startButtonAction(ActionEvent event) {
+        String body = "taskStatus=play" + LINE_SEPARATOR + "taskName="+taskNameLabel.getText();
+
+        HttpClientUtil.postRequest(RequestBody.create(body.getBytes()) , new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                Platform.runLater(() -> {
+                    HttpClientUtil.createErrorPopup("Server down!", e.getMessage()).show();
+                });
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                if (response.code() != 200) {
+                    String responseBody = response.body().string();
+                    Platform.runLater(()->HttpClientUtil.createErrorPopup("Update Task Error!", responseBody).show());
+                }
+                else {
+                    //update client somehow?
+                }
+            }
+        }, UPDATE_TASK_STATUS);
 
     }
 

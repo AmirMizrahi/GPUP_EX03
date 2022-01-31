@@ -2,6 +2,7 @@ package DTO;
 
 
 import targets.Target;
+import tasks.AbstractTask;
 
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -16,8 +17,9 @@ public class TaskDTO {
     //private final int taskTotalPrice;
     //private final int currentWorkersAmount;
     private final String graphName;
+    private final String taskStatus;
 
-    public TaskDTO(String taskName, String uploaderName, String graphName, Set<Target> allTargets) {
+    public TaskDTO(String taskName, String uploaderName, String graphName, Set<Target> allTargets, String taskStatus) {
         this.taskName = taskName;
         this.uploaderName = uploaderName;
         this.allTargets.addAll(allTargets);
@@ -32,6 +34,7 @@ public class TaskDTO {
                 targetTypeArray[3]++;
         }
         this.graphName = graphName;
+        this.taskStatus = taskStatus;
     }
 
     public String getTaskName() {
@@ -71,4 +74,6 @@ public class TaskDTO {
         allTargets.forEach(target -> toReturn.add(new TargetDTO(target)));
         return toReturn;
     }
+
+    public String getTaskStatus() {return this.taskStatus;}
 }

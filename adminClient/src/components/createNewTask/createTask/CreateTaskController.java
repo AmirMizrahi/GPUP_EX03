@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import static Utils.Constants.LINE_SEPARATOR;
+import static Utils.Constants.UPLOAD_TASK;
 
 public class CreateTaskController implements Controller {
 
@@ -326,7 +327,7 @@ public class CreateTaskController implements Controller {
                     "graphName=" + this.mainAppController.getSelectedGraphDTOFromDashboard().getGraphName() + LINE_SEPARATOR +
                     "taskName=" + this.taskNameTextField.getText();
 
-            HttpClientUtil.uploadTask(RequestBody.create(body.getBytes()) , new Callback() {
+            HttpClientUtil.postRequest(RequestBody.create(body.getBytes()) , new Callback() {
                 @Override
                 public void onFailure(@NotNull Call call, @NotNull IOException e) {
                     Platform.runLater(() -> {
@@ -354,7 +355,7 @@ public class CreateTaskController implements Controller {
                     }
                     Platform.runLater(() -> p.show() );
                 }
-            });
+            }, UPLOAD_TASK);
         }
         else{
         //   String source = this.compilationTaskController.getSourceFolder();
