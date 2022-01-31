@@ -37,6 +37,8 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
+import sharedControllers.sharedMainAppController;
+import sharedMainApp.SharedMainApp;
 import tasks.AbstractTask;
 import tasks.SimulationTask;
 
@@ -49,8 +51,9 @@ import java.util.Timer;
 import java.util.function.Consumer;
 
 import static Utils.Constants.TARGETS_REFRESH_RATE;
+import static sharedMainApp.SharedMainApp.sharedOnLoggedIn;
 
-public class MainAppController implements Closeable {
+public class MainAppController implements Closeable, sharedMainAppController {
 
     //
     private final Manager manager;
@@ -75,7 +78,6 @@ public class MainAppController implements Closeable {
     private BooleanProperty isLoggedIn; //changed from SimpleBooleanProperty - does it matter?
     private SimpleStringProperty selectedGraph;
     private SimpleStringProperty selectedTask;
-    private static BooleanProperty isServerOn;
     // Controllers
     private LoginController loginController;
     private GraphMainComponentController graphMainComponentController;
@@ -104,7 +106,6 @@ public class MainAppController implements Closeable {
 
     @FXML
     private void initialize() throws IOException {
-        isServerOn = new SimpleBooleanProperty(false);
         this.dashboardButton.disableProperty().bind(isLoggedIn.not());
         this.loadXMLButton.disableProperty().bind(isLoggedIn.not());
         this.actionsOnGraphButton.disableProperty().bind(selectedGraph.isEmpty());
@@ -120,12 +121,12 @@ public class MainAppController implements Closeable {
         this.graphvizButton.disableProperty().bind(selectedGraph.isEmpty());
         this.serverStatusLabel.textProperty().bind(Bindings.createStringBinding(() -> {
             String str;
-            if (isServerOn.get())
+            if (SharedMainApp.getServerOnProperty().get())
                 str = "Server is ON";
             else
                 str = "Server is OFF";
             return str;
-        }, isServerOn));
+        }, SharedMainApp.getServerOnProperty()));
 
         graphMainComponentController = (GraphMainComponentController) genericControllersInit("/components/graphMainComponent/graphMainComponent.fxml");
         graphMainComponentController.initializeGraphMainComponent(); //todo change this? this is setting mainapp controller to all SUB COMPONENTS
@@ -399,11 +400,13 @@ public class MainAppController implements Closeable {
         this.manager.setNewThreadAmountMG(value);
     }
 
+    @Override
     public void onLoggedIn() {
-        this.isLoggedIn.set(true);
-        gridPaneMainAppRight.getChildren().remove(0); //move to property
-        gridPaneMainAppRight.getChildren().add(this.dashboardController.getNodeController());
-        this.dashboardController.initializeDashboardController(this.loginController.userNamePropertyProperty(), this.selectedGraph, this.selectedTask, this.matchingUserName, isServerOn);
+//        this.isLoggedIn.set(true);
+//        gridPaneMainAppRight.getChildren().remove(0); //move to property
+//        gridPaneMainAppRight.getChildren().add(this.dashboardController.getNodeController());
+        sharedOnLoggedIn(gridPaneMainAppRight,isLoggedIn,this.dashboardController.getNodeController());
+        this.dashboardController.initializeDashboardController(this.loginController.userNamePropertyProperty(), this.selectedGraph, this.selectedTask, this.matchingUserName, SharedMainApp.getServerOnProperty());
         startTaskControlPanelRefresher();
     }
 
@@ -419,9 +422,6 @@ public class MainAppController implements Closeable {
         gridPaneMainAppRight.getChildren().add(this.graphMainComponentController.getNodeController());
     }
 
-    public static BooleanProperty getServerOnProperty() {
-        return isServerOn;
-    }
 
     public String getCurrentUserName() {
         return this.dashboardController.getLoggedInUserName();

@@ -1,4 +1,4 @@
-package components.dashboard;
+package sharedDashboard;
 
 import DTO.UserDTO;
 import Utils.Constants;

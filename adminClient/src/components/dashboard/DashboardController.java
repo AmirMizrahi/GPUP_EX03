@@ -2,42 +2,31 @@ package components.dashboard;
 
 import DTO.GraphDTO;
 import DTO.TaskDTO;
-import DTO.UserDTO;
 import components.mainApp.Controller;
 import components.mainApp.MainAppController;
-import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
+import sharedDashboard.SharedDashboard;
+import sharedDashboard.UserTableViewRow;
 
 import java.util.*;
-
-import static Utils.Constants.DASHBOARD_REFRESH_RATE;
 
 public class DashboardController implements Controller {
 
     //Controllers
     private MainAppController mainAppController;
     private Node nodeController;
-    private Timer userTimer;
-    private Timer graphTimer;
-    private Timer taskTimer;
-    private TimerTask userRefresher;
-    private TimerTask graphRefresher;
-    private TimerTask taskRefresher;
-    private List<GraphDTO> allGraphsDTOS;
-    private List<TaskDTO> allTasksDTOS;
+
+
     //
     //UI
     @FXML private TableView<String> tasksTableView;
@@ -72,76 +61,17 @@ public class DashboardController implements Controller {
 
     @FXML
     private void initialize(){
-        allGraphsDTOS = new LinkedList<>();
-        allTasksDTOS = new LinkedList<>();
-        userTimer = new Timer();
-        graphTimer = new Timer();
-        taskTimer = new Timer();
-        startDashboardRefresher();
-        wireColumnForUserList(userTableColumn,"userName");
-        wireColumnForUserList(typeTableColumn,"userType");
+        SharedDashboard.startDashboardRefresher(
+                usersTableView, userTableColumn, typeTableColumn,
+                graphsTableView, graphTableColumn,
+                tasksTableView, taskTableColumn);
+
+        SharedDashboard.wireColumnForUserList(userTableColumn,"userName");
+        SharedDashboard.wireColumnForUserList(typeTableColumn,"userType");
         graphTableColumn.setCellValueFactory(cellData ->
                 new ReadOnlyStringWrapper(cellData.getValue()));
         taskTableColumn.setCellValueFactory(cellData ->
                 new ReadOnlyStringWrapper(cellData.getValue()));
-    }
-
-    private void startDashboardRefresher(){
-        userRefresher = new UserListRefresher(this::updateUsersList);
-        graphRefresher = new GraphListRefresher(this.mainAppController.getServerOnProperty(),this::updateGraphList);
-        taskRefresher = new TaskListRefresher(this::updateTaskList);
-
-        userTimer.schedule(userRefresher, DASHBOARD_REFRESH_RATE, DASHBOARD_REFRESH_RATE);
-        graphTimer.schedule(graphRefresher, DASHBOARD_REFRESH_RATE, DASHBOARD_REFRESH_RATE);
-        taskTimer.schedule(taskRefresher, DASHBOARD_REFRESH_RATE, DASHBOARD_REFRESH_RATE);
-    }
-
-    private void updateUsersList(Map<String, UserDTO> usersNames) {
-        List<UserTableViewRow> rows = new LinkedList<>();
-
-        for (Map.Entry<String, UserDTO> entry : usersNames.entrySet()) {
-            rows.add(new UserTableViewRow(entry.getKey(), entry.getValue().getType()));
-        }
-
-        Platform.runLater(() -> {
-            final ObservableList<UserTableViewRow> data = FXCollections.observableArrayList(rows);
-            usersTableView.setItems(data);
-            usersTableView.getColumns().clear();
-            usersTableView.getColumns().addAll(userTableColumn,typeTableColumn);
-        });
-    }
-
-    private void updateGraphList(List<GraphDTO> graphDTOS) {
-        List<String> rows = new LinkedList<>();
-        this.allGraphsDTOS = graphDTOS;
-
-        graphDTOS.forEach(graph -> rows.add(graph.getGraphName()));
-
-        Platform.runLater(() -> {
-            final ObservableList<String> data = FXCollections.observableArrayList(rows);
-            graphsTableView.setItems(data);
-            graphsTableView.getColumns().clear();
-            graphsTableView.getColumns().addAll(graphTableColumn);
-        });
-    }
-
-    private void updateTaskList(List<TaskDTO> taskDTOS) {
-        List<String> rows = new LinkedList<>();
-        this.allTasksDTOS = taskDTOS;
-
-        taskDTOS.forEach(task -> rows.add(task.getTaskName()));
-
-        Platform.runLater(() -> {
-            final ObservableList<String> data = FXCollections.observableArrayList(rows);
-            tasksTableView.setItems(data);
-            tasksTableView.getColumns().clear();
-            tasksTableView.getColumns().addAll(taskTableColumn);
-        });
-    }
-
-    private void wireColumnForUserList(TableColumn column, String property) {
-        column.setCellValueFactory(
-            new PropertyValueFactory<>(property));
     }
 
     @FXML
@@ -243,6 +173,7 @@ public class DashboardController implements Controller {
 
     public TaskDTO getSelectedTask() {
         TaskDTO toReturn = null;
+        List<TaskDTO> allTasksDTOS = SharedDashboard.getAllTasksDTOS();
         if(selectedTask.get() != null) {
             for (TaskDTO task : allTasksDTOS) {
                 if (task.getTaskName().compareTo(this.selectedTask.get()) == 0)
@@ -254,6 +185,7 @@ public class DashboardController implements Controller {
 
     public GraphDTO getSelectedGraph(){
         GraphDTO toReturn = null;
+        List<GraphDTO> allGraphsDTOS = SharedDashboard.getAllGraphsDTOS();
         for (GraphDTO graph : allGraphsDTOS) {
             if (graph.getGraphName().compareTo(this.selectedGraph.get()) == 0)
                 toReturn = graph;
