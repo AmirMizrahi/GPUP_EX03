@@ -424,7 +424,6 @@ public class MainAppController implements Closeable, sharedMainAppController {
         gridPaneMainAppRight.getChildren().add(this.graphMainComponentController.getNodeController());
     }
 
-
     public String getCurrentUserName() {
         return this.dashboardController.getLoggedInUserName();
     }

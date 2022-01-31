@@ -57,4 +57,16 @@
         <url-pattern>/engine/updatetaskstatus</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>UpdateTaskSubscriberServlet</servlet-name>
+        <servlet-class>servlets.UpdateTaskSubscriberServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>UpdateTaskSubscriberServlet</servlet-name>
+        <url-pattern>/engine/updatetasksubscriber</url-pattern>
+    </servlet-mapping>
+
+
+
+
 </web-app>

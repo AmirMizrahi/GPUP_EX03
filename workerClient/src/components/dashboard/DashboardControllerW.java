@@ -1,8 +1,10 @@
 package components.dashboard;
 
 import DTO.TaskDTO;
+import Utils.HttpClientUtil;
 import components.mainApp.ControllerW;
 import components.mainApp.MainAppControllerW;
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -12,10 +14,17 @@ import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import org.jetbrains.annotations.NotNull;
 import sharedDashboard.SharedDashboard;
 import sharedDashboard.UserTableViewRow;
 
-import java.util.List;
+import java.io.IOException;
+
+import static Utils.Constants.*;
 
 public class DashboardControllerW implements ControllerW {
     //Controllers
@@ -33,7 +42,6 @@ public class DashboardControllerW implements ControllerW {
     @FXML private TableColumn<UserTableViewRow, String> typeTableColumn;
     @FXML private Label loggedInLabel;
     //
-
 
     @Override
     public void setMainAppControllerW(MainAppControllerW newMainAppControllerW) {
@@ -73,6 +81,28 @@ public class DashboardControllerW implements ControllerW {
 
     @FXML
     void subscribeButtonAction(ActionEvent event) {
+        String body = "taskName=" +this.selectedTask.get() +  LINE_SEPARATOR +
+                       "userName="+ SharedDashboard.getLoggedInUserName(loggedInLabel);
+
+        HttpClientUtil.postRequest(RequestBody.create(body.getBytes()) , new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                Platform.runLater(() -> {
+                    HttpClientUtil.createErrorPopup("Server down!", e.getMessage()).show();
+                });
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                if (response.code() != 200) {
+                    String responseBody = response.body().string();
+                    Platform.runLater(()->HttpClientUtil.createErrorPopup("Add Task Subscriber Error!", responseBody).show());
+                }
+                else {
+                    //update client somehow?
+                }
+            }
+        }, UPDATE_TASK_SUBSCRIBER);
 
     }
 }

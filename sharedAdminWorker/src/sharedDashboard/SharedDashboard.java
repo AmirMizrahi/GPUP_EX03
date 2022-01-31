@@ -102,6 +102,7 @@ public class SharedDashboard {
             tasksTableView.getColumns().clear();
             tasksTableView.getColumns().addAll(taskTableColumn);
             customiseFactory(taskTableColumn);
+            tasksTableView.refresh();
         });
     }
 
@@ -156,7 +157,7 @@ public class SharedDashboard {
     public static List<TaskDTO> getAllTasksDTOS() {return allTasksDTOS;}
 
     public static void doWhenClickedOnTaskTable(String temp, SimpleStringProperty selectedTask, ListView tasksListView) {
-        if(!temp.contains("TableColumn") && !temp.contains("Text"))
+        if(!temp.contains("TableColumn") && !temp.contains("Text") || temp.contains("TableColumnHeader") || temp.contains("name=System Bold") || temp.contains("text=\"No content in table\""))
             return;
         System.out.println(temp);//todo from here
         int start = temp.indexOf("'");
@@ -167,7 +168,7 @@ public class SharedDashboard {
         }
 
         String name = temp.substring(++start, last);
-        if(name.compareTo("null") != 0) {
+        if(name.compareTo("null") != 0 && name.compareTo("") != 0) {
             selectedTask.set(name);
             loadTaskInfoToListView(tasksListView, selectedTask);
         }
@@ -183,6 +184,9 @@ public class SharedDashboard {
         tasksListView.getItems().add("Total Leaf Targets Amount: " + taskToShow.getLeafAmount());
         tasksListView.getItems().add("Total Middle Targets Amount: " + taskToShow.getMiddleAmount());
         tasksListView.getItems().add("Total Independent Targets Amount: " + taskToShow.getIndependentAmount());
+        List<String> usersNames = new LinkedList<>();
+        taskToShow.getSubscribers().forEach(userDTO -> usersNames.add(userDTO.getName()));
+        tasksListView.getItems().add("Subscribers Names: " + usersNames);
         //this.tasksListView.getItems().add("Total Price For Task: " + taskToShow.getIndependentAmount()); //todo add
         //this.tasksListView.getItems().add("Current Number Of Workers: " + taskToShow.getIndependentAmount());
     }
@@ -197,5 +201,12 @@ public class SharedDashboard {
             }
         }
         return toReturn;
+    }
+
+
+    public static String getLoggedInUserName(Label loggedInLabel){
+        String str = loggedInLabel.getText();
+        String tmp = str.substring(str.indexOf("[") +1, str.indexOf("]"));
+        return tmp;
     }
 }

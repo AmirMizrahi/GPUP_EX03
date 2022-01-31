@@ -1,5 +1,6 @@
 package tasks;
 
+import User.User;
 import bridges.PrinterBridge;
 import targets.Target;
 
@@ -20,6 +21,7 @@ public abstract class AbstractTask implements Task{
     protected String fileFullName;
     protected final PrinterBridge printerBridge;
     protected TASK_STATUS taskStatus;
+    protected List<User> subscribers;
 
     protected AbstractTask(WAYS_TO_START_SIM_TASK chosenWay, boolean firstTime, List<Target> targetsToRunOn,
                            String pathName, String taskName, String userName, String graphName) {
@@ -33,6 +35,7 @@ public abstract class AbstractTask implements Task{
         this.graphName = graphName;
         targetsToRunOn.forEach(t -> targetsToRunningTime.put(t, 0));
         this.taskStatus = TASK_STATUS.DEFAULT;
+        this.subscribers = new LinkedList<>();
     }
 
     protected Consumer<String> consumerBuilder(String path){
@@ -164,6 +167,14 @@ public abstract class AbstractTask implements Task{
     public AbstractTask.TASK_STATUS getStatus(){
         return this.taskStatus;
     }
+
+    @Override
+    public void addSubscriber(User user) {
+        this.subscribers.add(user);
+    }
+
+    @Override
+    public List<User> getSubscribers(){return this.subscribers;}
 
     public enum WAYS_TO_START_SIM_TASK
     {

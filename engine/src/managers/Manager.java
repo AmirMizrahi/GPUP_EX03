@@ -1,6 +1,7 @@
 package managers;
 
 import DTO.*;
+import User.User;
 import exceptions.TargetNotFoundException;
 import exceptions.XMLException;
 import graph.*;
@@ -380,7 +381,8 @@ public class Manager implements Serializable {
             String graphName = entry.getValue().getGraphName();
             Set<Target> allTargets = entry.getValue().getTargets();
             String taskStatus = entry.getValue().getStatus().toString();
-            toReturn.add(new TaskDTO(taskName,uploaderName, graphName, allTargets, taskStatus));
+            List<User> users = entry.getValue().getSubscribers();
+            toReturn.add(new TaskDTO(taskName,uploaderName, graphName, allTargets, taskStatus, users));
         }
 
         return toReturn;
@@ -457,8 +459,18 @@ public class Manager implements Serializable {
         taskManager.addTask(taskName,task);
     }
 
-
     public void updateTaskStatus(String taskName, AbstractTask.TASK_STATUS taskStatus) {
         this.taskManager.updateTaskStatus(taskName,taskStatus);
+    }
+
+    public void updateTaskSubscriber(String taskName, UserDTO userName) {
+        User user = new User(userName.getName(),userName.getType(), userName.getThreadsAmount());
+
+        for (Map.Entry<String, Task> entry : this.taskManager.getTasks().entrySet()) {
+            if(entry.getKey().compareTo(taskName) == 0){
+                entry.getValue().addSubscriber(user);
+                break;
+            }
+        }
     }
 }

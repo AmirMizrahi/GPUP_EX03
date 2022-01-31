@@ -16,6 +16,7 @@ public class Constants {
     public final static String LOAD_XML = SERVER_ADDRESS + ENGINE_ADDRESS + "/loadxml?userName=";
     public final static String UPLOAD_TASK = SERVER_ADDRESS + ENGINE_ADDRESS + "/uploadtask";
     public final static String UPDATE_TASK_STATUS = SERVER_ADDRESS + ENGINE_ADDRESS + "/updatetaskstatus";
+    public final static String UPDATE_TASK_SUBSCRIBER = SERVER_ADDRESS + ENGINE_ADDRESS + "/updatetasksubscriber";
     // GSON instance
     public final static Gson GSON_INSTANCE = new Gson();
 

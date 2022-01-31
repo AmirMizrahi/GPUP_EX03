@@ -1,4 +1,6 @@
 package tasks;
+import DTO.UserDTO;
+import User.User;
 import targets.Target;
 
 import java.io.File;
@@ -15,5 +17,6 @@ public interface Task {
     String getGraphName();
     void setStatus(AbstractTask.TASK_STATUS taskStatus);
     AbstractTask.TASK_STATUS getStatus();
-
+    void addSubscriber(User user);
+    List<User> getSubscribers();
 }

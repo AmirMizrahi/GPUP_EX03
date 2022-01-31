@@ -1,6 +1,7 @@
 package DTO;
 
 
+import User.User;
 import targets.Target;
 import tasks.AbstractTask;
 
@@ -18,8 +19,9 @@ public class TaskDTO {
     //private final int currentWorkersAmount;
     private final String graphName;
     private final String taskStatus;
+    private final List<UserDTO> subscribers = new LinkedList<>();
 
-    public TaskDTO(String taskName, String uploaderName, String graphName, Set<Target> allTargets, String taskStatus) {
+    public TaskDTO(String taskName, String uploaderName, String graphName, Set<Target> allTargets, String taskStatus, List<User> users) {
         this.taskName = taskName;
         this.uploaderName = uploaderName;
         this.allTargets.addAll(allTargets);
@@ -35,6 +37,7 @@ public class TaskDTO {
         }
         this.graphName = graphName;
         this.taskStatus = taskStatus;
+        users.forEach(user -> subscribers.add(new UserDTO(user.getName(), user.getType(), user.getThreadAmount())));
     }
 
     public String getTaskName() {
@@ -76,4 +79,6 @@ public class TaskDTO {
     }
 
     public String getTaskStatus() {return this.taskStatus;}
+
+    public List<UserDTO> getSubscribers() {return this.subscribers;}
 }

@@ -79,7 +79,7 @@ public class DashboardController implements Controller {
         //Get the pressed graph name from the tables
         String temp = event.getPickResult().toString();
         System.out.println(temp);
-        if(!temp.contains("TableColumn") && !temp.contains("Text"))
+        if(!temp.contains("TableColumn") && !temp.contains("Text") || temp.contains("TableColumnHeader") || temp.contains("name=System Bold") || temp.contains("text=\"No content in table\""))
             return;
         int start = temp.indexOf("'");
         int last = temp.lastIndexOf("'");
@@ -87,18 +87,13 @@ public class DashboardController implements Controller {
             start = temp.indexOf("\"");
             last = temp.lastIndexOf("\"");
         }
-        try {
-            String name = temp.substring(++start, last);
-            if(name.compareTo("null") != 0) {
-                this.selectedGraph.set(name);
-                loadGraphInfoToListView();
-                this.mainAppController.loadAllDetailsToSubComponents();
-            }
+
+        String name = temp.substring(++start, last);
+        if(name.compareTo("null") != 0) {
+            this.selectedGraph.set(name);
+            loadGraphInfoToListView();
+            this.mainAppController.loadAllDetailsToSubComponents();
         }
-        catch (Exception e) {
-            System.out.println(e);
-            System.out.println("eeeeror");
-        };
     }
 
     private void loadGraphInfoToListView() {
@@ -119,7 +114,9 @@ public class DashboardController implements Controller {
         String temp = event.getPickResult().toString();
         SharedDashboard.doWhenClickedOnTaskTable(temp, this.selectedTask, this.tasksListView );
 
-        if (getLoggedInUserName().compareTo(SharedDashboard.getSelectedTask(this.selectedTask).getUploaderName()) == 0)
+        if(selectedTask.get() == null)
+            return;
+        if (SharedDashboard.getLoggedInUserName(loggedInLabel).compareTo(SharedDashboard.getSelectedTask(this.selectedTask).getUploaderName()) == 0)
             this.matchingUserName.set(true);
         else
             this.matchingUserName.set(false);
@@ -134,12 +131,8 @@ public class DashboardController implements Controller {
     }
 
     public String getLoggedInUserName(){
-        String str = loggedInLabel.getText();
-        String tmp = str.substring(str.indexOf("[") +1, str.indexOf("]"));
-        return tmp;
+        return SharedDashboard.getLoggedInUserName(loggedInLabel);
     }
-
-
 
     public GraphDTO getSelectedGraph(){
         GraphDTO toReturn = null;
