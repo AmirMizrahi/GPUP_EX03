@@ -24,7 +24,6 @@ public class LoginController implements Controller {
     @FXML private TextField userNameTextField;
     //
     //Properties
-    private final SimpleStringProperty userNameProperty = new SimpleStringProperty();
     //
 
     @Override
@@ -63,7 +62,7 @@ public class LoginController implements Controller {
                 .build()
                 .toString();
 
-        SharedLogin.login(finalUrl, "Admin", userName,mainAppController,userNameProperty);
+        SharedLogin.login(finalUrl, "Admin", userName,mainAppController);
     }
 
 //    @FXML
@@ -84,12 +83,4 @@ public class LoginController implements Controller {
 //        this.chatAppMainController = chatAppMainController;
 //    }
 
-
-    public String getUserNameProperty() {
-        return userNameProperty.get();
-    }
-
-    public SimpleStringProperty userNamePropertyProperty() {
-        return userNameProperty;
-    }
 }

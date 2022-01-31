@@ -15,8 +15,9 @@ import sharedControllers.sharedMainAppController;
 import java.io.IOException;
 
 public class SharedLogin {
+    private static final SimpleStringProperty userNameProperty = new SimpleStringProperty();
 
-    public static void login(String finalUrl, String clientType, String userName, sharedMainAppController mainAppController , SimpleStringProperty userNameProperty){
+    public static void login(String finalUrl, String clientType, String userName, sharedMainAppController mainAppController){
         {
             Alert loginPopup = new Alert(Alert.AlertType.ERROR);
             loginPopup.setHeaderText("Login Error");
@@ -60,4 +61,9 @@ public class SharedLogin {
             });
         }
     }
+
+    public static SimpleStringProperty userNamePropertyProperty() {
+        return userNameProperty;
+    }
+
 }

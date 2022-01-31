@@ -38,6 +38,8 @@ import okhttp3.Callback;
 import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
 import sharedControllers.sharedMainAppController;
+import sharedDashboard.SharedDashboard;
+import sharedLogin.SharedLogin;
 import sharedMainApp.SharedMainApp;
 import tasks.AbstractTask;
 import tasks.SimulationTask;
@@ -256,7 +258,7 @@ public class MainAppController implements Closeable, sharedMainAppController {
     }
 
     public TaskDTO getSelectedTaskDTOFromDashboard() {
-        return dashboardController.getSelectedTask();
+        return SharedDashboard.getSelectedTask(selectedTask);
     }
 
     public List<String> getTargetsNames() {
@@ -406,7 +408,7 @@ public class MainAppController implements Closeable, sharedMainAppController {
 //        gridPaneMainAppRight.getChildren().remove(0); //move to property
 //        gridPaneMainAppRight.getChildren().add(this.dashboardController.getNodeController());
         sharedOnLoggedIn(gridPaneMainAppRight,isLoggedIn,this.dashboardController.getNodeController());
-        this.dashboardController.initializeDashboardController(this.loginController.userNamePropertyProperty(), this.selectedGraph, this.selectedTask, this.matchingUserName, SharedMainApp.getServerOnProperty());
+        this.dashboardController.initializeDashboardController(SharedLogin.userNamePropertyProperty(), this.selectedGraph, this.selectedTask, this.matchingUserName);
         startTaskControlPanelRefresher();
     }
 

@@ -4,6 +4,8 @@ import DTO.UserDTO;
 import Utils.Constants;
 import Utils.HttpClientUtil;
 import com.google.gson.reflect.TypeToken;
+import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
@@ -24,10 +26,12 @@ public class UserListRefresher extends TimerTask {
 
     private final Consumer<Map<String,UserDTO>> usersListConsumer;
     private int requestNumber;
+    private final BooleanProperty isServerOn;
 
-    public UserListRefresher(Consumer<Map<String, UserDTO>> usersListConsumer) {
+    public UserListRefresher(BooleanProperty isServerOn,Consumer<Map<String, UserDTO>> usersListConsumer) {
         this.usersListConsumer = usersListConsumer;
         requestNumber = 0;
+        this.isServerOn = isServerOn;
     }
 
     @Override
@@ -39,6 +43,7 @@ public class UserListRefresher extends TimerTask {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
                 //httpRequestLoggerConsumer.accept("Users Request # " + finalRequestNumber + " | Ended with failure...");
+                Platform.runLater(()->isServerOn.set(false));
                 Map<String,UserDTO> failed = new HashMap<>();
                 failed.put("",new UserDTO("","",-1));
                 usersListConsumer.accept(failed);
@@ -46,6 +51,7 @@ public class UserListRefresher extends TimerTask {
 
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                Platform.runLater(()->isServerOn.set(true));
                 String jsonArrayOfUsersNames = response.body().string();
                 Type type = new TypeToken<Map<String, UserDTO>>(){}.getType();
                 Map<String, UserDTO> usersNames = GSON_INSTANCE.fromJson(jsonArrayOfUsersNames, type);

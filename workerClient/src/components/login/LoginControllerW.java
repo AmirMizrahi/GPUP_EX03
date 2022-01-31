@@ -61,7 +61,7 @@ public class LoginControllerW implements ControllerW {
                 .build()
                 .toString();
 
-        SharedLogin.login(finalUrl, "Worker", userName,mainAppControllerW,userNameProperty);
+        SharedLogin.login(finalUrl, "Worker", userName,mainAppControllerW);
     }
 
 

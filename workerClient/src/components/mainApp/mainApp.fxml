@@ -17,7 +17,6 @@
       <GridPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
         <columnConstraints>
           <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="10.0" prefWidth="250.0" />
-          <ColumnConstraints fx:id="asd" hgrow="SOMETIMES" minWidth="10.0" prefWidth="324.0" />
         </columnConstraints>
         <rowConstraints>
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
@@ -27,7 +26,9 @@
                <content>
                   <VBox alignment="CENTER_LEFT" fillWidth="false" minHeight="500.0" minWidth="100.0" spacing="25.0">
                      <children>
+                        <Label fx:id="serverStatusLabel" text="[Server Status]" />
                         <Button fx:id="dashboardButton" layoutX="20.0" layoutY="7.0" mnemonicParsing="false" onAction="#dashboardButtonAction" text="Dashboard" />
+                        <Button fx:id="subscribedTasksPanelButton" mnemonicParsing="false" onAction="#subscribedTasksPanelButtonAction" text="Subscribed Tasks Panel" />
                         <Separator prefWidth="200.0" />
                         <Label layoutX="20.0" layoutY="40.0" text="Switch Skin:" />
                         <ComboBox fx:id="changeSkinComboBox" onAction="#changeSkinComboBoxAction" prefWidth="150.0">
