@@ -27,7 +27,7 @@ public class TaskListRefresher extends TimerTask {
 
     @Override
     public void run() {
-        HttpClientUtil.runSync(Constants.UPLOAD_TASK, new Callback() {
+        HttpClientUtil.runAsync(Constants.UPLOAD_TASK, new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
                 List<TaskDTO> failed = new LinkedList<>();
@@ -42,7 +42,9 @@ public class TaskListRefresher extends TimerTask {
                 Type type = new TypeToken<List<TaskDTO>>(){}.getType();
                 List<TaskDTO> tasksDTOS = GSON_INSTANCE.fromJson(jsonArrayOfUsersNames, type);
                 //Map<String,String> usersNames = GSON_INSTANCE2.fromJson(jsonArrayOfUsersNames, Map.class);
+                response.close();
                 tasksListConsumer.accept(tasksDTOS);
+
             }
         });
     }

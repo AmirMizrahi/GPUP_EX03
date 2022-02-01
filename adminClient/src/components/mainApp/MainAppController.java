@@ -52,7 +52,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.function.Consumer;
 
-import static Utils.Constants.TARGETS_REFRESH_RATE;
+import static Utils.Constants.TARGET_REFRESH_RATE;
 import static sharedMainApp.SharedMainApp.sharedOnLoggedIn;
 
 public class MainAppController implements Closeable, sharedMainAppController {
@@ -204,6 +204,7 @@ public class MainAppController implements Closeable, sharedMainAppController {
                     });
                 }
                 Platform.runLater(() -> p.show() );
+                response.close();
             }
         });
 
@@ -350,7 +351,7 @@ public class MainAppController implements Closeable, sharedMainAppController {
 
         TargetRefresher targetRefresher = new TargetRefresher(refresherConsumer);
         timer = new Timer();
-        timer.schedule(targetRefresher, TARGETS_REFRESH_RATE, TARGETS_REFRESH_RATE);
+        timer.schedule(targetRefresher, TARGET_REFRESH_RATE, TARGET_REFRESH_RATE);
     }
 
     public TargetDTO getInformationOnTarget(String targetName) throws XMLException, TargetNotFoundException {

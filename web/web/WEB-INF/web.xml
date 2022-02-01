@@ -41,7 +41,7 @@
 
     <servlet>
         <servlet-name>UploadTaskServlet</servlet-name>
-        <servlet-class>servlets.UploadTaskServlet</servlet-class>
+        <servlet-class>servlets.TaskServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>UploadTaskServlet</servlet-name>

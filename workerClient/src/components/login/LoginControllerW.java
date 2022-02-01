@@ -65,4 +65,7 @@ public class LoginControllerW implements ControllerW {
     }
 
 
+    public Integer getThreadsAmount() {
+        return this.WorkerThreadSpinner.getValue();
+    }
 }

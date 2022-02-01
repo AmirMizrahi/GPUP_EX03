@@ -1,8 +1,13 @@
 package components.mainApp;
 
+import DTO.GraphDTO;
 import DTO.TaskDTO;
+import Utils.Constants;
+import Utils.HttpClientUtil;
+import com.google.gson.reflect.TypeToken;
 import components.dashboard.DashboardControllerW;
 import components.login.LoginControllerW;
+import components.subscribedTasksPanel.SubscribedTasksPanelController;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -14,26 +19,43 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
+import managers.WorkerManager;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.HttpUrl;
+import okhttp3.Response;
+import org.jetbrains.annotations.NotNull;
 import sharedControllers.sharedMainAppController;
 import sharedDashboard.SharedDashboard;
 import sharedLogin.SharedLogin;
 import sharedMainApp.SharedMainApp;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Timer;
+import java.util.function.Consumer;
 
+import static Utils.Constants.GSON_INSTANCE;
+import static Utils.Constants.TARGET_REFRESH_RATE;
 import static sharedMainApp.SharedMainApp.sharedOnLoggedIn;
 
 public class MainAppControllerW implements sharedMainAppController {
 
+    //
+    private WorkerManager workerManager;
     private Stage primaryStage;
+    private Timer timer;
+    //Properties
     private BooleanProperty isLoggedIn;
     private SimpleStringProperty selectedTask;
     // Controllers
     private LoginControllerW loginControllerW;
     private DashboardControllerW dashboardControllerW;
+    private SubscribedTasksPanelController subscribedTasksPanelController;
     //UI
     @FXML private Label serverStatusLabel;
     @FXML private Button dashboardButton;
@@ -41,7 +63,7 @@ public class MainAppControllerW implements sharedMainAppController {
     @FXML private ComboBox<?> changeSkinComboBox;
     @FXML private GridPane gridPaneMainAppRight;
     @FXML void changeSkinComboBoxAction(ActionEvent event) {}
-    @FXML void dashboardButtonAction(ActionEvent event) {}
+
 
     public void setPrimaryStage(Stage stage){
         this.primaryStage = stage;
@@ -53,12 +75,16 @@ public class MainAppControllerW implements sharedMainAppController {
 
     @FXML
     private void initialize() throws IOException {
+        workerManager = new WorkerManager(this.loginControllerW.getThreadsAmount());
         selectedTask = new SimpleStringProperty();
         isLoggedIn = new SimpleBooleanProperty(false);
         this.dashboardButton.disableProperty().bind(isLoggedIn.not());
+        this.subscribedTasksPanelButton.disableProperty().bind(isLoggedIn.not());
 
         loginControllerW = (LoginControllerW) genericControllersInit("/components/login/login.fxml");
         dashboardControllerW = (DashboardControllerW) genericControllersInit("/components/dashboard/dashboard.fxml");
+        dashboardControllerW = (DashboardControllerW) genericControllersInit("/components/dashboard/dashboard.fxml");
+        subscribedTasksPanelController = (SubscribedTasksPanelController) genericControllersInit("/components/subscribedTasksPanel/subscribedTasksPanel.fxml");
 
         this.serverStatusLabel.textProperty().bind(Bindings.createStringBinding(() -> {
             String str;
@@ -84,20 +110,73 @@ public class MainAppControllerW implements sharedMainAppController {
         return ctr;
     }
 
+    @FXML void dashboardButtonAction(ActionEvent event) {
+        this.gridPaneMainAppRight.getChildren().remove(0);
+        gridPaneMainAppRight.getChildren().add(this.dashboardControllerW.getNodeController());
+    }
+
+    @FXML
+    void subscribedTasksPanelButtonAction(ActionEvent event) {
+        this.gridPaneMainAppRight.getChildren().remove(0);
+        gridPaneMainAppRight.getChildren().add(this.subscribedTasksPanelController.getNodeController());
+    }
+
     @Override
     public void onLoggedIn() {
         sharedOnLoggedIn(gridPaneMainAppRight,isLoggedIn,this.dashboardControllerW.getNodeController());
         this.dashboardControllerW.initializeDashboardController(SharedLogin.userNamePropertyProperty(), this.selectedTask);
-        //startTaskControlPanelRefresher();
+        startTaskControlPanelRefresher();
+    }
+
+    private void startTaskControlPanelRefresher() {
+        Consumer<Boolean> refresherConsumer = new Consumer() {
+            @Override
+            public void accept(Object o) {
+                List<TaskDTO> taskDTOS = SharedDashboard.getAllTasksDTOS();
+                workerManager.updateSubscribedTask(taskDTOS);
+                if(workerManager.isThereWorkToDo()){
+                    String finalUrl = HttpUrl
+                            .parse(Constants.GET_TARGETS)
+                            .newBuilder()
+                            .addQueryParameter("username", SharedDashboard.getLoggedInUserName(dashboardControllerW.getUserNameLabel()))
+                            .addQueryParameter("availableThreads", workerManager.getAvailableThreadsAmount().toString())
+                            .build()
+                            .toString();
+
+                    HttpClientUtil.runAsync(finalUrl, new Callback() {
+                        @Override
+                        public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                            List<GraphDTO> failed = new LinkedList<>();
+                            graphsListConsumer.accept(failed);
+                        }
+
+                        @Override
+                        public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                            String jsonArrayOfUsersNames = response.body().string();
+                            System.out.println("222" +jsonArrayOfUsersNames);
+                            //httpRequestLoggerConsumer.accept("Users Request # " + finalRequestNumber + " | Response: " + jsonArrayOfUsersNames);
+                            Type type = new TypeToken<List<GraphDTO>>(){}.getType();
+                            List<GraphDTO> graphDTOS= GSON_INSTANCE.fromJson(jsonArrayOfUsersNames, type);
+                            response.close();
+                            graphsListConsumer.accept(graphDTOS);
+                        }
+                    });
+                }
+                //taskControlPanelController.refreshPanel(getSelectedTaskDTOFromDashboard());
+            }
+        };
+
+        TargetRequestRefresher targetRequestRefresher = new TargetRequestRefresher(refresherConsumer);
+        timer = new Timer();
+        timer.schedule(targetRequestRefresher, TARGET_REFRESH_RATE, TARGET_REFRESH_RATE);
     }
 
     public TaskDTO getSelectedTaskDTOFromDashboard() {
         return SharedDashboard.getSelectedTask(this.selectedTask);
     }
 
-    @FXML
-    void subscribedTasksPanelButtonAction(ActionEvent event) {
-
+    public void addSubscriber(TaskDTO newSubscribedTask) {
+        this.workerManager.addSubscriber(newSubscribedTask);
     }
 }
 

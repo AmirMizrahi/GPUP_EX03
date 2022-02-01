@@ -1,13 +1,11 @@
 package sharedLogin;
 
-import Utils.Constants;
 import Utils.HttpClientUtil;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.control.Alert;
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.HttpUrl;
 import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
 import sharedControllers.sharedMainAppController;
@@ -27,7 +25,7 @@ public class SharedLogin {
                 return;
             }
 
-            HttpClientUtil.runSync(finalUrl, new Callback() {
+            HttpClientUtil.runAsync(finalUrl, new Callback() {
 
                 @Override
                 public void onFailure(@NotNull Call call, @NotNull IOException e) {
@@ -57,6 +55,7 @@ public class SharedLogin {
                         });
                     }
                     Platform.runLater(() -> loginPopup.show() );
+                    response.close();
                 }
             });
         }

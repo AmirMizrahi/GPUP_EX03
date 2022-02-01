@@ -245,7 +245,7 @@ public class Manager implements Serializable {
             //createGraphByUserSelection(selectedTargets); //todo
 
         List<Target> targetList = runTaskInFirstTime(way);
-        Task compilationTask = new CompilationTask(way, targetList, this.mainSimulationTaskFolderPath, source, destination, checkIfTaskIsActivatedInFirstTime());
+        Task compilationTask = new CompilationTask(way, targetList, this.mainSimulationTaskFolderPath, source, destination, checkIfTaskIsActivatedInFirstTime(), "asdf", "xczv");
 
         activateTaskMG(compilationTask, consumerList,consumeWhenFinished,graphName);
     }
@@ -438,14 +438,8 @@ public class Manager implements Serializable {
         return status;
     }
 
-    public void addNewTask(Integer time, String time_option, Double successRates, Double warningRates, String userName,
-                           String graphName,String taskName, List<String> selectedTargetsNames) throws Exception {
+    private List<Target> createTargetsFromTargetsNames(List<String> selectedTargetsNames, String graphName){
         List<Target> selectedTargets = new LinkedList<>();
-
-        if(taskManager.getTasks().keySet().contains(taskName)){ //check if task already uploaded
-            throw new Exception(taskName + " already created.");
-        }
-
         selectedTargetsNames.forEach(targetName-> {
             try {
                 selectedTargets.add(this.graphManager.getGraphs().get(graphName).getTargetByName(targetName));
@@ -453,9 +447,37 @@ public class Manager implements Serializable {
                 e.printStackTrace(); //todo remove
             }
         });
+
+        return selectedTargets;
+    }
+
+    //Simulation creator
+    public void addNewTask(Integer time, String time_option, Double successRates, Double warningRates, String userName,
+                           String graphName,String taskName, List<String> selectedTargetsNames) throws Exception {
+
+        if(taskManager.getTasks().keySet().contains(taskName)){ //check if task already uploaded
+            throw new Exception(taskName + " already created.");
+        }
+
+        List<Target> selectedTargets = createTargetsFromTargetsNames(selectedTargetsNames,graphName);
+
         Task task = new SimulationTask(time, SimulationTask.TIME_OPTION.valueOf(time_option.toUpperCase()), successRates,
                 warningRates, AbstractTask.WAYS_TO_START_SIM_TASK.FROM_SCRATCH, selectedTargets, DEFAULT_WORKING_DIR ,
-                true, userName, graphName);
+                true, userName, graphName); //todo change first time
+        taskManager.addTask(taskName,task);
+    }
+
+    //Comp creator
+    public void addNewTask(String source, String destination, String userName, String graphName, String taskName,
+                           List<String> selectedTargetsNames) throws Exception {
+        if(taskManager.getTasks().keySet().contains(taskName)){ //check if task already uploaded
+            throw new Exception(taskName + " already created.");
+        }
+
+        List<Target> selectedTargets = createTargetsFromTargetsNames(selectedTargetsNames,graphName);
+
+        Task task = new CompilationTask(AbstractTask.WAYS_TO_START_SIM_TASK.FROM_SCRATCH, selectedTargets, DEFAULT_WORKING_DIR ,
+                source, destination, true, userName, graphName); //todo change first time
         taskManager.addTask(taskName,task);
     }
 

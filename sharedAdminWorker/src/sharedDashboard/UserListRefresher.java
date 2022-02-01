@@ -38,7 +38,7 @@ public class UserListRefresher extends TimerTask {
     public void run() {
         final int finalRequestNumber = ++requestNumber;
         //httpRequestLoggerConsumer.accept("About to invoke: " + Utils.Constants.USERS_LIST + " | Users Request # " + finalRequestNumber);
-        HttpClientUtil.runSync(Constants.USERS_LIST, new Callback() {
+        HttpClientUtil.runAsync(Constants.USERS_LIST, new Callback() {
 
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
@@ -55,6 +55,7 @@ public class UserListRefresher extends TimerTask {
                 String jsonArrayOfUsersNames = response.body().string();
                 Type type = new TypeToken<Map<String, UserDTO>>(){}.getType();
                 Map<String, UserDTO> usersNames = GSON_INSTANCE.fromJson(jsonArrayOfUsersNames, type);
+                response.close();
                 usersListConsumer.accept(usersNames);
             }
         });

@@ -32,6 +32,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -312,20 +314,34 @@ public class CreateTaskController implements Controller {
                 selectedTargets.add(row.getTargetName());
         }
 
-        if(this.taskTypeCombo.getSelectionModel().getSelectedItem().compareTo("Simulation") == 0){
+        String body =
+                "targets=" + new Gson().toJson(selectedTargets) + LINE_SEPARATOR +
+                        "userName=" + this.mainAppController.getCurrentUserName() + LINE_SEPARATOR +
+                        "graphName=" + this.mainAppController.getSelectedGraphDTOFromDashboard().getGraphName() + LINE_SEPARATOR +
+                        "taskName=" + this.taskNameTextField.getText() + LINE_SEPARATOR;
+
+        if(this.taskTypeCombo.getSelectionModel().getSelectedItem().compareTo("Simulation") == 0) {
             Integer time = (int) this.simulationTaskController.getProcessTime();
             String time_option = simulationTaskController.getTimeOption().toUpperCase();
             Double successRates = this.simulationTaskController.getSuccessRates();
             Double warningRates = this.simulationTaskController.getWarningRates();
 
-            String body = "targets=" + new Gson().toJson(selectedTargets) + LINE_SEPARATOR +
-                    "time="+ time + LINE_SEPARATOR +
-                    "time_option=" +time_option + LINE_SEPARATOR +
+            body +=
+                    "time=" + time + LINE_SEPARATOR +
+                    "time_option=" + time_option + LINE_SEPARATOR +
                     "successRates=" + successRates + LINE_SEPARATOR +
                     "warningRates=" + warningRates + LINE_SEPARATOR +
-                    "userName=" + this.mainAppController.getCurrentUserName() + LINE_SEPARATOR +
-                    "graphName=" + this.mainAppController.getSelectedGraphDTOFromDashboard().getGraphName() + LINE_SEPARATOR +
-                    "taskName=" + this.taskNameTextField.getText();
+                    "taskType=simulation";
+
+        }
+        else { //Comp
+            String sourceFolder = this.compilationTaskController.getSourceFolder();
+            String destinationFolder = this.compilationTaskController.getDestinationFolder();
+
+            body += "source="+ sourceFolder + LINE_SEPARATOR +
+                    "destination=" + destinationFolder + LINE_SEPARATOR +
+                    "taskType=compilation";
+        }
 
             HttpClientUtil.postRequest(RequestBody.create(body.getBytes()) , new Callback() {
                 @Override
@@ -351,20 +367,22 @@ public class CreateTaskController implements Controller {
                         Platform.runLater(() -> {
                             p.setAlertType(Alert.AlertType.INFORMATION);
                             p.setHeaderText("Success!");
+
+                            try { //Go back to dashboard when succeeded.
+                                Method privateMethod = MainAppController.class.getDeclaredMethod("dashboardButtonAction", ActionEvent.class);
+                                privateMethod.setAccessible(true);
+                                privateMethod.invoke(mainAppController , new ActionEvent());
+                            }
+                            catch (Exception e) {
+                                e.printStackTrace();
+                            }
                         });
                     }
                     Platform.runLater(() -> p.show() );
                 }
             }, UPLOAD_TASK);
         }
-        else{
         //   String source = this.compilationTaskController.getSourceFolder();
         //   String destination = this.compilationTaskController.getDestinationFolder();
         //   this.mainAppController.activateCompTask(selectedTargets, source, destination, AbstractTask.WAYS_TO_START_SIM_TASK.FROM_SCRATCH ,consumeWhenFinished);
-
-        }
-
-
-    }
-
-}
+ }

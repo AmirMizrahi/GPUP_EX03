@@ -4,8 +4,6 @@ import DTO.GraphDTO;
 import Utils.Constants;
 import Utils.HttpClientUtil;
 import com.google.gson.reflect.TypeToken;
-import javafx.application.Platform;
-import javafx.beans.property.BooleanProperty;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
@@ -28,7 +26,7 @@ public class GraphListRefresher extends TimerTask {
 
     @Override
     public void run() {
-        HttpClientUtil.runSync(Constants.GRAPHS_LIST, new Callback() {
+        HttpClientUtil.runAsync(Constants.GRAPHS_LIST, new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
                 List<GraphDTO> failed = new LinkedList<>();
@@ -42,7 +40,7 @@ public class GraphListRefresher extends TimerTask {
                 //httpRequestLoggerConsumer.accept("Users Request # " + finalRequestNumber + " | Response: " + jsonArrayOfUsersNames);
                 Type type = new TypeToken<List<GraphDTO>>(){}.getType();
                 List<GraphDTO> graphDTOS= GSON_INSTANCE.fromJson(jsonArrayOfUsersNames, type);
-                //Map<String,String> usersNames = GSON_INSTANCE2.fromJson(jsonArrayOfUsersNames, Map.class);
+                response.close();
                 graphsListConsumer.accept(graphDTOS);
             }
         });

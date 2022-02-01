@@ -8,6 +8,7 @@
       <module fileurl="file://$PROJECT_DIR$/sharedAdminWorker/sharedAdminWorker.iml" filepath="$PROJECT_DIR$/sharedAdminWorker/sharedAdminWorker.iml" />
       <module fileurl="file://$PROJECT_DIR$/web/web.iml" filepath="$PROJECT_DIR$/web/web.iml" />
       <module fileurl="file://$PROJECT_DIR$/workerClient/workerClient.iml" filepath="$PROJECT_DIR$/workerClient/workerClient.iml" />
+      <module fileurl="file://$PROJECT_DIR$/workerEngine/workerEngine.iml" filepath="$PROJECT_DIR$/workerEngine/workerEngine.iml" />
     </modules>
   </component>
 </project>

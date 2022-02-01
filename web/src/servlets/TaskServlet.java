@@ -1,31 +1,22 @@
 package servlets;
 
-import DTO.GraphDTO;
 import DTO.TaskDTO;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import exceptions.TargetNotFoundException;
-import exceptions.XMLException;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.Part;
 import managers.Manager;
 import utils.ServletUtils;
-
-import javax.xml.bind.JAXBException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Type;
-import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 
-public class UploadTaskServlet extends HttpServlet {
+public class TaskServlet extends HttpServlet {
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         //todo Need to check that we didn't receive this file already (isn't available at the engine already - synchronize this action!
         //todo synchronize?
 
@@ -40,6 +31,9 @@ public class UploadTaskServlet extends HttpServlet {
         String graphName = prop.getProperty("graphName");
         String targetsRaw = prop.getProperty("targets");
         String taskName = prop.getProperty("taskName");
+        String taskType = prop.getProperty("taskType");
+        String source = prop.getProperty("source");
+        String destination = prop.getProperty("destination");
 
         Type listType = new TypeToken<List<String>>() {}.getType();
         List<String> targets = new Gson().fromJson(targetsRaw, listType);
@@ -48,9 +42,11 @@ public class UploadTaskServlet extends HttpServlet {
         Double successRates = 0.0, warningRates = 0.0;
         String error = null;
         try {
-            time = Integer.parseInt(timeRaw);
-            successRates = Double.parseDouble(successRatesRaw);
-            warningRates = Double.parseDouble(warningRatesRaw);
+            if(taskType.compareToIgnoreCase("simulation") == 0){
+                time = Integer.parseInt(timeRaw);
+                successRates = Double.parseDouble(successRatesRaw);
+                warningRates = Double.parseDouble(warningRatesRaw);
+            }
         } catch (NumberFormatException nfe) {
             error = "Error! one of the arguments is not a number";
         }
@@ -58,13 +54,16 @@ public class UploadTaskServlet extends HttpServlet {
         if (error != null) {
             response.getWriter().println(error);
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getOutputStream().print(error);
+            //response.getOutputStream().print(error);
 
         } else {
             Manager manager = ServletUtils.getManager(getServletContext());
-            // if taskType == Simulation
             try{
-                manager.addNewTask(time,time_option,successRates,warningRates,userName, graphName, taskName, targets);
+                if(taskType.compareToIgnoreCase("simulation") == 0)
+                    manager.addNewTask(time,time_option,successRates,warningRates,userName, graphName, taskName, targets);
+                else
+                    manager.addNewTask(source, destination ,userName, graphName, taskName, targets);
+
                 response.setStatus(HttpServletResponse.SC_OK);
                 response.getOutputStream().print("Task " + taskName + " Created Successfully!");
             }

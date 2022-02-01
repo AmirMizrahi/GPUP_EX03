@@ -23,6 +23,9 @@ import sharedDashboard.SharedDashboard;
 import sharedDashboard.UserTableViewRow;
 
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Timer;
 
 import static Utils.Constants.*;
 
@@ -30,7 +33,10 @@ public class DashboardControllerW implements ControllerW {
     //Controllers
     private MainAppControllerW mainAppControllerW;
     private Node nodeController;
+    //
     private SimpleStringProperty selectedTask;
+    private SimpleBooleanProperty isAlreadySubscribed;
+    //
 
     //UI
     @FXML private Button subscribeButton;
@@ -59,6 +65,8 @@ public class DashboardControllerW implements ControllerW {
 
     @FXML
     private void initialize(){
+        isAlreadySubscribed = new SimpleBooleanProperty(false);
+        subscribeButton.disableProperty().bind(isAlreadySubscribed.not());
         SharedDashboard.startDashboardRefresher(
                 usersTableView, userTableColumn, typeTableColumn,
                 tasksTableView, taskTableColumn);
@@ -75,12 +83,21 @@ public class DashboardControllerW implements ControllerW {
     }
 
     @FXML void tasksTableViewOnClicked(MouseEvent event) {
+        Platform.runLater(()->isAlreadySubscribed.set(true));
         String temp = event.getPickResult().toString();
         SharedDashboard.doWhenClickedOnTaskTable(temp, this.selectedTask, this.tasksListView );
+        TaskDTO selectedTaskAsDto = SharedDashboard.getSelectedTask(selectedTask);
+        List<String> list = new LinkedList<>();
+        selectedTaskAsDto.getSubscribers().forEach(userDTO -> list.add(userDTO.getName()));
+        if(list.contains(SharedDashboard.getLoggedInUserName(loggedInLabel)))
+            Platform.runLater(()->isAlreadySubscribed.set(false));
+        else
+            Platform.runLater(()->isAlreadySubscribed.set(true));
     }
 
     @FXML
     void subscribeButtonAction(ActionEvent event) {
+        Platform.runLater(()->isAlreadySubscribed.set(false));
         String body = "taskName=" +this.selectedTask.get() +  LINE_SEPARATOR +
                        "userName="+ SharedDashboard.getLoggedInUserName(loggedInLabel);
 
@@ -99,10 +116,16 @@ public class DashboardControllerW implements ControllerW {
                     Platform.runLater(()->HttpClientUtil.createErrorPopup("Add Task Subscriber Error!", responseBody).show());
                 }
                 else {
+                    mainAppControllerW.addSubscriber(SharedDashboard.getSelectedTask(selectedTask));
                     //update client somehow?
                 }
+                response.close();
             }
         }, UPDATE_TASK_SUBSCRIBER);
 
+    }
+
+    public Label getUserNameLabel() {
+        return this.loggedInLabel;
     }
 }

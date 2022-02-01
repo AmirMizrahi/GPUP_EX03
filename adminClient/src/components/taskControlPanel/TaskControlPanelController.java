@@ -130,6 +130,7 @@ public class TaskControlPanelController implements Controller {
                 else {
                     //update client somehow?
                 }
+                response.close();
             }
         }, UPDATE_TASK_STATUS);
 
