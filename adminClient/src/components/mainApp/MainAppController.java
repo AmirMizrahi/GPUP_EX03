@@ -60,7 +60,6 @@ public class MainAppController implements Closeable, sharedMainAppController {
     //
     private final Manager manager;
     private Stage primaryStage;
-    private int maxParallelTaskAmount;
     private Timer timer;
     //
     //UI
@@ -108,25 +107,28 @@ public class MainAppController implements Closeable, sharedMainAppController {
 
     @FXML
     private void initialize() throws IOException {
-        this.dashboardButton.disableProperty().bind(isLoggedIn.not());
-        this.loadXMLButton.disableProperty().bind(isLoggedIn.not());
-        this.actionsOnGraphButton.disableProperty().bind(selectedGraph.isEmpty());
+        this.dashboardButton.disableProperty().bind(isLoggedIn.not().or(SharedMainApp.getServerOnProperty().not()));
+        this.loadXMLButton.disableProperty().bind(isLoggedIn.not().or(SharedMainApp.getServerOnProperty().not()));
+        this.actionsOnGraphButton.disableProperty().bind(selectedGraph.isEmpty().or(SharedMainApp.getServerOnProperty().not()).or(this.isLoggedIn.not()));
         this.actionsOnGraphLabelDummy.setTooltip(new Tooltip("In order to use this option, click graph from Dashboard table"));
         this.actionsOnGraphButton.setTooltip(new Tooltip("In order to use this option, click graph from Dashboard table"));
-        this.createNewTaskButton.disableProperty().bind(selectedGraph.isEmpty());
+        this.createNewTaskButton.disableProperty().bind(selectedGraph.isEmpty().or(SharedMainApp.getServerOnProperty().not()).or(this.isLoggedIn.not()));
         this.createNewTaskLabelDummy.setTooltip(new Tooltip("In order to use this option, click graph from Dashboard table"));
         this.createNewTaskButton.setTooltip(new Tooltip("In order to use this option, click graph from Dashboard table"));
-        this.taskControlPanelButton.disableProperty().bind(this.matchingUserName.not());
+        this.taskControlPanelButton.disableProperty().bind(this.matchingUserName.not().or(SharedMainApp.getServerOnProperty().not()).or(this.isLoggedIn.not()));
         this.taskControlPanelLabelDummy.setTooltip(new Tooltip("In order to use this option, click task (only ones you created) from Dashboard table"));
         this.taskControlPanelButton.setTooltip(new Tooltip("In order to use this option, click task (only ones you created) from Dashboard table"));
-        this.animationButton.disableProperty().bind(selectedGraph.isEmpty());
-        this.graphvizButton.disableProperty().bind(selectedGraph.isEmpty());
+        this.animationButton.disableProperty().bind(selectedGraph.isEmpty().or(SharedMainApp.getServerOnProperty().not()).or(this.isLoggedIn.not()));
+        this.graphvizButton.disableProperty().bind(selectedGraph.isEmpty().or(SharedMainApp.getServerOnProperty().not()).or(this.isLoggedIn.not()));
         this.serverStatusLabel.textProperty().bind(Bindings.createStringBinding(() -> {
             String str;
             if (SharedMainApp.getServerOnProperty().get())
                 str = "Server is ON";
-            else
+            else {
                 str = "Server is OFF";
+                Platform.runLater(()->showLoginPage());
+                this.isLoggedIn.set(false);
+            }
             return str;
         }, SharedMainApp.getServerOnProperty()));
 
@@ -148,6 +150,10 @@ public class MainAppController implements Closeable, sharedMainAppController {
         gridPaneMainAppRight.getChildren().add(this.loginController.getNodeController());
     }
 
+    private void showLoginPage(){
+        this.gridPaneMainAppRight.getChildren().remove(0);
+        gridPaneMainAppRight.getChildren().add(this.loginController.getNodeController());
+    }
     private Controller genericControllersInit(String str) throws IOException {
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource(str));
@@ -208,7 +214,6 @@ public class MainAppController implements Closeable, sharedMainAppController {
             }
         });
 
-        maxParallelTaskAmount = manager.getParallelTaskAmount(); //todo remove this
         isFileSelected.set(true);
 
     }
@@ -297,9 +302,6 @@ public class MainAppController implements Closeable, sharedMainAppController {
         return getAllEffectedTargets(targetName, textInRadioButton);
     }
 
-    public int getMaxParallelTaskAmount() {
-        return this.maxParallelTaskAmount;
-    }
 
     public List<String> getTasksNames() {
         return this.manager.getTasksNames();

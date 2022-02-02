@@ -5,11 +5,13 @@ import User.User;
 import exceptions.TargetNotFoundException;
 import exceptions.XMLException;
 import graph.*;
-import targets.Target;
-import tasks.*;
+import resources.jaxb.schema.generated.GPUPConfiguration;
 import resources.jaxb.schema.generated.GPUPDescriptor;
 import resources.jaxb.schema.generated.GPUPTarget;
 import resources.jaxb.schema.generated.GPUPTargetDependencies;
+import targets.Target;
+import tasks.*;
+
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
@@ -25,9 +27,8 @@ public class Manager implements Serializable {
     private TaskManager taskManager;
     private Graph tempGraph;
     private final static String JAXB_XML_GAME_PACKAGE_NAME = "resources.jaxb.schema.generated";
-    private String mainSimulationTaskFolderPath; //
+    private String mainSimulationTaskFolderPath = DEFAULT_WORKING_DIR; //
     private Boolean fileLoaded = false;
-    private int maxParallelism; //
     private final List<String> taskNames;
     private static boolean pauseOccurred;
     private Object isPaused;
@@ -119,10 +120,11 @@ public class Manager implements Serializable {
         if(duplicatedTargets.size() > 0)
             throw new XMLException("The following Targets are duplicate: " + duplicatedTargets);
 
+        updateTaskPrices(descriptor,newGraph);
+
         this.setTargetsInAndOutLists(descriptor,newGraph);
         checkForTwoTargetsCycle(descriptor, newGraph);
         this.setTargetsType(descriptor, newGraph);
-        this.mainSimulationTaskFolderPath = descriptor.getGPUPConfiguration().getGPUPWorkingDirectory().trim();
 
         //Check if name already exits //todo do me
 
@@ -130,8 +132,23 @@ public class Manager implements Serializable {
         this.fileLoaded = true;
         this.graphManager.addGraph(graphName ,newGraph);
         System.out.println("Graph Name :" + graphName );
-        this.maxParallelism = descriptor.getGPUPConfiguration().getGPUPMaxParallelism(); //todo
         //this.graphManager.getTargetsList().forEach(target -> this.currentStatusOfTargets.put(target.getName(),target));
+    }
+
+    private void updateTaskPrices(GPUPDescriptor descriptor, Graph newGraph) throws XMLException{
+        for (GPUPConfiguration.GPUPPricing.GPUPTask gpupTask:descriptor.getGPUPConfiguration().getGPUPPricing().getGPUPTask()) {
+            if(gpupTask.getName().compareTo("Simulation") == 0) {
+                if(gpupTask.getPricePerTarget() <= 0)
+                    throw new XMLException("Simulation price must be positive value");
+                newGraph.setSimulationPrice(gpupTask.getPricePerTarget());
+            }
+            else if(gpupTask.getName().compareTo("Compilation") == 0) {
+                if(gpupTask.getPricePerTarget() <= 0)
+                    throw new XMLException("Compilation price must be positive value");
+                newGraph.setCompilationPrice(gpupTask.getPricePerTarget());
+            }
+        }
+
     }
 
     private void checkIfFileEndsWithXML(String fullPathFileName) throws FileNotFoundException {
@@ -257,7 +274,7 @@ public class Manager implements Serializable {
 
         Runnable r = () -> {
             Map<String,List<SerialSet>> dummy = new HashMap<>();
-            executorManager = new ExecutorManager(task,this.tempGraph.getTargetsList(),consumerList,consumeWhenFinished,dummy,1 /*todo change this*/, maxParallelism,
+            executorManager = new ExecutorManager(task,this.tempGraph.getTargetsList(),consumerList,consumeWhenFinished,dummy,1 /*todo change this*/, 100/*todo change this*/,
                     isPaused, this.graphManager.getGraphs().get(graphName));
             try {
                 executorManager.execute();
@@ -402,9 +419,6 @@ public class Manager implements Serializable {
         return targetDTOS;
     }
 
-    public int getParallelTaskAmount() {
-        return this.maxParallelism;
-    }
 
     public List<String> getTasksNames(){
         return this.taskNames;

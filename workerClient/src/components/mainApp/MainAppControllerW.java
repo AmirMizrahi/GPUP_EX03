@@ -75,11 +75,11 @@ public class MainAppControllerW implements sharedMainAppController {
 
     @FXML
     private void initialize() throws IOException {
-        workerManager = new WorkerManager(this.loginControllerW.getThreadsAmount());
+        workerManager = new WorkerManager(/*this.loginControllerW.getThreadsAmount()*/);
         selectedTask = new SimpleStringProperty();
         isLoggedIn = new SimpleBooleanProperty(false);
-        this.dashboardButton.disableProperty().bind(isLoggedIn.not());
-        this.subscribedTasksPanelButton.disableProperty().bind(isLoggedIn.not());
+        this.dashboardButton.disableProperty().bind(isLoggedIn.not().or(SharedMainApp.getServerOnProperty().not()));
+        this.subscribedTasksPanelButton.disableProperty().bind(isLoggedIn.not().or(SharedMainApp.getServerOnProperty().not()));
 
         loginControllerW = (LoginControllerW) genericControllersInit("/components/login/login.fxml");
         dashboardControllerW = (DashboardControllerW) genericControllersInit("/components/dashboard/dashboard.fxml");
@@ -90,8 +90,12 @@ public class MainAppControllerW implements sharedMainAppController {
             String str;
             if (SharedMainApp.getServerOnProperty().get())
                 str = "Server is ON";
-            else
+            else {
                 str = "Server is OFF";
+                this.gridPaneMainAppRight.getChildren().remove(0);
+                gridPaneMainAppRight.getChildren().add(this.loginControllerW.getNodeController());
+                this.isLoggedIn.set(false);
+            }
             return str;
         }, SharedMainApp.getServerOnProperty()));
 
@@ -147,18 +151,18 @@ public class MainAppControllerW implements sharedMainAppController {
                         @Override
                         public void onFailure(@NotNull Call call, @NotNull IOException e) {
                             List<GraphDTO> failed = new LinkedList<>();
-                            graphsListConsumer.accept(failed);
+                            //graphsListConsumer.accept(failed);//todo
                         }
 
                         @Override
                         public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                            String jsonArrayOfUsersNames = response.body().string();
+/*                            String jsonArrayOfUsersNames = response.body().string();
                             System.out.println("222" +jsonArrayOfUsersNames);
                             //httpRequestLoggerConsumer.accept("Users Request # " + finalRequestNumber + " | Response: " + jsonArrayOfUsersNames);
                             Type type = new TypeToken<List<GraphDTO>>(){}.getType();
                             List<GraphDTO> graphDTOS= GSON_INSTANCE.fromJson(jsonArrayOfUsersNames, type);
                             response.close();
-                            graphsListConsumer.accept(graphDTOS);
+                            graphsListConsumer.accept(graphDTOS);*///todo
                         }
                     });
                 }

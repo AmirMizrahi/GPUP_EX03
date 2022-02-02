@@ -11,6 +11,8 @@ public class Graph {
     private final Map<String, Target> targetNameToTarget;
     private final int[] targetTypeArray;
     private boolean needToCalculate;
+    private int simulationPrice;
+    private int compilationPrice;
 
     public Graph(String graphName, String uploaderName) {
         this.graphName = graphName;
@@ -18,6 +20,8 @@ public class Graph {
         this.targetNameToTarget = new HashMap<>();
         this.targetTypeArray = new int[] {0,0,0,0};
         this.needToCalculate = true;
+        this.simulationPrice = -1;
+        this.compilationPrice = -1;
     }
 
     public Boolean addTarget(Target t){
@@ -199,5 +203,21 @@ public class Graph {
 
     public String getUploaderName() {
         return this.uploaderName;
+    }
+
+    public int getSimulationPrice() {
+        return simulationPrice;
+    }
+
+    public int getCompilationPrice() {
+        return compilationPrice;
+    }
+
+    public void setSimulationPrice(int simulationPrice) {
+        this.simulationPrice = simulationPrice;
+    }
+
+    public void setCompilationPrice(int compilationPrice) {
+        this.compilationPrice = compilationPrice;
     }
 }

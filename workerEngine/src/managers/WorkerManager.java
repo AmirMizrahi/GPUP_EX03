@@ -10,8 +10,8 @@ public class WorkerManager {
     private List<TaskDTO> subscribedTasks = new LinkedList<>();
     private Integer threadsOnWork = 0; //todo need to updated
 
-    public WorkerManager(Integer threadsAmount) {
-        this.threadsAmount = threadsAmount;
+    public WorkerManager(/*Integer threadsAmount*/) {
+        this.threadsAmount = 5/*threadsAmount*/;//todo need to change 5
     }
 
     public void addSubscriber(TaskDTO newSubscribedTask) {

@@ -106,6 +106,10 @@ public class DashboardController implements Controller {
         this.graphsListView.getItems().add("Total Leaf Targets Amount: " + graphToShow.getLeafAmount());
         this.graphsListView.getItems().add("Total Middle Targets Amount: " + graphToShow.getMiddleAmount());
         this.graphsListView.getItems().add("Total Independent Targets Amount: " + graphToShow.getIndependentAmount());
+        if(graphToShow.getSimulationPrice() != -1)
+            this.graphsListView.getItems().add("Simulation Price: " + graphToShow.getSimulationPrice());
+        if(graphToShow.getCompilationPrice() != -1)
+            this.graphsListView.getItems().add("Compilation Price: " + graphToShow.getCompilationPrice());
     }
 
     @FXML
@@ -128,6 +132,10 @@ public class DashboardController implements Controller {
         this.selectedGraph = selectedGraph;
         this.selectedTask = selectedTask;
         this.matchingUserName = matchingUserName;
+        this.graphsListView.getItems().clear();
+        this.tasksListView.getItems().clear();
+        this.matchingUserName.set(false);
+        this.selectedGraph.set("");
     }
 
     public String getLoggedInUserName(){

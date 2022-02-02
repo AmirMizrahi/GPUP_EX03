@@ -79,4 +79,9 @@ public class GraphDTO {
     public String getUploaderName() {
         return this.graph.getUploaderName();
     }
+
+    public Integer getSimulationPrice(){return this.graph.getSimulationPrice();};
+
+    public Integer getCompilationPrice(){return this.graph.getCompilationPrice();};
+
 }
