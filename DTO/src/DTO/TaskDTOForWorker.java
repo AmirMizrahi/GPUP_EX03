@@ -3,14 +3,20 @@ package DTO;
 import java.util.Map;
 
 public class TaskDTOForWorker {
+    private String taskName;
     private TargetDTO targetDTO;
     private String taskType;
     private Map<String, String> taskInfo;
 
-    public TaskDTOForWorker(TargetDTO target, String taskType, Map<String, String> taskInfo){
+    public TaskDTOForWorker(String taskName, TargetDTO target, String taskType, Map<String, String> taskInfo){
+        this.taskName = taskName;
         this.targetDTO = target;
         this.taskType = taskType;
         this.taskInfo = taskInfo;
+    }
+
+    public String getTaskName() {
+        return taskName;
     }
 
     public TargetDTO getTargetDTO() {

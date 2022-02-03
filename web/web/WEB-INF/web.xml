@@ -75,5 +75,12 @@
         <url-pattern>/engine/gettargets</url-pattern>
     </servlet-mapping>
 
-
+    <servlet>
+        <servlet-name>UpdateTargetsResultsServlet</servlet-name>
+        <servlet-class>servlets.UpdateTargetsResultsServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>UpdateTargetsResultsServlet</servlet-name>
+        <url-pattern>/engine/updatetargetsresults</url-pattern>
+    </servlet-mapping>
 </web-app>

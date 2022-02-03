@@ -18,6 +18,8 @@ public class Constants {
     public final static String UPDATE_TASK_STATUS = SERVER_ADDRESS + ENGINE_ADDRESS + "/updatetaskstatus";
     public final static String UPDATE_TASK_SUBSCRIBER = SERVER_ADDRESS + ENGINE_ADDRESS + "/updatetasksubscriber";
     public final static String GET_TARGETS = SERVER_ADDRESS + ENGINE_ADDRESS + "/gettargets";
+    public final static String UPDATE_RESULTS = SERVER_ADDRESS + ENGINE_ADDRESS + "/updatetargetsresults";
+
     // GSON instance
     public final static Gson GSON_INSTANCE = new Gson();
 

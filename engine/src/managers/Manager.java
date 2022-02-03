@@ -193,13 +193,13 @@ public class Manager implements Serializable {
         return new TargetDTO(t);
     }
 
-    private void createGraphByUserSelection(String graphName, List<String> selectedTargets) throws TargetNotFoundException {
+    private List<Target> createTaskTargetsByUserSelection(String graphName, List<String> selectedTargets) throws TargetNotFoundException {
         List<String> oldInTargetList, oldOutTargetList;
-        this.tempGraph = new Graph("aaa", "aaa");//todo
+        List<Target> res = new LinkedList<>();
 
         for (String targetName : selectedTargets) { //Create new targets in the new graph (without in/out list)
             Target originalTarget = this.graphManager.getGraphs().get(graphName).getTargetByName(targetName);
-            tempGraph.addTarget(new Target(targetName, originalTarget.getData()));
+            res.add(new Target(targetName, originalTarget.getData()));
         }
 
         //for every target in the new graph:                                            V
@@ -207,40 +207,47 @@ public class Manager implements Serializable {
         //      2.On every target in the (1) that does appear in the tempGraph
         //      3.add the target from the new graph to the new Inlist of the target
 
-        for (Target currentTargetInTempGraph : tempGraph.getTargetsList()) {
+        for (Target currentTargetInTempGraph : res) {
             oldInTargetList = graphManager.getGraphs().get(graphName).getTargetByName(currentTargetInTempGraph.getName()).getInTargets();
             oldOutTargetList = graphManager.getGraphs().get(graphName).getTargetByName(currentTargetInTempGraph.getName()).getOutTargets();
 
             for (String oldTargetName : oldInTargetList) {
                 Target oldTarget = this.graphManager.getGraphs().get(graphName).getTargetByName(oldTargetName);
                 if (selectedTargets.contains(oldTarget.getName())) {
-                    currentTargetInTempGraph.addToInTargetsList(tempGraph.getTargetByName(oldTarget.getName()));
+                    res.forEach(x->{
+                        if(x.getName().compareTo(oldTarget.getName()) == 0)
+                            currentTargetInTempGraph.addToInTargetsList(x);
+                    });
                 }
             }
             for (String oldTargetName : oldOutTargetList) {
                 Target oldTarget = this.graphManager.getGraphs().get(graphName).getTargetByName(oldTargetName);
                 if (selectedTargets.contains(oldTarget.getName())) {
-                    currentTargetInTempGraph.addToOutTargetsList(tempGraph.getTargetByName(oldTarget.getName()));
+                    res.forEach(x->{
+                        if(x.getName().compareTo(oldTarget.getName()) == 0)
+                            currentTargetInTempGraph.addToOutTargetsList(x);
+                    });
                 }
             }
         }
-        setStatusOfTargetsInTempGraph();
+        setStatusOfTargetsInTempGraph(res);
+        return res;
     }
 
-    private void setStatusOfTargetsInTempGraph() throws TargetNotFoundException {
+    private void setStatusOfTargetsInTempGraph(List<Target> list) {
 
-        for (Target current : tempGraph.getTargetsList()) {
-            int outTargetAmount = tempGraph.getTargetByName(current.getName()).getOutTargets().size();
-            int inTargetAmount = tempGraph.getTargetByName(current.getName()).getInTargets().size();
+        for (Target current : list) {
+            int outTargetAmount = current.getOutTargets().size();
+            int inTargetAmount = current.getInTargets().size();
 
             if (outTargetAmount > 0 && inTargetAmount > 0) {
-                tempGraph.getTargetByName(current.getName()).setCategory(Target.TargetType.MIDDLE);
-                tempGraph.getTargetByName(current.getName()).setStatus(Target.TargetStatus.FROZEN);
+               current.setCategory(Target.TargetType.MIDDLE);
+               current.setStatus(Target.TargetStatus.FROZEN);
             } else if (outTargetAmount > 0) {
-                tempGraph.getTargetByName(current.getName()).setCategory(Target.TargetType.ROOT);
-                tempGraph.getTargetByName(current.getName()).setStatus(Target.TargetStatus.FROZEN);
+                current.setCategory(Target.TargetType.ROOT);
+                current.setStatus(Target.TargetStatus.FROZEN);
             } else if (inTargetAmount > 0)
-                tempGraph.getTargetByName(current.getName()).setCategory(Target.TargetType.LEAF);
+                current.setCategory(Target.TargetType.LEAF);
         }
     }
 
@@ -452,18 +459,18 @@ public class Manager implements Serializable {
         return status;
     }
 
-    private List<Target> createTargetsFromTargetsNames(List<String> selectedTargetsNames, String graphName){
-        List<Target> selectedTargets = new LinkedList<>();
-        selectedTargetsNames.forEach(targetName-> {
-            try {
-                selectedTargets.add(this.graphManager.getGraphs().get(graphName).getTargetByName(targetName));
-            } catch (TargetNotFoundException e) {
-                e.printStackTrace(); //todo remove
-            }
-        });
-
-        return selectedTargets;
-    }
+//    private List<Target> createTargetsFromTargetsNames(List<String> selectedTargetsNames, String graphName){
+//        List<Target> selectedTargets = new LinkedList<>();
+//        selectedTargetsNames.forEach(targetName-> {
+//            try {
+//                selectedTargets.add(this.graphManager.getGraphs().get(graphName).getTargetByName(targetName));
+//            } catch (TargetNotFoundException e) {
+//                e.printStackTrace(); //todo remove
+//            }
+//        });
+//
+//        return selectedTargets;
+//    }
 
     //Simulation creator
     public void addNewTask(Integer time, String time_option, Double successRates, Double warningRates, String userName,
@@ -473,7 +480,8 @@ public class Manager implements Serializable {
             throw new Exception(taskName + " already created.");
         }
 
-        List<Target> selectedTargets = createTargetsFromTargetsNames(selectedTargetsNames,graphName);
+        List<Target> selectedTargets = createTaskTargetsByUserSelection(graphName, selectedTargetsNames);
+
 
         Map<String,String> taskInfo = new HashMap<>();
         taskInfo.put("taskTime", time.toString());
@@ -494,7 +502,7 @@ public class Manager implements Serializable {
             throw new Exception(taskName + " already created.");
         }
 
-        List<Target> selectedTargets = createTargetsFromTargetsNames(selectedTargetsNames,graphName);
+        List<Target> selectedTargets = createTaskTargetsByUserSelection(graphName, selectedTargetsNames);
 
         Map<String,String> taskInfo = new HashMap<>();
         taskInfo.put("source", source);
@@ -520,8 +528,7 @@ public class Manager implements Serializable {
         }
     }
 
-
     public List<TaskDTOForWorker> getTargetsForWorker(int availableThreads, String usernameFromParameter) {
-        return this.taskManager.tasksForWorker(usernameFromParameter , availableThreads);
+        return this.taskManager.getTasksForWorker(usernameFromParameter, availableThreads);
     }
 }

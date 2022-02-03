@@ -43,7 +43,7 @@ public class TaskManager {
         }
     }
 
-    public List<TaskDTOForWorker> tasksForWorker(String userName, int availableThreads) {
+    public List<TaskDTOForWorker> getTasksForWorker(String userName, int availableThreads) {
         List<TaskDTOForWorker> taskList = new LinkedList<>();
         int currentTargetsAmount = 0;
         boolean gotMaxTargets = false, gotAtLeastOneTarget = true;
@@ -54,7 +54,8 @@ public class TaskManager {
                 if (entry.getValue().isUserSubscribed(userName)) {
                     Target t = entry.getValue().getTargetForWorker();
                     if (t != null) {
-                        taskList.add(new TaskDTOForWorker(new TargetDTO(t), entry.getValue().getTaskType(), entry.getValue().getTaskInfo()));
+                        taskList.add(new TaskDTOForWorker(entry.getKey(), new TargetDTO(t), entry.getValue().getTaskType(), entry.getValue().getTaskInfo()));
+                        t.setStatus(Target.TargetStatus.IN_PROCESS);
                         currentTargetsAmount++;
                         gotAtLeastOneTarget = true;
                     }
@@ -67,7 +68,4 @@ public class TaskManager {
         }
         return taskList;
     }
-
-
-
 }

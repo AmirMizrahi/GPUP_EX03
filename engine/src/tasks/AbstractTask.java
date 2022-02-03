@@ -216,7 +216,6 @@ public abstract class AbstractTask implements Task{
         return toReturn;
     }
 
-
     public enum WAYS_TO_START_SIM_TASK
     {
         FROM_SCRATCH,INCREMENTAL

@@ -1,5 +1,10 @@
 package targets;
 
+import java.io.IOException;
+import java.util.Map;
+
 public interface WorkerTarget {
-    Runnable run();
+    void run() throws InterruptedException, IOException;
+    boolean isRunFinished();
+    Map<String, String> getResult();
 }

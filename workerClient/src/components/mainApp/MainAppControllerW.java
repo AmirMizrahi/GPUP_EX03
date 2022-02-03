@@ -6,6 +6,7 @@ import DTO.TaskDTO;
 import DTO.TaskDTOForWorker;
 import Utils.Constants;
 import Utils.HttpClientUtil;
+import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import components.dashboard.DashboardControllerW;
 import components.login.LoginControllerW;
@@ -24,10 +25,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import managers.WorkerManager;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.HttpUrl;
-import okhttp3.Response;
+import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 import sharedControllers.sharedMainAppController;
 import sharedDashboard.SharedDashboard;
@@ -41,8 +39,8 @@ import java.util.List;
 import java.util.Timer;
 import java.util.function.Consumer;
 
-import static Utils.Constants.GSON_INSTANCE;
-import static Utils.Constants.TARGET_REFRESH_RATE;
+import static Utils.Constants.*;
+import static Utils.Constants.LINE_SEPARATOR;
 import static sharedMainApp.SharedMainApp.sharedOnLoggedIn;
 
 public class MainAppControllerW implements sharedMainAppController {
@@ -51,6 +49,7 @@ public class MainAppControllerW implements sharedMainAppController {
     private WorkerManager workerManager;
     private Stage primaryStage;
     private Timer timer;
+    private Timer postTimer;
     //Properties
     private BooleanProperty isLoggedIn;
     private SimpleStringProperty selectedTask;
@@ -132,6 +131,7 @@ public class MainAppControllerW implements sharedMainAppController {
         sharedOnLoggedIn(gridPaneMainAppRight,isLoggedIn,this.dashboardControllerW.getNodeController());
         this.dashboardControllerW.initializeDashboardController(SharedLogin.userNamePropertyProperty(), this.selectedTask);
         startTaskControlPanelRefresher();
+        updateServerWithTargetsResults();
     }
 
     private void startTaskControlPanelRefresher() {
@@ -166,7 +166,13 @@ public class MainAppControllerW implements sharedMainAppController {
                             //List<String> temp = new LinkedList<>();
                             //taskDTOForWorkers.forEach(taskDTOForWorker -> temp.add(taskDTOForWorker.getTargetDTO().getTargetName()));
                             workerManager.setThreadsOnWork(taskDTOForWorkers.size());
-                            taskDTOForWorkers.forEach(dto-> workerManager.addTargetToThreadPool(dto));
+                            taskDTOForWorkers.forEach(dto-> {
+                                try {
+                                    workerManager.addTargetToThreadPool(dto);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                            });
                             //System.out.println("RESULT: " + temp);
 
 
@@ -181,6 +187,55 @@ public class MainAppControllerW implements sharedMainAppController {
         TargetRequestRefresher targetRequestRefresher = new TargetRequestRefresher(refresherConsumer);
         timer = new Timer();
         timer.schedule(targetRequestRefresher, TARGET_REFRESH_RATE, TARGET_REFRESH_RATE);
+    }
+
+    private void updateServerWithTargetsResults() {
+        Consumer<Boolean> refresherConsumer = new Consumer() {
+            @Override
+            public void accept(Object o) {
+                if(workerManager.areThereTargetsToSend()){
+                    String body =
+                            "results=" + new Gson().toJson(workerManager.getUpdatedTargetsResults());
+
+                    HttpClientUtil.postRequest(RequestBody.create(body.getBytes()), new Callback() {
+                        @Override
+                        public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                            List<GraphDTO> failed = new LinkedList<>();
+                            //graphsListConsumer.accept(failed);//todo
+                        }
+
+                        @Override
+                        public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+//                            String jsonArrayOfUsersNames = response.body().string();
+//                            //httpRequestLoggerConsumer.accept("Users Request # " + finalRequestNumber + " | Response: " + jsonArrayOfUsersNames);
+//                            Type type = new TypeToken<List<TaskDTOForWorker>>(){}.getType();
+//                            List<TaskDTOForWorker> taskDTOForWorkers = GSON_INSTANCE.fromJson(jsonArrayOfUsersNames, type);
+//                            System.out.println("----------------------------------" + taskDTOForWorkers.size() + "-------------------------");
+//                            response.close();
+//                            //List<String> temp = new LinkedList<>();
+//                            //taskDTOForWorkers.forEach(taskDTOForWorker -> temp.add(taskDTOForWorker.getTargetDTO().getTargetName()));
+//                            workerManager.setThreadsOnWork(taskDTOForWorkers.size());
+//                            taskDTOForWorkers.forEach(dto-> {
+//                                try {
+//                                    workerManager.addTargetToThreadPool(dto);
+//                                } catch (InterruptedException e) {
+//                                    e.printStackTrace();
+//                                }
+//                            });
+//                            //System.out.println("RESULT: " + temp);
+
+
+                            //graphsListConsumer.accept(taskDTOForWorkers);*///todo
+                        }
+                    }, UPDATE_RESULTS);
+                }
+                //taskControlPanelController.refreshPanel(getSelectedTaskDTOFromDashboard());
+            }
+        };
+
+        TargetRequestRefresher targetRequestRefresher = new TargetRequestRefresher(refresherConsumer);
+        postTimer = new Timer();
+        postTimer.schedule(targetRequestRefresher, TARGET_REFRESH_RATE, TARGET_REFRESH_RATE);
     }
 
     public TaskDTO getSelectedTaskDTOFromDashboard() {
