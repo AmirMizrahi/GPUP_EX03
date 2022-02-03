@@ -2,6 +2,7 @@ package servlets;
 
 import DTO.GraphDTO;
 import DTO.TaskDTO;
+import DTO.TaskDTOForWorker;
 import com.google.gson.Gson;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,7 +20,7 @@ public class TargetsRequestServlet extends HttpServlet {
         response.setContentType("application/json");
         try (PrintWriter out = response.getWriter()) {
             Gson gson = new Gson();
-            int availableThreads;
+            int availableThreads = 0;
             String error = null;
 
             String usernameFromParameter = request.getParameter("username");
@@ -38,12 +39,11 @@ public class TargetsRequestServlet extends HttpServlet {
 
             } else {
                 Manager manager = ServletUtils.getManager(getServletContext());
-//                List<TaskDTO> tasksList = manager.getTargets();
-//                String json = gson.toJson(graphsList);
-//                out.println(json);
+                List<TaskDTOForWorker> toReturn = manager.getTargetsForWorker(availableThreads, usernameFromParameter);
+                String json = gson.toJson(toReturn);
+                out.println(json);
                 out.flush();
             }
         }
     }
 }
-

@@ -250,10 +250,10 @@ public class Manager implements Serializable {
             //createGraphByUserSelection(selectedTargets); //todo
 
         List<Target> targetList = runTaskInFirstTime(way);
-        Task simulationTask = new SimulationTask(taskTime,op,ChanceToSucceed, SucceedWithWarning, way, targetList,
-                this.mainSimulationTaskFolderPath, checkIfTaskIsActivatedInFirstTime(), "bla bla change me", "changeMeTOoooooo");
+       // Task simulationTask = new SimulationTask(taskTime,op,ChanceToSucceed, SucceedWithWarning, way, targetList,
+       //         this.mainSimulationTaskFolderPath, checkIfTaskIsActivatedInFirstTime(), "bla bla change me", "changeMeTOoooooo");
 
-        activateTaskMG(simulationTask, consumerList,consumeWhenFinished, graphName);
+        //activateTaskMG(simulationTask, consumerList,consumeWhenFinished, graphName);
     }
 
     public void activateCompilationTask(List<String> selectedTargets, String source, String destination, AbstractTask.WAYS_TO_START_SIM_TASK way, List<Consumer<String>> consumerList,
@@ -262,9 +262,9 @@ public class Manager implements Serializable {
             //createGraphByUserSelection(selectedTargets); //todo
 
         List<Target> targetList = runTaskInFirstTime(way);
-        Task compilationTask = new CompilationTask(way, targetList, this.mainSimulationTaskFolderPath, source, destination, checkIfTaskIsActivatedInFirstTime(), "asdf", "xczv");
+       // Task compilationTask = new CompilationTask(way, targetList, this.mainSimulationTaskFolderPath, source, destination, checkIfTaskIsActivatedInFirstTime(), "asdf", "xczv");
 
-        activateTaskMG(compilationTask, consumerList,consumeWhenFinished,graphName);
+        //activateTaskMG(compilationTask, consumerList,consumeWhenFinished,graphName);
     }
     //activateComp =>Task comp = new comp
 
@@ -475,7 +475,13 @@ public class Manager implements Serializable {
 
         List<Target> selectedTargets = createTargetsFromTargetsNames(selectedTargetsNames,graphName);
 
-        Task task = new SimulationTask(time, SimulationTask.TIME_OPTION.valueOf(time_option.toUpperCase()), successRates,
+        Map<String,String> taskInfo = new HashMap<>();
+        taskInfo.put("taskTime", time.toString());
+        taskInfo.put("op", time_option);
+        taskInfo.put("chanceToSucceed", successRates.toString());
+        taskInfo.put("succeedWithWarning", warningRates.toString());
+
+        Task task = new SimulationTask(taskInfo,time, SimulationTask.TIME_OPTION.valueOf(time_option.toUpperCase()), successRates,
                 warningRates, AbstractTask.WAYS_TO_START_SIM_TASK.FROM_SCRATCH, selectedTargets, DEFAULT_WORKING_DIR ,
                 true, userName, graphName); //todo change first time
         taskManager.addTask(taskName,task);
@@ -490,7 +496,11 @@ public class Manager implements Serializable {
 
         List<Target> selectedTargets = createTargetsFromTargetsNames(selectedTargetsNames,graphName);
 
-        Task task = new CompilationTask(AbstractTask.WAYS_TO_START_SIM_TASK.FROM_SCRATCH, selectedTargets, DEFAULT_WORKING_DIR ,
+        Map<String,String> taskInfo = new HashMap<>();
+        taskInfo.put("source", source);
+        taskInfo.put("destination", destination);
+
+        Task task = new CompilationTask(taskInfo, AbstractTask.WAYS_TO_START_SIM_TASK.FROM_SCRATCH, selectedTargets, DEFAULT_WORKING_DIR ,
                 source, destination, true, userName, graphName); //todo change first time
         taskManager.addTask(taskName,task);
     }
@@ -508,5 +518,10 @@ public class Manager implements Serializable {
                 break;
             }
         }
+    }
+
+
+    public List<TaskDTOForWorker> getTargetsForWorker(int availableThreads, String usernameFromParameter) {
+        return this.taskManager.tasksForWorker(usernameFromParameter , availableThreads);
     }
 }

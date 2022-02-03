@@ -12,14 +12,14 @@ public class SimulationTask extends AbstractTask implements Task{
     private final Double chanceToSucceed;
     private final Double succeedWithWarning;
 
-
-    public SimulationTask(Integer taskTime, TIME_OPTION op, Double chanceToSucceed, Double succeedWithWarning, WAYS_TO_START_SIM_TASK way,
+    public SimulationTask(Map<String,String> taskInfo, Integer taskTime, TIME_OPTION op, Double chanceToSucceed, Double succeedWithWarning, WAYS_TO_START_SIM_TASK way,
                           List<Target> targetsToRunOn, String pathName, boolean firstTime, String userName, String graphName) throws IllegalArgumentException {
-        super(way, firstTime, targetsToRunOn, pathName, "Simulation", userName, graphName);
+        super(way, firstTime, targetsToRunOn, pathName, "Simulation", userName, graphName, taskInfo);
         this.taskTime = taskTime;
         this.op = op;
         this.chanceToSucceed = chanceToSucceed;
         this.succeedWithWarning = succeedWithWarning;
+
         //Need to change by user input
         if(this.taskTime <= 0 )
             throw new IllegalArgumentException("Error with the taskTime argument, taskTime need to be larger then 0.");
@@ -28,7 +28,6 @@ public class SimulationTask extends AbstractTask implements Task{
         if(this.succeedWithWarning < 0 || 1 < this.succeedWithWarning)
             throw  new IllegalArgumentException("Error with succeedWithWarning argument, succeedWithWarning need to be between 0 to 1.");
     }
-
 
 /*    private void acceptListOfConsumers(List<Consumer<String>> list,String str) {
         list.forEach(consumer->consumer.accept(str));

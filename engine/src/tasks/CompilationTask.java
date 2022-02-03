@@ -5,6 +5,7 @@ import java.io.*;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 public class CompilationTask extends AbstractTask implements Task {
@@ -12,9 +13,9 @@ public class CompilationTask extends AbstractTask implements Task {
     private String sourceName;
     private String destinationName;
 
-    public CompilationTask(AbstractTask.WAYS_TO_START_SIM_TASK way,List<Target> targetsToRunOn, String pathName, String sourceName, String destinationName,
+    public CompilationTask(Map<String,String> taskInfo, AbstractTask.WAYS_TO_START_SIM_TASK way, List<Target> targetsToRunOn, String pathName, String sourceName, String destinationName,
                            boolean firstTime, String userName, String graphName){
-        super(way, firstTime, targetsToRunOn, pathName, "Compilation", userName, graphName);
+        super(way, firstTime, targetsToRunOn, pathName, "Compilation", userName, graphName, taskInfo);
         this.sourceName = sourceName;
         this.destinationName = destinationName;
     }

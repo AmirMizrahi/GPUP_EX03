@@ -1,7 +1,9 @@
 package components.mainApp;
 
 import DTO.GraphDTO;
+import DTO.TargetDTO;
 import DTO.TaskDTO;
+import DTO.TaskDTOForWorker;
 import Utils.Constants;
 import Utils.HttpClientUtil;
 import com.google.gson.reflect.TypeToken;
@@ -156,13 +158,19 @@ public class MainAppControllerW implements sharedMainAppController {
 
                         @Override
                         public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-/*                            String jsonArrayOfUsersNames = response.body().string();
-                            System.out.println("222" +jsonArrayOfUsersNames);
+                            String jsonArrayOfUsersNames = response.body().string();
                             //httpRequestLoggerConsumer.accept("Users Request # " + finalRequestNumber + " | Response: " + jsonArrayOfUsersNames);
-                            Type type = new TypeToken<List<GraphDTO>>(){}.getType();
-                            List<GraphDTO> graphDTOS= GSON_INSTANCE.fromJson(jsonArrayOfUsersNames, type);
+                            Type type = new TypeToken<List<TaskDTOForWorker>>(){}.getType();
+                            List<TaskDTOForWorker> taskDTOForWorkers = GSON_INSTANCE.fromJson(jsonArrayOfUsersNames, type);
                             response.close();
-                            graphsListConsumer.accept(graphDTOS);*///todo
+                            //List<String> temp = new LinkedList<>();
+                            //taskDTOForWorkers.forEach(taskDTOForWorker -> temp.add(taskDTOForWorker.getTargetDTO().getTargetName()));
+                            workerManager.setThreadsOnWork(taskDTOForWorkers.size());
+                            taskDTOForWorkers.forEach(dto-> workerManager.addTargetToThreadPool(dto));
+                            //System.out.println("RESULT: " + temp);
+
+
+                            //graphsListConsumer.accept(taskDTOForWorkers);*///todo
                         }
                     });
                 }

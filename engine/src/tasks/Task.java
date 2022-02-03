@@ -6,6 +6,7 @@ import targets.Target;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -19,4 +20,8 @@ public interface Task {
     AbstractTask.TASK_STATUS getStatus();
     void addSubscriber(User user);
     List<User> getSubscribers();
+    boolean isUserSubscribed(String userName);
+    Target getTargetForWorker();
+    String getTaskType();
+    Map<String,String> getTaskInfo();
 }

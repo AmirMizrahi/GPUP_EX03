@@ -15,6 +15,8 @@ public abstract class AbstractTask implements Task{
     protected final Boolean firstTime;
     private final String uploadedUserName;
     private final String graphName;
+    private final String taskType;
+    private final Map<String, String> taskInfo;
     protected int orderOfProcess = 1, totalRunningTime = 0;
     protected final List<Target> relevantTargetsForSummaryLogFile;
     protected final Map<Target,Integer> targetsToRunningTime;
@@ -22,20 +24,27 @@ public abstract class AbstractTask implements Task{
     protected final PrinterBridge printerBridge;
     protected TASK_STATUS taskStatus;
     protected List<User> subscribers;
+    protected Queue<Target> waitingQueue = new LinkedList<>();
 
     protected AbstractTask(WAYS_TO_START_SIM_TASK chosenWay, boolean firstTime, List<Target> targetsToRunOn,
-                           String pathName, String taskName, String userName, String graphName) {
+                           String pathName, String taskType, String userName, String graphName, Map<String, String> taskInfo) {
         this.chosenWay = chosenWay;
         this.firstTime = firstTime;
         this.relevantTargetsForSummaryLogFile = new ArrayList<>();
         this.targetsToRunningTime = new HashMap<>();
         this.printerBridge = new PrinterBridge();
-        this.fileFullName = createTaskFolder(pathName,taskName);
+        this.fileFullName = createTaskFolder(pathName, taskType);
         this.uploadedUserName = userName;
         this.graphName = graphName;
+        this.taskType = taskType;
         targetsToRunOn.forEach(t -> targetsToRunningTime.put(t, 0));
         this.taskStatus = TASK_STATUS.DEFAULT;
         this.subscribers = new LinkedList<>();
+        this.taskInfo = taskInfo;
+        targetsToRunOn.forEach(target -> {
+            if(target.getStatus() == Target.TargetStatus.WAITING)
+                waitingQueue.add(target);
+        });
     }
 
     protected Consumer<String> consumerBuilder(String path){
@@ -159,6 +168,11 @@ public abstract class AbstractTask implements Task{
     }
 
     @Override
+    public String getTaskType() {
+        return taskType;
+    }
+
+    @Override
     public void setStatus(TASK_STATUS taskStatus) {
         this.taskStatus = taskStatus;
     }
@@ -175,6 +189,33 @@ public abstract class AbstractTask implements Task{
 
     @Override
     public List<User> getSubscribers(){return this.subscribers;}
+
+    @Override
+    public Map<String, String> getTaskInfo() {
+        return taskInfo;
+    }
+
+    @Override
+    public boolean isUserSubscribed(String userName){
+        boolean isIncluded = false;
+        for (User subscriber : subscribers) {
+            if(subscriber.getName().compareTo(userName) == 0){
+                isIncluded = true;
+                break;
+            }
+        }
+        return isIncluded;
+    }
+
+    public Target getTargetForWorker(){
+        Target toReturn;
+        if(waitingQueue.isEmpty())
+            toReturn = null;
+        else
+            toReturn = waitingQueue.remove();
+        return toReturn;
+    }
+
 
     public enum WAYS_TO_START_SIM_TASK
     {

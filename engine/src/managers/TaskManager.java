@@ -1,13 +1,14 @@
 package managers;
 
+import DTO.TargetDTO;
+import DTO.TaskDTOForWorker;
 import DTO.UserDTO;
+import User.User;
+import targets.Target;
 import tasks.AbstractTask;
 import tasks.Task;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class TaskManager {
     private final Map<String, Task> taskNameToTask;
@@ -41,4 +42,32 @@ public class TaskManager {
             }
         }
     }
+
+    public List<TaskDTOForWorker> tasksForWorker(String userName, int availableThreads) {
+        List<TaskDTOForWorker> taskList = new LinkedList<>();
+        int currentTargetsAmount = 0;
+        boolean gotMaxTargets = false, gotAtLeastOneTarget = true;
+
+        while(!gotMaxTargets && gotAtLeastOneTarget) {
+            gotAtLeastOneTarget = false;
+            for (Map.Entry<String, Task> entry : taskNameToTask.entrySet()) {
+                if (entry.getValue().isUserSubscribed(userName)) {
+                    Target t = entry.getValue().getTargetForWorker();
+                    if (t != null) {
+                        taskList.add(new TaskDTOForWorker(new TargetDTO(t), entry.getValue().getTaskType(), entry.getValue().getTaskInfo()));
+                        currentTargetsAmount++;
+                        gotAtLeastOneTarget = true;
+                    }
+                    if(currentTargetsAmount == availableThreads) {
+                        gotMaxTargets = true;
+                        break;
+                    }
+                }
+            }
+        }
+        return taskList;
+    }
+
+
+
 }

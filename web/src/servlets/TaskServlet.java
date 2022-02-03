@@ -69,7 +69,7 @@ public class TaskServlet extends HttpServlet {
             }
             catch (Exception e){
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                response.getOutputStream().print(e.getMessage());
+                response.getOutputStream().print("123"+e.getMessage());
             }
 
         }
