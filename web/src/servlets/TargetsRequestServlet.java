@@ -1,8 +1,6 @@
 package servlets;
 
-import DTO.GraphDTO;
-import DTO.TaskDTO;
-import DTO.TaskDTOForWorker;
+import DTO.TargetDTOForWorker;
 import com.google.gson.Gson;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -39,7 +37,7 @@ public class TargetsRequestServlet extends HttpServlet {
 
             } else {
                 Manager manager = ServletUtils.getManager(getServletContext());
-                List<TaskDTOForWorker> toReturn = manager.getTargetsForWorker(availableThreads, usernameFromParameter);
+                List<TargetDTOForWorker> toReturn = manager.getTargetsForWorker(availableThreads, usernameFromParameter);
                 String json = gson.toJson(toReturn);
                 out.println(json);
                 out.flush();

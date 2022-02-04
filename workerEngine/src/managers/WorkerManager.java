@@ -1,10 +1,11 @@
 package managers;
 
 import DTO.TaskDTO;
-import DTO.TaskDTOForWorker;
+import DTO.TargetDTOForWorker;
 import targets.WorkerCompilationTarget;
 import targets.WorkerSimulationTarget;
 import targets.WorkerTarget;
+import task.WorkerTask;
 
 import java.io.IOException;
 import java.util.LinkedList;
@@ -16,27 +17,26 @@ import java.util.concurrent.TimeUnit;
 
 public class WorkerManager {
     private final Integer threadsAmount;
-    private List<TaskDTO> subscribedTasks = new LinkedList<>();
-    private Integer threadsOnWork = 0; //todo need to updated
+    private List<WorkerTask> subscribedTasks = new LinkedList<>();
+    private Integer threadsOnWork = 0;
     private ThreadPoolExecutor threadExecutor;
     private List<WorkerTarget> targetsOnWork;
 
-    public WorkerManager(/*Integer threadsAmount*/) {
-        this.threadsAmount = 5/*threadsAmount*/;//todo need to change 5
+    public WorkerManager(Integer threadsAmount) {
+        this.threadsAmount = threadsAmount;
         this.threadExecutor = new ThreadPoolExecutor(this.threadsAmount, this.threadsAmount, 1, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
         targetsOnWork = new LinkedList<>();
     }
 
     public void addSubscriber(TaskDTO newSubscribedTask) {
-        subscribedTasks.add(newSubscribedTask);
+        subscribedTasks.add(new WorkerTask(newSubscribedTask));
     }
 
     public void updateSubscribedTask(List<TaskDTO> taskDTOS) {
         for (TaskDTO newTask : taskDTOS) {
-            for (TaskDTO oldTask : subscribedTasks) {
+            for (WorkerTask oldTask : subscribedTasks) {
                 if (oldTask.getTaskName().compareTo(newTask.getTaskName()) == 0) {
-                    subscribedTasks.remove(oldTask);
-                    subscribedTasks.add(newTask);
+                    oldTask.setTaskStatus(newTask.getTaskStatus());
                 }
             }
         }
@@ -54,14 +54,20 @@ public class WorkerManager {
     }
 
     public void setThreadsOnWork(Integer threadsOnWork) {
-        this.threadsOnWork += threadsOnWork;
+        synchronized (threadsOnWork) {
+            System.out.println("--------------------------------------------Threads on work: " + (this.threadsOnWork));
+            this.threadsOnWork = this.threadsOnWork + threadsOnWork;
+        }
     }
 
     public Integer getAvailableThreadsAmount() {
-        return this.threadsAmount - this.threadsOnWork;
+        synchronized (threadsOnWork) {
+            System.out.println("--------------------------------------------Threads request: " + (this.threadsAmount - this.threadsOnWork));
+            return this.threadsAmount - this.threadsOnWork;
+        }
     }
 
-    public void addTargetToThreadPool(TaskDTOForWorker dto) throws InterruptedException {
+    public void addTargetToThreadPool(TargetDTOForWorker dto) throws InterruptedException {
         if (dto.getTaskType().compareToIgnoreCase("simulation") == 0) {
             WorkerSimulationTarget simulationTarget = new WorkerSimulationTarget(dto, dto.getTaskInfo());
             targetsOnWork.add(simulationTarget);
@@ -77,6 +83,9 @@ public class WorkerManager {
         return () -> {
             try {
                 target.run();
+                synchronized (threadsOnWork) {
+                    threadsOnWork--;
+                }
             } catch (InterruptedException | IOException e) {
                 e.printStackTrace();
             }

@@ -1,9 +1,8 @@
 package components.mainApp;
 
 import DTO.GraphDTO;
-import DTO.TargetDTO;
 import DTO.TaskDTO;
-import DTO.TaskDTOForWorker;
+import DTO.TargetDTOForWorker;
 import Utils.Constants;
 import Utils.HttpClientUtil;
 import com.google.gson.Gson;
@@ -40,7 +39,6 @@ import java.util.Timer;
 import java.util.function.Consumer;
 
 import static Utils.Constants.*;
-import static Utils.Constants.LINE_SEPARATOR;
 import static sharedMainApp.SharedMainApp.sharedOnLoggedIn;
 
 public class MainAppControllerW implements sharedMainAppController {
@@ -76,7 +74,6 @@ public class MainAppControllerW implements sharedMainAppController {
 
     @FXML
     private void initialize() throws IOException {
-        workerManager = new WorkerManager(/*this.loginControllerW.getThreadsAmount()*/);
         selectedTask = new SimpleStringProperty();
         isLoggedIn = new SimpleBooleanProperty(false);
         this.dashboardButton.disableProperty().bind(isLoggedIn.not().or(SharedMainApp.getServerOnProperty().not()));
@@ -129,6 +126,7 @@ public class MainAppControllerW implements sharedMainAppController {
     @Override
     public void onLoggedIn() {
         sharedOnLoggedIn(gridPaneMainAppRight,isLoggedIn,this.dashboardControllerW.getNodeController());
+        workerManager = new WorkerManager(this.loginControllerW.getThreadsAmount());
         this.dashboardControllerW.initializeDashboardController(SharedLogin.userNamePropertyProperty(), this.selectedTask);
         startTaskControlPanelRefresher();
         updateServerWithTargetsResults();
@@ -160,11 +158,12 @@ public class MainAppControllerW implements sharedMainAppController {
                         public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                             String jsonArrayOfUsersNames = response.body().string();
                             //httpRequestLoggerConsumer.accept("Users Request # " + finalRequestNumber + " | Response: " + jsonArrayOfUsersNames);
-                            Type type = new TypeToken<List<TaskDTOForWorker>>(){}.getType();
-                            List<TaskDTOForWorker> taskDTOForWorkers = GSON_INSTANCE.fromJson(jsonArrayOfUsersNames, type);
+                            Type type = new TypeToken<List<TargetDTOForWorker>>(){}.getType();
+                            List<TargetDTOForWorker> taskDTOForWorkers = GSON_INSTANCE.fromJson(jsonArrayOfUsersNames, type);
                             response.close();
                             //List<String> temp = new LinkedList<>();
                             //taskDTOForWorkers.forEach(taskDTOForWorker -> temp.add(taskDTOForWorker.getTargetDTO().getTargetName()));
+                            System.out.println("--------------------------------------------Got from server: " + taskDTOForWorkers.size());
                             workerManager.setThreadsOnWork(taskDTOForWorkers.size());
                             taskDTOForWorkers.forEach(dto-> {
                                 try {

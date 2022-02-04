@@ -528,7 +528,124 @@ public class Manager implements Serializable {
         }
     }
 
-    public List<TaskDTOForWorker> getTargetsForWorker(int availableThreads, String usernameFromParameter) {
+    public List<TargetDTOForWorker> getTargetsForWorker(int availableThreads, String usernameFromParameter) {
         return this.taskManager.getTasksForWorker(usernameFromParameter, availableThreads);
+    }
+
+    public void updateTargetStatusAfterTask(String name, String taskName, String status) {
+        for (Target target : taskManager.getTasks().get(taskName).getTargets()) {
+            if (name.compareTo(target.getName()) == 0){
+                target.setStatus(Target.TargetStatus.FINISHED);
+                target.setStatusAfterTask(Target.StatusAfterTask.valueOf(status.toUpperCase()));
+            }
+        }
+    }
+
+    public void updateTargetsByTargetResult(String name, String taskName, String targetStatus) throws TargetNotFoundException {
+        Target theOne = null;
+        for (Target target : this.taskManager.getTasks().get(taskName).getTargets()) {
+            if(name.compareTo(target.getName()) == 0){
+                theOne = target;
+                break;
+            }
+        }
+
+        synchronized (taskManager.getTasks().get(taskName)) {
+            if (theOne != null) {
+                List<Target> targetList = new LinkedList<>();
+                targetList.addAll(this.taskManager.getTasks().get(taskName).getTargets());
+                onFinishedTarget(theOne, taskName, targetList, new LinkedList<>(), new Consumer<File>() { //todo temp
+                    @Override
+                    public void accept(File file) {
+
+                    }
+                });
+            }
+        }
+    }
+
+    public void onFinishedTarget(Target target, String taskName, List<Target> targetList, List<Consumer<String>> consumerList, Consumer<File> consumeWhenFinished) throws TargetNotFoundException {
+        setStatusAfterTaskForAllEffected(target, taskName,targetList,consumerList, consumeWhenFinished);
+//        if (isJobDone()){
+//            synchronized (keyForMainExecute) {
+//                keyForMainExecute.notifyAll();
+//            }
+//        }
+    }
+
+//    private boolean isJobDone() {
+//        boolean res = true;
+//        for (Target t:  this.targetList) {
+//            if (t.getStatus() != Target.TargetStatus.SKIPPED && t.getStatus() != Target.TargetStatus.FINISHED)
+//                res = false;
+//        }
+//        return res;
+//    }
+
+    private void setStatusAfterTaskForAllEffected(Target target, String taskName, List<Target> targets,List<Consumer<String>> consumerList, Consumer<File> consumeWhenFinished) throws TargetNotFoundException {
+        if(target.getStatusAfterTask() == Target.StatusAfterTask.FAILURE) {
+            Map<Target, ThreadManager.DFS_COLOR> M = new HashMap<>();
+            for (Target t: targets) {
+                M.put(t, ThreadManager.DFS_COLOR.WHITE);
+            }
+            skippedDFS(target, taskName, target, M,consumerList);
+            //Target B is now Skipped.
+        }
+        else//Success chain
+            maybeWaitingChain(target, taskName, consumerList, consumeWhenFinished);
+        //Target B is now Waiting.
+    }
+
+    //TargetStatus = WAITING, IN_PROCESS, SKIPPED, FROZEN, FINISHED --> NEVER DELETE ME!
+    private void skippedDFS(Target target, String taskName, Target origin, Map<Target, ThreadManager.DFS_COLOR> M, List<Consumer<String>> consumerList) throws TargetNotFoundException {
+        M.replace(target, ThreadManager.DFS_COLOR.GREY); // to avoid cycle
+
+        if(!target.equals(origin)){
+            target.setStatus(Target.TargetStatus.SKIPPED);
+            //this.printerBridge.printStringToFileWithTimeStamp(String.format("Target %s is SKIPPED", target.getName()),consumerList);
+        }
+        for (String neighborName:target.getInTargets()) {
+            Target neighbor = getTargetByNameFromSet(neighborName, this.taskManager.getTasks().get(taskName).getTargets());
+            if (M.get(neighbor) == ThreadManager.DFS_COLOR.WHITE)
+                skippedDFS(neighbor, taskName, origin, M,consumerList);
+        }
+        M.replace(target, ThreadManager.DFS_COLOR.BLACK);
+    }
+
+    private void maybeWaitingChain(Target target, String taskName, List<Consumer<String>> consumerList, Consumer<File> consumeWhenFinished) throws TargetNotFoundException {
+        boolean allMyOutAreSuccess = true;
+        for (String currentName : target.getInTargets()) {
+            Target current = getTargetByNameFromSet(currentName, this.taskManager.getTasks().get(taskName).getTargets());
+            if (current.getStatus() == Target.TargetStatus.FROZEN) {
+                for (String outTargetName : current.getOutTargets()) {
+                    Target outTarget = getTargetByNameFromSet(outTargetName, this.taskManager.getTasks().get(taskName).getTargets());
+                    if (outTarget.getStatusAfterTask() != Target.StatusAfterTask.SUCCESS && outTarget.getStatusAfterTask() != Target.StatusAfterTask.WARNING) {
+                        allMyOutAreSuccess = false;
+                        break;
+                    }
+                }
+                if (allMyOutAreSuccess) {
+                    synchronized (current) {
+                        current.setStatus(Target.TargetStatus.WAITING);
+                        this.taskManager.getTasks().get(taskName).addToWaitingQueue(current);
+                     //   this.printerBridge.printStringToFileWithTimeStamp(String.format("Target %s is WAITING", current.getName()), consumerList);
+                     //   this.threadPool.execute(this.makeRunnable(current,isPaused, consumeWhenFinished));
+                    }
+                }
+
+                allMyOutAreSuccess = true;
+            }
+        }
+    }
+
+    private Target getTargetByNameFromSet(String targetName, Set<Target> set){
+        Target t = null;
+        for (Target target : set) {
+            if (targetName.compareTo(target.getName()) == 0) {
+                t = target;
+                break;
+            }
+        }
+        return t;
     }
 }

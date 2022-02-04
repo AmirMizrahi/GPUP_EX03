@@ -216,6 +216,9 @@ public abstract class AbstractTask implements Task{
         return toReturn;
     }
 
+    @Override
+    public void addToWaitingQueue(Target target){waitingQueue.add(target);}
+
     public enum WAYS_TO_START_SIM_TASK
     {
         FROM_SCRATCH,INCREMENTAL

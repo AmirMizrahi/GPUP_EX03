@@ -1,6 +1,6 @@
 package targets;
 
-import DTO.TaskDTOForWorker;
+import DTO.TargetDTOForWorker;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,7 +10,7 @@ public abstract class WorkerAbstractTarget implements WorkerTarget {
     protected boolean isRunFinished;
 
 
-    protected void updateResults(TaskDTOForWorker dto, String totalTime, String status) {
+    protected void updateResults(TargetDTOForWorker dto, String totalTime, String status) {
         results.put("taskName", dto.getTaskName());
         results.put("targetName", dto.getTargetDTO().getTargetName());
         results.put("totalTime", totalTime);

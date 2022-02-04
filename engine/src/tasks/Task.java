@@ -24,4 +24,5 @@ public interface Task {
     Target getTargetForWorker();
     String getTaskType();
     Map<String,String> getTaskInfo();
+    void addToWaitingQueue(Target target);
 }

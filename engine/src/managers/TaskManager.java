@@ -1,9 +1,7 @@
 package managers;
 
 import DTO.TargetDTO;
-import DTO.TaskDTOForWorker;
-import DTO.UserDTO;
-import User.User;
+import DTO.TargetDTOForWorker;
 import targets.Target;
 import tasks.AbstractTask;
 import tasks.Task;
@@ -43,25 +41,25 @@ public class TaskManager {
         }
     }
 
-    public List<TaskDTOForWorker> getTasksForWorker(String userName, int availableThreads) {
-        List<TaskDTOForWorker> taskList = new LinkedList<>();
+    public List<TargetDTOForWorker> getTasksForWorker(String userName, int availableThreads) {
+        List<TargetDTOForWorker> taskList = new LinkedList<>();
         int currentTargetsAmount = 0;
         boolean gotMaxTargets = false, gotAtLeastOneTarget = true;
 
         while(!gotMaxTargets && gotAtLeastOneTarget) {
             gotAtLeastOneTarget = false;
             for (Map.Entry<String, Task> entry : taskNameToTask.entrySet()) {
-                if (entry.getValue().isUserSubscribed(userName)) {
+                if(currentTargetsAmount == availableThreads) {
+                    gotMaxTargets = true;
+                    break;
+                }
+                if (entry.getValue().isUserSubscribed(userName) && entry.getValue().getStatus() == AbstractTask.TASK_STATUS.PLAY) {
                     Target t = entry.getValue().getTargetForWorker();
                     if (t != null) {
-                        taskList.add(new TaskDTOForWorker(entry.getKey(), new TargetDTO(t), entry.getValue().getTaskType(), entry.getValue().getTaskInfo()));
+                        taskList.add(new TargetDTOForWorker(entry.getKey(), new TargetDTO(t), entry.getValue().getTaskType(), entry.getValue().getTaskInfo()));
                         t.setStatus(Target.TargetStatus.IN_PROCESS);
                         currentTargetsAmount++;
                         gotAtLeastOneTarget = true;
-                    }
-                    if(currentTargetsAmount == availableThreads) {
-                        gotMaxTargets = true;
-                        break;
                     }
                 }
             }

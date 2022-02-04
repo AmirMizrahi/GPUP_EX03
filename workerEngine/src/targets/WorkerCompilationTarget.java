@@ -1,23 +1,16 @@
 package targets;
 
-import DTO.TaskDTOForWorker;
+import DTO.TargetDTOForWorker;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 
 public class WorkerCompilationTarget extends WorkerAbstractTarget{
 
-    private TaskDTOForWorker dto;
+    private TargetDTOForWorker dto;
     private String sourceName;
     private String destinationName;
 
-    public WorkerCompilationTarget(TaskDTOForWorker dto, Map<String, String> taskInfo) {
+    public WorkerCompilationTarget(TargetDTOForWorker dto, Map<String, String> taskInfo) {
         this.dto = dto;
         this.sourceName = taskInfo.get("source");
         this.destinationName = taskInfo.get("destination");

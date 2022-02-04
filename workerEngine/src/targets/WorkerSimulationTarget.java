@@ -1,18 +1,18 @@
 package targets;
 
-import DTO.TaskDTOForWorker;
+import DTO.TargetDTOForWorker;
 import java.util.Map;
 import java.util.Random;
 
 public class WorkerSimulationTarget extends WorkerAbstractTarget {
 
-    private TaskDTOForWorker dto;
+    private TargetDTOForWorker dto;
     private final Integer taskTime;
     private final TIME_OPTION op;
     private final Double chanceToSucceed;
     private final Double succeedWithWarning;
 
-    public WorkerSimulationTarget(TaskDTOForWorker dto, Map<String, String> taskInfo) {
+    public WorkerSimulationTarget(TargetDTOForWorker dto, Map<String, String> taskInfo) {
         this.dto = dto;
         this.taskTime = Integer.parseInt(taskInfo.get("taskTime"));
         this.op = TIME_OPTION.valueOf(taskInfo.get("op"));
