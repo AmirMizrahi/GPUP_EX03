@@ -47,6 +47,7 @@ public class DashboardControllerW implements ControllerW {
     @FXML private TableColumn<UserTableViewRow, String> userTableColumn;
     @FXML private TableColumn<UserTableViewRow, String> typeTableColumn;
     @FXML private Label loggedInLabel;
+    @FXML private Label threadsAmountLabel;
     //
 
     @Override
@@ -77,8 +78,9 @@ public class DashboardControllerW implements ControllerW {
                 new ReadOnlyStringWrapper(cellData.getValue()));
     }
 
-    public void initializeDashboardController(SimpleStringProperty userNameProperty, SimpleStringProperty selectedTask){
+    public void initializeDashboardController(SimpleStringProperty userNameProperty, SimpleStringProperty selectedTask, Integer threadsAmount){
         loggedInLabel.textProperty().bind(userNameProperty);
+        threadsAmountLabel.setText(threadsAmount.toString());
         this.selectedTask = selectedTask;
     }
 

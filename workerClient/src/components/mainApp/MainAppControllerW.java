@@ -59,10 +59,8 @@ public class MainAppControllerW implements sharedMainAppController {
     @FXML private Label serverStatusLabel;
     @FXML private Button dashboardButton;
     @FXML private Button subscribedTasksPanelButton;
-    @FXML private ComboBox<?> changeSkinComboBox;
+    @FXML private ComboBox<String> changeSkinComboBox;
     @FXML private GridPane gridPaneMainAppRight;
-    @FXML void changeSkinComboBoxAction(ActionEvent event) {}
-
 
     public void setPrimaryStage(Stage stage){
         this.primaryStage = stage;
@@ -83,6 +81,9 @@ public class MainAppControllerW implements sharedMainAppController {
         dashboardControllerW = (DashboardControllerW) genericControllersInit("/components/dashboard/dashboard.fxml");
         dashboardControllerW = (DashboardControllerW) genericControllersInit("/components/dashboard/dashboard.fxml");
         subscribedTasksPanelController = (SubscribedTasksPanelController) genericControllersInit("/components/subscribedTasksPanel/subscribedTasksPanel.fxml");
+
+        this.changeSkinComboBox.getItems().addAll("No Skin", "Light Mode","Dark Mode", "Old School Mode");
+        this.changeSkinComboBox.getSelectionModel().select(0);
 
         this.serverStatusLabel.textProperty().bind(Bindings.createStringBinding(() -> {
             String str;
@@ -127,7 +128,7 @@ public class MainAppControllerW implements sharedMainAppController {
     public void onLoggedIn() {
         sharedOnLoggedIn(gridPaneMainAppRight,isLoggedIn,this.dashboardControllerW.getNodeController());
         workerManager = new WorkerManager(this.loginControllerW.getThreadsAmount());
-        this.dashboardControllerW.initializeDashboardController(SharedLogin.userNamePropertyProperty(), this.selectedTask);
+        this.dashboardControllerW.initializeDashboardController(SharedLogin.userNamePropertyProperty(), this.selectedTask, this.loginControllerW.getThreadsAmount());
         startTaskControlPanelRefresher();
         updateServerWithTargetsResults();
     }
@@ -210,7 +211,7 @@ public class MainAppControllerW implements sharedMainAppController {
 //                            Type type = new TypeToken<List<TaskDTOForWorker>>(){}.getType();
 //                            List<TaskDTOForWorker> taskDTOForWorkers = GSON_INSTANCE.fromJson(jsonArrayOfUsersNames, type);
 //                            System.out.println("----------------------------------" + taskDTOForWorkers.size() + "-------------------------");
-//                            response.close();
+                            response.close();
 //                            //List<String> temp = new LinkedList<>();
 //                            //taskDTOForWorkers.forEach(taskDTOForWorker -> temp.add(taskDTOForWorker.getTargetDTO().getTargetName()));
 //                            workerManager.setThreadsOnWork(taskDTOForWorkers.size());
@@ -244,6 +245,11 @@ public class MainAppControllerW implements sharedMainAppController {
     public void addSubscriber(TaskDTO newSubscribedTask) {
         this.workerManager.addSubscriber(newSubscribedTask);
     }
+
+    @FXML void changeSkinComboBoxAction(ActionEvent event) {
+        SharedMainApp.changeSkin(changeSkinComboBox,getClass(),this.primaryStage.getScene());
+    }
+
 }
 
 

@@ -56,8 +56,9 @@ public class TaskControlPanelController implements Controller {
     @FXML private Label summaryMiddleLabel;
     @FXML private Label summaryRootLabel;
     @FXML private Label registeredWorkersLabel;
-    @FXML private Label currentWorkingTargetsLabel;
     @FXML private Label progressBarLabel;
+    @FXML private Label currentWorkingTargetsLabel;
+    @FXML private Label currentPlusWaitingTargets;
     //Button
     @FXML private Button startButton;
     @FXML private Button pauseResumeButton;
@@ -187,7 +188,6 @@ public class TaskControlPanelController implements Controller {
 
     private void showTargetOnTable(String targetName) throws XMLException {
         TargetDTO targetDTO = searchForRefreshedTarget(targetName);
-        List<String> serialSets = new LinkedList<>();
         Platform.runLater(()->{
             this.targetInfoListView.getItems().clear();
             this.targetInfoListView.getItems().add("Target name: " + targetDTO.getTargetName());
@@ -213,18 +213,27 @@ public class TaskControlPanelController implements Controller {
     }
 
     public void refreshPanel(TaskDTO selectedTaskDTOFromDashboard) {
-        if (selectedTaskDTOFromDashboard != null) {
-            this.taskNameLabel.setText(selectedTaskDTOFromDashboard.getTaskName());
-            this.graphNameLabel.setText(selectedTaskDTOFromDashboard.getGraphName());
-            this.summaryTargetsAmountLabel.setText(selectedTaskDTOFromDashboard.getAmountOfTargets().toString());
-            this.summaryLeafLabel.setText(selectedTaskDTOFromDashboard.getLeafAmount().toString());
-            this.summaryIndependentsLabel.setText(selectedTaskDTOFromDashboard.getIndependentAmount().toString());
-            this.summaryMiddleLabel.setText(selectedTaskDTOFromDashboard.getMiddleAmount().toString());
-            this.summaryRootLabel.setText(selectedTaskDTOFromDashboard.getRootAmount().toString());
-            this.tasksTargets = selectedTaskDTOFromDashboard.getAllTargets();
-            updateTables(tasksTargets);
-            updateProgressBar();
-        }
+        Platform.runLater(() ->{
+            if (selectedTaskDTOFromDashboard != null) {
+                this.taskNameLabel.setText(selectedTaskDTOFromDashboard.getTaskName());
+                this.graphNameLabel.setText(selectedTaskDTOFromDashboard.getGraphName());
+                this.summaryTargetsAmountLabel.setText(selectedTaskDTOFromDashboard.getAmountOfTargets().toString());
+                this.summaryLeafLabel.setText(selectedTaskDTOFromDashboard.getLeafAmount().toString());
+                this.summaryIndependentsLabel.setText(selectedTaskDTOFromDashboard.getIndependentAmount().toString());
+                this.summaryMiddleLabel.setText(selectedTaskDTOFromDashboard.getMiddleAmount().toString());
+                this.summaryRootLabel.setText(selectedTaskDTOFromDashboard.getRootAmount().toString());
+                this.tasksTargets = selectedTaskDTOFromDashboard.getAllTargets();
+                updateTables(tasksTargets);
+                updateProgressBar();
+
+                if(selectedTaskDTOFromDashboard.getTaskStatus().compareToIgnoreCase("finished") == 0){
+                    isFinished.set(true);
+                    startButton.setDisable(true);
+                }
+
+                refreshLabels(selectedTaskDTOFromDashboard);
+            }
+        });
     }
 
     public void refreshButtons(String status) {
@@ -262,6 +271,19 @@ public class TaskControlPanelController implements Controller {
                 break;
             }
         }
+    }
+
+    public void refreshLabels(TaskDTO selectedTaskDTOFromDashboard) {
+        int p = this.inProcessData.size() , w = this.waitingData.size();
+        if(isOnlyDummy(inProcessData))
+            p--;
+        if(isOnlyDummy(waitingData))
+            w--;
+
+        currentWorkingTargetsLabel.setText(String.valueOf(p));
+        currentPlusWaitingTargets.setText(String.valueOf(p + w));
+
+        this.registeredWorkersLabel.setText(String.valueOf(selectedTaskDTOFromDashboard.getSubscribers().size()));
     }
 
     private void updateProgressBar() {
@@ -308,10 +330,11 @@ public class TaskControlPanelController implements Controller {
 
     private boolean isOnlyDummy(List<String> list){
         boolean answer = false;
-        if(list.get(0).compareTo("") == 0)
-            answer = true;
+        if (list.size() != 0) {
+            if (list.get(0).compareTo("") == 0)
+                answer = true;
+        }
         return answer;
-
     }
 
     private void updateTables(List<TargetDTO> newTargetsStatus) {
@@ -477,4 +500,5 @@ public class TaskControlPanelController implements Controller {
             logTextArea.clear();
         });
     }
+
 }

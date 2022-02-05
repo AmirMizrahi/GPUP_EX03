@@ -25,4 +25,6 @@ public interface Task {
     String getTaskType();
     Map<String,String> getTaskInfo();
     void addToWaitingQueue(Target target);
+    int getCounterName();
+    void addOneToCounterName();
 }

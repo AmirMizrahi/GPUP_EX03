@@ -8,6 +8,7 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
@@ -51,7 +52,17 @@
                </columnResizePolicy>
             </TableView>
             <Label text="Dashboard" GridPane.columnIndex="2" GridPane.halignment="CENTER" />
-            <Label fx:id="loggedInLabel" layoutX="274.0" layoutY="15.0" text="Logged as : []" GridPane.columnIndex="4" GridPane.halignment="CENTER" />
+            <HBox alignment="CENTER" spacing="20.0" GridPane.columnIndex="4" GridPane.halignment="CENTER">
+               <children>
+                  <Label fx:id="loggedInLabel" text="Logged as : []" />
+                  <HBox alignment="CENTER" spacing="5.0">
+                     <children>
+                        <Label text="Threads:" />
+                        <Label fx:id="threadsAmountLabel" text="[]" />
+                     </children>
+                  </HBox>
+               </children>
+            </HBox>
             <Label alignment="CENTER" text="Money: []" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.hgrow="NEVER" GridPane.rowIndex="2" GridPane.valignment="BOTTOM" GridPane.vgrow="NEVER" />
          </children>
       </GridPane>

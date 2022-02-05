@@ -235,6 +235,7 @@ public class MainAppController implements Closeable, sharedMainAppController {
         gridPaneMainAppRight.getChildren().remove(0); //move to property
         //this.mainActivateTaskController.setParallelTaskAmount(parallelTaskAmount);
         taskControlPanelController.refreshButtons(getSelectedTaskDTOFromDashboard().getTaskStatus());
+        taskControlPanelController.refreshLabels(getSelectedTaskDTOFromDashboard());
         gridPaneMainAppRight.getChildren().add(this.taskControlPanelController.getNodeController());
     }
 
@@ -378,24 +379,12 @@ public class MainAppController implements Closeable, sharedMainAppController {
 
     @FXML
     void changeSkinComboBoxAction(ActionEvent event) {
-        String skinName = this.changeSkinComboBox.getSelectionModel().getSelectedItem();
-        Scene sceneToChange = this.primaryStage.getScene();
-        sceneToChange.getStylesheets().clear();
+        SharedMainApp.changeSkin(changeSkinComboBox,getClass(),this.primaryStage.getScene());
+    }
 
-        switch (skinName) {
-            case "No Skin":
-                //todo . for backwards is pitfall?
-                break;
-            case "Light Mode":
-                sceneToChange.getStylesheets().add(getClass().getResource("/cssSkins/LightTheme.css").toExternalForm());
-                break;
-            case "Dark Mode":
-                sceneToChange.getStylesheets().add(getClass().getResource("/cssSkins/DarkTheme.css").toExternalForm());
-                break;
-            case "Old School Mode":
-                sceneToChange.getStylesheets().add(getClass().getResource("/cssSkins/OldSchoolTheme.css").toExternalForm());
-                break;
-        }
+    @FXML
+    void howToUseAction(ActionEvent event) {
+
     }
 
     public void informPauseToMainAppController(boolean pause) {

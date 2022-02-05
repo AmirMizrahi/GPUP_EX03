@@ -167,6 +167,8 @@
                                  <children>
                                     <Label text="Targets On Work / Possible Targets To Work On : " />
                                     <Label fx:id="currentWorkingTargetsLabel" text="Label" />
+                                    <Label layoutX="680.0" layoutY="10.0" text="/" />
+                                    <Label fx:id="currentPlusWaitingTargets" layoutX="697.0" layoutY="10.0" text="Label" />
                                  </children>
                               </HBox>
                               <ProgressBar fx:id="taskProgressBar" maxWidth="1.7976931348623157E308" progress="0.0" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="13" GridPane.valignment="BOTTOM" GridPane.vgrow="ALWAYS" />

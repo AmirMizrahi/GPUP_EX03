@@ -327,10 +327,29 @@ public class Manager implements Serializable {
         List<String> selectedTargetsNames = new LinkedList<>();
         Task task = this.taskManager.getTasks().get(taskName);
 
+        task.getTargets().forEach(target -> selectedTargetsNames.add(target.getName()));
+
+        calculateAndSendParamsToAddNewTask(task, taskName, selectedTargetsNames);
+    }
+
+    private void addTaskIncremental(String taskName) throws Exception {
+        List<String> selectedTargetsNames = new LinkedList<>();
+        Task task = this.taskManager.getTasks().get(taskName);
+
+        task.getTargets().forEach(target -> {
+            if (target.getStatusAfterTask() == Target.StatusAfterTask.SKIPPED || target.getStatusAfterTask() == Target.StatusAfterTask.FAILURE)
+                selectedTargetsNames.add(target.getName());
+        });
+
+        calculateAndSendParamsToAddNewTask(task, taskName, selectedTargetsNames);
+    }
+
+    private void calculateAndSendParamsToAddNewTask(Task task, String taskName, List<String> selectedTargetsNames) throws Exception {
         String userName = task.getUploaderName();
         String graphName = task.getGraphName();
-        String newTaskName = taskName + "!"; //todo
-        task.getTargets().forEach(target -> selectedTargetsNames.add(target.getName()));
+
+        String newTaskName = taskName + "("+(task.getCounterName() + 1)+")";
+        task.addOneToCounterName();
 
         if(task.getTaskType().compareToIgnoreCase("Simulation") == 0) {
             Integer time = Integer.parseInt(task.getTaskInfo().get("taskTime"));
@@ -345,30 +364,6 @@ public class Manager implements Serializable {
             String dest = task.getTaskInfo().get("destination");
             addNewTask(source,dest,userName,graphName,newTaskName,selectedTargetsNames);
         }
-    }
-
-    private void addTaskIncremental(String taskName) throws TargetNotFoundException {
-        List<Target> targetList = this.tempGraph.getTargetsList();
-
-        for (Target target: targetList) {
-            Target.StatusAfterTask myFinishedStatus = target.getStatusAfterTask();
-            if (myFinishedStatus == Target.StatusAfterTask.SKIPPED || myFinishedStatus == Target.StatusAfterTask.FAILURE) {
-                target.setStatus(Target.TargetStatus.WAITING);
-                System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" + "printed from runIncremental" + target.getName() + "changed is status to waiting" + "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-                for (String childName : target.getOutTargets()) {
-                    Target child = this.tempGraph.getTargetByName(childName);
-                    if (child.getStatusAfterTask() == Target.StatusAfterTask.FAILURE || (child.getStatusAfterTask() == Target.StatusAfterTask.SKIPPED))
-                        target.setStatus(Target.TargetStatus.FROZEN);
-                }
-            }
-        }
-
-        for (Target target: targetList) {
-            Target.StatusAfterTask myFinishedStatus = target.getStatusAfterTask();
-            if(myFinishedStatus == Target.StatusAfterTask.SKIPPED || myFinishedStatus == Target.StatusAfterTask.FAILURE)
-                target.setStatusAfterTask(Target.StatusAfterTask.SKIPPED);
-        }
-       // return targetList;
     }
 
     public PathsBetweenTwoTargetsDTO checkIfTargetIsPartOfCycleMG(String graphName, String targetName) throws TargetNotFoundException, XMLException {

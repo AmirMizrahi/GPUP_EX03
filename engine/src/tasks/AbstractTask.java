@@ -220,6 +220,16 @@ public abstract class AbstractTask implements Task{
     @Override
     public void addToWaitingQueue(Target target){waitingQueue.add(target);}
 
+    @Override
+    public void addOneToCounterName() {
+        this.taskCreatedFromCounter = taskCreatedFromCounter + 1;
+    }
+
+    @Override
+    public int getCounterName() {
+        return this.taskCreatedFromCounter;
+    }
+
     public enum WAYS_TO_START_SIM_TASK
     {
         FROM_SCRATCH,INCREMENTAL
