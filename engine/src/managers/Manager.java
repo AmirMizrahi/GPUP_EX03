@@ -295,10 +295,10 @@ public class Manager implements Serializable {
         List<Target> targetList = new LinkedList<>();
         switch (way){
             case FROM_SCRATCH:
-                targetList = runFromScratch();
+                //targetList = addTaskFromScratch(taskName);
                 break;
             case INCREMENTAL:
-                targetList = runIncremental();
+               // targetList = addTaskIncremental(taskName);
                 break;
         }
         return targetList;
@@ -316,21 +316,38 @@ public class Manager implements Serializable {
         return firstTime;
     }
 
-    private List<Target> runFromScratch() {
-        List<Target> targetList = this.tempGraph.getTargetsList();
-
-        for (Target target: targetList) {
-            Target.TargetType myType = target.getCategory();
-            target.setStatusAfterTask(Target.StatusAfterTask.SKIPPED);
-            if (myType == Target.TargetType.MIDDLE || myType == Target.TargetType.ROOT)
-                target.setStatus(Target.TargetStatus.FROZEN);
-            else
-                target.setStatus(Target.TargetStatus.WAITING);
-        }
-        return targetList;
+    public void addTaskFromExits(String taskName, AbstractTask.WAYS_TO_START_SIM_TASK wayToCreateFrom) throws Exception {
+        if (wayToCreateFrom == AbstractTask.WAYS_TO_START_SIM_TASK.FROM_SCRATCH)
+            addTaskFromScratch(taskName);
+        else
+            addTaskIncremental(taskName);
     }
 
-    private List<Target> runIncremental() throws TargetNotFoundException {
+    private void addTaskFromScratch(String taskName) throws Exception {
+        List<String> selectedTargetsNames = new LinkedList<>();
+        Task task = this.taskManager.getTasks().get(taskName);
+
+        String userName = task.getUploaderName();
+        String graphName = task.getGraphName();
+        String newTaskName = taskName + "!"; //todo
+        task.getTargets().forEach(target -> selectedTargetsNames.add(target.getName()));
+
+        if(task.getTaskType().compareToIgnoreCase("Simulation") == 0) {
+            Integer time = Integer.parseInt(task.getTaskInfo().get("taskTime"));
+            String time_option = task.getTaskInfo().get("op");
+            Double successRates = Double.parseDouble(task.getTaskInfo().get("chanceToSucceed"));
+            Double warningRates = Double.parseDouble(task.getTaskInfo().get("succeedWithWarning"));
+            addNewTask(time,time_option,successRates,warningRates,userName,graphName,newTaskName,selectedTargetsNames);
+        }
+
+        else{
+            String source = task.getTaskInfo().get("source");
+            String dest = task.getTaskInfo().get("destination");
+            addNewTask(source,dest,userName,graphName,newTaskName,selectedTargetsNames);
+        }
+    }
+
+    private void addTaskIncremental(String taskName) throws TargetNotFoundException {
         List<Target> targetList = this.tempGraph.getTargetsList();
 
         for (Target target: targetList) {
@@ -351,7 +368,7 @@ public class Manager implements Serializable {
             if(myFinishedStatus == Target.StatusAfterTask.SKIPPED || myFinishedStatus == Target.StatusAfterTask.FAILURE)
                 target.setStatusAfterTask(Target.StatusAfterTask.SKIPPED);
         }
-        return targetList;
+       // return targetList;
     }
 
     public PathsBetweenTwoTargetsDTO checkIfTargetIsPartOfCycleMG(String graphName, String targetName) throws TargetNotFoundException, XMLException {
@@ -566,21 +583,19 @@ public class Manager implements Serializable {
 
     public void onFinishedTarget(Target target, String taskName, List<Target> targetList, List<Consumer<String>> consumerList, Consumer<File> consumeWhenFinished) throws TargetNotFoundException {
         setStatusAfterTaskForAllEffected(target, taskName,targetList,consumerList, consumeWhenFinished);
-//        if (isJobDone()){
-//            synchronized (keyForMainExecute) {
-//                keyForMainExecute.notifyAll();
-//            }
-//        }
+        if (isJobDone(this.taskManager.getTasks().get(taskName).getTargets())){
+            this.taskManager.getTasks().get(taskName).setStatus(AbstractTask.TASK_STATUS.FINISHED);
+        }
     }
 
-//    private boolean isJobDone() {
-//        boolean res = true;
-//        for (Target t:  this.targetList) {
-//            if (t.getStatus() != Target.TargetStatus.SKIPPED && t.getStatus() != Target.TargetStatus.FINISHED)
-//                res = false;
-//        }
-//        return res;
-//    }
+    private boolean isJobDone(Set<Target> targets) {
+        boolean res = true;
+        for (Target t: targets) {
+            if (t.getStatus() != Target.TargetStatus.SKIPPED && t.getStatus() != Target.TargetStatus.FINISHED)
+                res = false;
+        }
+        return res;
+    }
 
     private void setStatusAfterTaskForAllEffected(Target target, String taskName, List<Target> targets,List<Consumer<String>> consumerList, Consumer<File> consumeWhenFinished) throws TargetNotFoundException {
         if(target.getStatusAfterTask() == Target.StatusAfterTask.FAILURE) {

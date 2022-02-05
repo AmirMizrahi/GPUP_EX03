@@ -234,6 +234,7 @@ public class MainAppController implements Closeable, sharedMainAppController {
     void taskControlPanelButtonAction(ActionEvent event) {
         gridPaneMainAppRight.getChildren().remove(0); //move to property
         //this.mainActivateTaskController.setParallelTaskAmount(parallelTaskAmount);
+        taskControlPanelController.refreshButtons(getSelectedTaskDTOFromDashboard().getTaskStatus());
         gridPaneMainAppRight.getChildren().add(this.taskControlPanelController.getNodeController());
     }
 

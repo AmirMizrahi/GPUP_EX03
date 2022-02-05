@@ -25,6 +25,7 @@ public abstract class AbstractTask implements Task{
     protected TASK_STATUS taskStatus;
     protected List<User> subscribers;
     protected Queue<Target> waitingQueue = new LinkedList<>();
+    protected int taskCreatedFromCounter = 0;
 
     protected AbstractTask(WAYS_TO_START_SIM_TASK chosenWay, boolean firstTime, List<Target> targetsToRunOn,
                            String pathName, String taskType, String userName, String graphName, Map<String, String> taskInfo) {
@@ -225,6 +226,6 @@ public abstract class AbstractTask implements Task{
     }
 
     public enum TASK_STATUS{
-        DEFAULT, PLAY, PAUSED, STOPPED, FINISHED
+        DEFAULT, PLAY, PAUSE, STOP, FINISHED
     }
 }

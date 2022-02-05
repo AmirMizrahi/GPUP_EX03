@@ -2,31 +2,39 @@ package components.dashboard;
 
 import DTO.GraphDTO;
 import DTO.TaskDTO;
+import Utils.HttpClientUtil;
 import components.mainApp.Controller;
 import components.mainApp.MainAppController;
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import org.jetbrains.annotations.NotNull;
 import sharedDashboard.SharedDashboard;
 import sharedDashboard.UserTableViewRow;
 
+import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.*;
+
+import static Utils.Constants.CREATE_TASK_FROM_EXITS;
+import static Utils.Constants.LINE_SEPARATOR;
 
 public class DashboardController implements Controller {
 
     //Controllers
     private MainAppController mainAppController;
     private Node nodeController;
-
-
     //
     //UI
     @FXML private TableView<String> tasksTableView;
@@ -39,12 +47,14 @@ public class DashboardController implements Controller {
     @FXML private TableColumn<UserTableViewRow, String> userTableColumn;
     @FXML private TableColumn<UserTableViewRow, String> typeTableColumn;
     @FXML private Label loggedInLabel;
+    @FXML private Button incrementalButton;
+    @FXML private Button fromScratchButton;
    //
     //Properties
     private SimpleStringProperty selectedGraph;
     private SimpleStringProperty selectedTask;
     private SimpleBooleanProperty matchingUserName;
-
+    private SimpleBooleanProperty isTaskFinished;
 
     @Override
     public void setMainAppController(MainAppController newMainAppController) {
@@ -61,6 +71,10 @@ public class DashboardController implements Controller {
 
     @FXML
     private void initialize(){
+        isTaskFinished = new SimpleBooleanProperty(false);
+        this.incrementalButton.disableProperty().bind(isTaskFinished.not());
+        this.fromScratchButton.disableProperty().bind(isTaskFinished.not());
+
         SharedDashboard.startDashboardRefresher(
                 usersTableView, userTableColumn, typeTableColumn,
                 graphsTableView, graphTableColumn,
@@ -114,9 +128,9 @@ public class DashboardController implements Controller {
 
     @FXML
     void tasksTableViewOnClicked(MouseEvent event) {
-//Get the pressed graph name from the tables
+        isTaskFinished.set(false);
         String temp = event.getPickResult().toString();
-        SharedDashboard.doWhenClickedOnTaskTable(temp, this.selectedTask, this.tasksListView );
+        SharedDashboard.doWhenClickedOnTaskTable(temp, this.selectedTask, this.tasksListView);
 
         if(selectedTask.get() == null)
             return;
@@ -124,6 +138,8 @@ public class DashboardController implements Controller {
             this.matchingUserName.set(true);
         else
             this.matchingUserName.set(false);
+        if(SharedDashboard.getSelectedTask(this.selectedTask).getTaskStatus().compareToIgnoreCase("finished") == 0)
+            isTaskFinished.set(true);
     }
 
     public void initializeDashboardController(SimpleStringProperty userNameProperty, SimpleStringProperty selectedGraph,
@@ -150,5 +166,51 @@ public class DashboardController implements Controller {
                 toReturn = graph;
         }
         return toReturn;
+    }
+
+    @FXML
+    void incrementalButtonAction(ActionEvent event) {
+        createTaskFromExits("INCREMENTAL");
+    }
+
+    @FXML
+    void fromScratchButtonAction(ActionEvent event) {
+        createTaskFromExits("FROM_SCRATCH");
+    }
+
+    private void createTaskFromExits(String wayToCreate){
+        Alert p = new Alert(Alert.AlertType.ERROR);
+
+        String body = "taskName="+ SharedDashboard.getSelectedTask(this.selectedTask).getTaskName() + LINE_SEPARATOR +
+                      "wayToCreateFrom=" + wayToCreate;
+
+        HttpClientUtil.postRequest(RequestBody.create(body.getBytes()) , new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                Platform.runLater(() -> {
+                    Alert failLoginPopup = new Alert(Alert.AlertType.ERROR);
+                    failLoginPopup.setHeaderText("Upload Task Error!");
+                    failLoginPopup.setContentText("Something went wrong: " + e.getMessage());
+                    failLoginPopup.show();
+                });
+            }
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                if (response.code() != 200) {
+                    String responseBody = response.body().string();
+                    p.setHeaderText("Upload Task Error!");
+                    p.setAlertType(Alert.AlertType.ERROR);
+                    p.setContentText("Something went wrong: " + responseBody);
+                }
+                else {
+                    p.setContentText(response.body().string());
+                    Platform.runLater(() -> {
+                        p.setAlertType(Alert.AlertType.INFORMATION);
+                        p.setHeaderText("Success!");
+                     });
+                }
+                Platform.runLater(() -> p.show() );
+            }
+            }, CREATE_TASK_FROM_EXITS);
     }
 }

@@ -3,13 +3,13 @@ package components.taskControlPanel;
 import DTO.TargetDTO;
 import DTO.TaskDTO;
 import Utils.HttpClientUtil;
-import com.google.gson.Gson;
 import components.mainApp.Controller;
 import components.mainApp.MainAppController;
 import exceptions.TargetNotFoundException;
 import exceptions.XMLException;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -28,6 +28,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 
 import static Utils.Constants.*;
 
@@ -42,6 +43,8 @@ public class TaskControlPanelController implements Controller {
     private List<String> finishedData;
     private List<String> skippedData;
     private List<TargetDTO> tasksTargets;
+    private SimpleBooleanProperty isStopped;
+    private SimpleBooleanProperty isFinished;
     //
     //UI
     //Label
@@ -84,6 +87,14 @@ public class TaskControlPanelController implements Controller {
         skippedData = new LinkedList<>();
     }
 
+    @FXML
+    private void initialize() {
+        isStopped = new SimpleBooleanProperty(false);
+        isFinished = new SimpleBooleanProperty(false);
+        this.pauseResumeButton.disableProperty().bind(startButton.disableProperty().not().or(isStopped).or(isFinished));
+        this.stopButton.disableProperty().bind(startButton.disableProperty().not().or(isFinished));
+    }
+
     @Override
     public void setMainAppController(MainAppController newMainAppController) {
         this.mainAppController = newMainAppController;
@@ -106,13 +117,33 @@ public class TaskControlPanelController implements Controller {
 
     @FXML
     void pauseResumeButtonAction(ActionEvent event) {
+        String status = pauseResumeButton.getText().toLowerCase();
+        if(status.compareTo("resume") == 0) {
+            status = "play";
+            pauseResumeButton.setText("Pause");
+        }
+        else
+            pauseResumeButton.setText("Resume");
 
+        String body = "taskStatus=" + status + LINE_SEPARATOR + "taskName=" + taskNameLabel.getText();
+        updateServerOnTaskStatus(body);
     }
 
     @FXML
     void startButtonAction(ActionEvent event) {
-        String body = "taskStatus=play" + LINE_SEPARATOR + "taskName="+taskNameLabel.getText();
+        String body = "taskStatus=play" + LINE_SEPARATOR + "taskName=" + taskNameLabel.getText();
+        startButton.setDisable(true);
+        updateServerOnTaskStatus(body);
+    }
 
+    @FXML
+    void stopButtonAction(ActionEvent event) {
+        String body = "taskStatus=stop" + LINE_SEPARATOR + "taskName=" + taskNameLabel.getText();
+        isStopped.set(true);
+        updateServerOnTaskStatus(body);
+    }
+
+    private void updateServerOnTaskStatus(String body){
         HttpClientUtil.postRequest(RequestBody.create(body.getBytes()) , new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
@@ -133,11 +164,6 @@ public class TaskControlPanelController implements Controller {
                 response.close();
             }
         }, UPDATE_TASK_STATUS);
-
-    }
-
-    @FXML
-    void stopButtonAction(ActionEvent event) {
 
     }
 
@@ -198,6 +224,43 @@ public class TaskControlPanelController implements Controller {
             this.tasksTargets = selectedTaskDTOFromDashboard.getAllTargets();
             updateTables(tasksTargets);
             updateProgressBar();
+        }
+    }
+
+    public void refreshButtons(String status) {
+        switch (status.toLowerCase()){
+            case "play":{
+                isStopped.set(false);
+                startButton.setDisable(true);
+                pauseResumeButton.setText("Pause");
+                isFinished.set(false);
+                break;
+            }
+            case "pause":{
+                isStopped.set(false);
+                startButton.setDisable(true);
+                pauseResumeButton.setText("Resume");
+                isFinished.set(false);
+                break;
+            }
+            case "stop":{
+                isStopped.set(true);
+                startButton.setDisable(true);
+                isFinished.set(false);
+                break;
+            }
+            case "default":{
+                isStopped.set(false);
+                startButton.setDisable(false);
+                pauseResumeButton.setText("Pause");
+                isFinished.set(false);
+                break;
+            }
+            case "finished":{
+                isFinished.set(true);
+                startButton.setDisable(true);
+                break;
+            }
         }
     }
 

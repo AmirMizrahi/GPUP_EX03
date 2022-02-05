@@ -83,4 +83,14 @@
         <servlet-name>UpdateTargetsResultsServlet</servlet-name>
         <url-pattern>/engine/updatetargetsresults</url-pattern>
     </servlet-mapping>
+
+    <servlet>
+        <servlet-name>CreateTaskFromExitsServlet</servlet-name>
+        <servlet-class>servlets.CreateTaskFromExitsServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CreateTaskFromExitsServlet</servlet-name>
+        <url-pattern>/engine/createtaskfromexits</url-pattern>
+    </servlet-mapping>
+
 </web-app>

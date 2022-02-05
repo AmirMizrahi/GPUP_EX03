@@ -122,14 +122,14 @@ public class SharedDashboard {
                         String statusAfter = dto.getTaskStatus();
 
                         if (!isEmpty()) {
-                            if(statusAfter.compareTo("STOPPED") == 0)
-                                currentRow.setStyle("-fx-background-color:#eaa121");
-                            else if(statusAfter.compareTo("PLAY") == 0)
-                                currentRow.setStyle("-fx-background-color:lightgreen");
-                            else if (statusAfter.compareTo("PAUSED") == 0)
-                                currentRow.setStyle("-fx-background-color:#e3e329");
-                            else if (statusAfter.compareTo("FINISHED") == 0)
+                            if(statusAfter.compareToIgnoreCase("STOP") == 0)
                                 currentRow.setStyle("-fx-background-color:lightcoral");
+                            else if(statusAfter.compareToIgnoreCase("PLAY") == 0)
+                                currentRow.setStyle("-fx-background-color:lightblue");
+                            else if (statusAfter.compareToIgnoreCase("PAUSE") == 0)
+                                currentRow.setStyle("-fx-background-color:#e3e329");
+                            else if (statusAfter.compareToIgnoreCase("FINISHED") == 0)
+                                currentRow.setStyle("-fx-background-color:lightgreen");
                         }
                     } catch (NullPointerException ignore) {};
                 }
