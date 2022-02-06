@@ -52,7 +52,7 @@
                   <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
-                  <TableView prefHeight="200.0" prefWidth="200.0">
+                  <TableView fx:id="targetsTableView" prefHeight="200.0" prefWidth="200.0">
                     <columns>
                       <TableColumn fx:id="targetTableColumn" editable="false" prefWidth="75.0" text="Target" />
                       <TableColumn fx:id="leftTaskTableColumn" editable="false" prefWidth="75.0" text="Task Associated" />
@@ -64,7 +64,7 @@
                         <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                      </columnResizePolicy>
                   </TableView>
-                  <TableView prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="2">
+                  <TableView fx:id="tasksTableView" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="2">
                     <columns>
                       <TableColumn fx:id="rightTaskTableColumn" editable="false" prefWidth="75.0" text="Task" />
                       <TableColumn fx:id="workersAmountTableColumn" editable="false" prefWidth="75.0" text="Workers Amount" />

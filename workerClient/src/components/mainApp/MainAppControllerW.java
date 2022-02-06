@@ -3,6 +3,7 @@ package components.mainApp;
 import DTO.GraphDTO;
 import DTO.TaskDTO;
 import DTO.TargetDTOForWorker;
+import DTO.WorkerTargetDTO;
 import Utils.Constants;
 import Utils.HttpClientUtil;
 import com.google.gson.Gson;
@@ -129,6 +130,7 @@ public class MainAppControllerW implements sharedMainAppController {
         sharedOnLoggedIn(gridPaneMainAppRight,isLoggedIn,this.dashboardControllerW.getNodeController());
         workerManager = new WorkerManager(this.loginControllerW.getThreadsAmount());
         this.dashboardControllerW.initializeDashboardController(SharedLogin.userNamePropertyProperty(), this.selectedTask, this.loginControllerW.getThreadsAmount());
+        this.subscribedTasksPanelController.initializeSubscribedTasksPanelController();
         startTaskControlPanelRefresher();
         updateServerWithTargetsResults();
     }
@@ -250,6 +252,17 @@ public class MainAppControllerW implements sharedMainAppController {
         SharedMainApp.changeSkin(changeSkinComboBox,getClass(),this.primaryStage.getScene());
     }
 
+    public List<WorkerTargetDTO> getAllWorkerTargets() {
+        return this.workerManager.getAllTargets();
+    }
+
+    public Integer getCurrentThreadsWorking() {
+        return this.workerManager.getThreadsOnWork();
+    }
+
+    public Integer getMaxThreadsAmount() {
+        return this.workerManager.getThreadsAmount();
+    }
 }
 
 

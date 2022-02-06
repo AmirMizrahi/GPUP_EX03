@@ -13,12 +13,12 @@ public class WorkerSimulationTarget extends WorkerAbstractTarget {
     private final Double succeedWithWarning;
 
     public WorkerSimulationTarget(TargetDTOForWorker dto, Map<String, String> taskInfo) {
+        super(dto);
         this.dto = dto;
         this.taskTime = Integer.parseInt(taskInfo.get("taskTime"));
         this.op = TIME_OPTION.valueOf(taskInfo.get("op"));
         this.chanceToSucceed = Double.parseDouble(taskInfo.get("chanceToSucceed"));
         this.succeedWithWarning = Double.parseDouble(taskInfo.get("succeedWithWarning"));
-        this.isRunFinished = false;
     }
 
     @Override
@@ -27,7 +27,7 @@ public class WorkerSimulationTarget extends WorkerAbstractTarget {
         Thread.sleep(sleepingTime);
         String result = setStatusAfterTask(); //result of build!
         this.isRunFinished = true;
-        updateResults(dto, sleepingTime.toString(), result);
+        updateResults(sleepingTime.toString(), result);
     }
 
     private Integer calculateSleepingTime() {

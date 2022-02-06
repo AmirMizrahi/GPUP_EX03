@@ -2,6 +2,7 @@ package managers;
 
 import DTO.TaskDTO;
 import DTO.TargetDTOForWorker;
+import DTO.WorkerTargetDTO;
 import targets.WorkerCompilationTarget;
 import targets.WorkerSimulationTarget;
 import targets.WorkerTarget;
@@ -21,11 +22,13 @@ public class WorkerManager {
     private Integer threadsOnWork = 0;
     private ThreadPoolExecutor threadExecutor;
     private List<WorkerTarget> targetsOnWork;
+    private TargetManager targetManager;
 
     public WorkerManager(Integer threadsAmount) {
         this.threadsAmount = threadsAmount;
         this.threadExecutor = new ThreadPoolExecutor(this.threadsAmount, this.threadsAmount, 1, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
         targetsOnWork = new LinkedList<>();
+        targetManager = new TargetManager();
     }
 
     public void addSubscriber(TaskDTO newSubscribedTask) {
@@ -71,10 +74,12 @@ public class WorkerManager {
         if (dto.getTaskType().compareToIgnoreCase("simulation") == 0) {
             WorkerSimulationTarget simulationTarget = new WorkerSimulationTarget(dto, dto.getTaskInfo());
             targetsOnWork.add(simulationTarget);
+            targetManager.addTarget(simulationTarget);
             this.threadExecutor.execute(makeRunnable(simulationTarget));
         } else {
             WorkerCompilationTarget compilationTarget = new WorkerCompilationTarget(dto, dto.getTaskInfo());
             targetsOnWork.add(compilationTarget);
+            targetManager.addTarget(compilationTarget);
             this.threadExecutor.execute(makeRunnable(compilationTarget));
         }
     }
@@ -116,5 +121,25 @@ public class WorkerManager {
             this.targetsOnWork.remove(stringStringMap);
         }
         return resultsList;
+    }
+
+    public List<WorkerTargetDTO> getAllTargets() {
+        List<WorkerTargetDTO> toReturn = new LinkedList<>();
+        List<WorkerTarget> list = targetManager.getAllTargets();
+
+        list.forEach(target -> toReturn.add(new WorkerTargetDTO(target.getResult().get("targetName"),
+                                                                target.getResult().get("taskName"),
+                                                                target.getResult().get("status"),
+                                                                target.getResult().get("taskType"))));
+
+        return toReturn;
+    }
+
+    public Integer getThreadsAmount() {
+        return threadsAmount;
+    }
+
+    public Integer getThreadsOnWork() {
+        return threadsOnWork;
     }
 }

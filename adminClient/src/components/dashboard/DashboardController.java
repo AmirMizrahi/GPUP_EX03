@@ -182,7 +182,8 @@ public class DashboardController implements Controller {
         Alert p = new Alert(Alert.AlertType.ERROR);
 
         String body = "taskName="+ SharedDashboard.getSelectedTask(this.selectedTask).getTaskName() + LINE_SEPARATOR +
-                      "wayToCreateFrom=" + wayToCreate;
+                      "wayToCreateFrom=" + wayToCreate + LINE_SEPARATOR +
+                       "userName=" + getLoggedInUserName();
 
         HttpClientUtil.postRequest(RequestBody.create(body.getBytes()) , new Callback() {
             @Override

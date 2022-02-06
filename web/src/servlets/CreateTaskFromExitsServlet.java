@@ -19,6 +19,7 @@ public class CreateTaskFromExitsServlet extends HttpServlet {
         AbstractTask.WAYS_TO_START_SIM_TASK wayToCreateFrom = null;
         String taskName = prop.getProperty("taskName");
         String wayToCreateFromRaw = prop.getProperty("wayToCreateFrom");
+        String userName = prop.getProperty("userName");
 
         String error = null;
         try {
@@ -36,7 +37,7 @@ public class CreateTaskFromExitsServlet extends HttpServlet {
             Manager manager = ServletUtils.getManager(getServletContext());
 
             try {
-                manager.addTaskFromExits(taskName, wayToCreateFrom);
+                manager.addTaskFromExits(taskName, wayToCreateFrom, userName);
                 response.setStatus(HttpServletResponse.SC_OK);
                 response.getOutputStream().print("New task was created from " + taskName + " Successfully");
             } catch (Exception e) {

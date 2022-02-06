@@ -335,8 +335,8 @@ public class CreateTaskController implements Controller {
 
         }
         else { //Comp
-            String sourceFolder = this.compilationTaskController.getSourceFolder();
-            String destinationFolder = this.compilationTaskController.getDestinationFolder();
+            String sourceFolder = this.compilationTaskController.getSourceFolder().replace("\\","\\\\");
+            String destinationFolder = this.compilationTaskController.getDestinationFolder().replace("\\","\\\\");
 
             body += "source="+ sourceFolder + LINE_SEPARATOR +
                     "destination=" + destinationFolder + LINE_SEPARATOR +

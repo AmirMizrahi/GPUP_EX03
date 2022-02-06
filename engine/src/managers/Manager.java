@@ -316,23 +316,23 @@ public class Manager implements Serializable {
         return firstTime;
     }
 
-    public void addTaskFromExits(String taskName, AbstractTask.WAYS_TO_START_SIM_TASK wayToCreateFrom) throws Exception {
+    public void addTaskFromExits(String taskName, AbstractTask.WAYS_TO_START_SIM_TASK wayToCreateFrom, String userName) throws Exception {
         if (wayToCreateFrom == AbstractTask.WAYS_TO_START_SIM_TASK.FROM_SCRATCH)
-            addTaskFromScratch(taskName);
+            addTaskFromScratch(taskName, userName);
         else
-            addTaskIncremental(taskName);
+            addTaskIncremental(taskName, userName);
     }
 
-    private void addTaskFromScratch(String taskName) throws Exception {
+    private void addTaskFromScratch(String taskName, String userName) throws Exception {
         List<String> selectedTargetsNames = new LinkedList<>();
         Task task = this.taskManager.getTasks().get(taskName);
 
         task.getTargets().forEach(target -> selectedTargetsNames.add(target.getName()));
 
-        calculateAndSendParamsToAddNewTask(task, taskName, selectedTargetsNames);
+        calculateAndSendParamsToAddNewTask(task, taskName, selectedTargetsNames,userName);
     }
 
-    private void addTaskIncremental(String taskName) throws Exception {
+    private void addTaskIncremental(String taskName, String userName) throws Exception {
         List<String> selectedTargetsNames = new LinkedList<>();
         Task task = this.taskManager.getTasks().get(taskName);
 
@@ -341,11 +341,11 @@ public class Manager implements Serializable {
                 selectedTargetsNames.add(target.getName());
         });
 
-        calculateAndSendParamsToAddNewTask(task, taskName, selectedTargetsNames);
+        calculateAndSendParamsToAddNewTask(task, taskName, selectedTargetsNames, userName);
     }
 
-    private void calculateAndSendParamsToAddNewTask(Task task, String taskName, List<String> selectedTargetsNames) throws Exception {
-        String userName = task.getUploaderName();
+    private void calculateAndSendParamsToAddNewTask(Task task, String taskName, List<String> selectedTargetsNames, String uName) throws Exception {
+        String userName = uName;
         String graphName = task.getGraphName();
 
         String newTaskName = taskName + "("+(task.getCounterName() + 1)+")";
