@@ -418,7 +418,7 @@ public class Manager implements Serializable {
             Set<Target> allTargets = entry.getValue().getTargets();
             String taskStatus = entry.getValue().getStatus().toString();
             List<User> users = entry.getValue().getSubscribers();
-            toReturn.add(new TaskDTO(taskName,uploaderName, graphName, allTargets, taskStatus, users));
+            toReturn.add(new TaskDTO(taskName,uploaderName, graphName, allTargets, taskStatus, users, entry.getValue().getProgress()));
         }
 
         return toReturn;
@@ -502,7 +502,7 @@ public class Manager implements Serializable {
         taskInfo.put("succeedWithWarning", warningRates.toString());
 
         Task task = new SimulationTask(taskInfo,time, SimulationTask.TIME_OPTION.valueOf(time_option.toUpperCase()), successRates,
-                warningRates, AbstractTask.WAYS_TO_START_SIM_TASK.FROM_SCRATCH, selectedTargets, DEFAULT_WORKING_DIR ,
+                warningRates, AbstractTask.WAYS_TO_START_SIM_TASK.FROM_SCRATCH, selectedTargets, DEFAULT_WORKING_DIR,
                 true, userName, graphName); //todo change first time
         taskManager.addTask(taskName,task);
     }
@@ -657,5 +657,9 @@ public class Manager implements Serializable {
             }
         }
         return t;
+    }
+
+    public void removeSubscriber(String userName, String taskName) {
+        this.taskManager.removeSubscriberFromTask(userName, taskName);
     }
 }

@@ -1,24 +1,33 @@
 package components.subscribedTasksPanel;
 
-import DTO.UserDTO;
+import DTO.GraphDTO;
+import DTO.TaskDTO;
 import DTO.WorkerTargetDTO;
+import Utils.HttpClientUtil;
+import com.google.gson.Gson;
 import components.mainApp.ControllerW;
 import components.mainApp.MainAppControllerW;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import sharedDashboard.GraphListRefresher;
+import javafx.scene.input.MouseEvent;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import org.jetbrains.annotations.NotNull;
 import sharedDashboard.SharedDashboard;
-import sharedDashboard.UserTableViewRow;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.function.Consumer;
 
-import static Utils.Constants.DASHBOARD_REFRESH_RATE;
+import static Utils.Constants.*;
 
 public class SubscribedTasksPanelController implements ControllerW {
 
@@ -35,19 +44,23 @@ public class SubscribedTasksPanelController implements ControllerW {
     @FXML private TableColumn<WorkerTargetTableViewRow, String> taskTypeTableColumn;
     @FXML private TableColumn<WorkerTargetTableViewRow, String> statusTableColumn;
     @FXML private TableColumn<WorkerTargetTableViewRow, String> priceTableColumn;
-    @FXML private TableView<?> tasksTableView;
-    @FXML private TableColumn<?, ?> rightTaskTableColumn;
-    @FXML private TableColumn<?, ?> workersAmountTableColumn;
-    @FXML private TableColumn<?, ?> progressTableColumn;
-    @FXML private TableColumn<?, ?> targetsCompletedTableColumn;
-    @FXML private TableColumn<?, ?> moneyCollectedTableColumn;
+    @FXML private TableView<WorkerTaskTableViewRow> tasksTableView;
+    @FXML private TableColumn<WorkerTaskTableViewRow, String> rightTaskTableColumn;
+    @FXML private TableColumn<WorkerTaskTableViewRow, String> workersAmountTableColumn;
+    @FXML private TableColumn<WorkerTaskTableViewRow, String> progressTableColumn;
+    @FXML private TableColumn<WorkerTaskTableViewRow, String> targetsCompletedTableColumn;
+    @FXML private TableColumn<WorkerTaskTableViewRow, String> moneyCollectedTableColumn;
     @FXML private TextArea logTextArea;
     @FXML private Button pauseResumeButton;
     @FXML private Button unregisterButton;
     @FXML private Label moneyLabel;
+    @FXML private Label selectedTaskLabel;
+    //Properties
+    private SimpleStringProperty selectedTask;
     //
     private Timer targetTableTimer;
     private TimerTask targetTableRefresher;
+
 
     @Override
     public void setMainAppControllerW(MainAppControllerW newMainAppControllerW) {
@@ -64,11 +77,17 @@ public class SubscribedTasksPanelController implements ControllerW {
     }
 
     public void initializeSubscribedTasksPanelController() {
+        this.selectedTask = new SimpleStringProperty();
         SharedDashboard.wireColumnForUserList(targetTableColumn,"targetName");
         SharedDashboard.wireColumnForUserList(leftTaskTableColumn,"taskName");
         SharedDashboard.wireColumnForUserList(taskTypeTableColumn,"taskType");
         SharedDashboard.wireColumnForUserList(statusTableColumn,"status");
         //SharedDashboard.wireColumnForUserList(priceTableColumn,"price");
+        SharedDashboard.wireColumnForUserList(rightTaskTableColumn,"taskName");
+        SharedDashboard.wireColumnForUserList(workersAmountTableColumn,"workersAmount");
+        SharedDashboard.wireColumnForUserList(progressTableColumn,"progress");
+        SharedDashboard.wireColumnForUserList(targetsCompletedTableColumn,"targetsCompleted");
+        //SharedDashboard.wireColumnForUserList(moneyCollectedTableColumn,"moneyCollected");
 
         Consumer<Boolean> refresherConsumer = new Consumer() {
             @Override
@@ -79,12 +98,13 @@ public class SubscribedTasksPanelController implements ControllerW {
 
         targetTableTimer = new Timer();
         targetTableRefresher = new TargetTableRefresher(refresherConsumer);
-        targetTableTimer.schedule(targetTableRefresher, DASHBOARD_REFRESH_RATE, DASHBOARD_REFRESH_RATE);
+        targetTableTimer.schedule(targetTableRefresher, TARGET_REFRESH_RATE, TARGET_REFRESH_RATE);
     }
 
     private void updateSubscribedTaskPanel(){
         updateTargetTable();
         updateLabels();
+        updateTaskTable();
     }
 
     private void updateLabels(){
@@ -110,6 +130,64 @@ public class SubscribedTasksPanelController implements ControllerW {
         });
     }
 
+    private void updateTaskTable() {
+        List<WorkerTargetDTO> workerTargets = mainAppControllerW.getAllWorkerTargets();
+        Map<String, WorkerTaskTableViewRow> rows = new HashMap<>();
+        List<TaskDTO> list = SharedDashboard.getAllTasksDTOS();
+        final int[] targetsCompleted = new int[1];
+
+        workerTargets.forEach(row -> {
+            double progress = 0;
+            for (TaskDTO dto : list) {
+                if (dto.getTaskName().compareToIgnoreCase(row.getTaskName()) == 0) {
+                    progress = dto.getProgress();
+                    break;
+                }
+            }
+
+            if (row.getStatus().compareToIgnoreCase("In Process") == 0) {
+                targetsCompleted[0] = 0;
+                for (WorkerTargetDTO workerTarget : workerTargets) {
+                    if ((workerTarget.getTaskName().compareTo(row.getTaskName()) == 0) && (workerTarget.getStatus().compareToIgnoreCase("In Process") != 0))
+                        targetsCompleted[0]++;
+                }
+                rows.put(row.getTaskName(), new WorkerTaskTableViewRow(row.getTaskName(), row.getWorkersAmount(), progress, targetsCompleted[0])); //todo price
+            }
+
+            Platform.runLater(() -> {
+                final ObservableList<WorkerTaskTableViewRow> data = FXCollections.observableArrayList(rows.values());
+                this.tasksTableView.setItems(data);
+                tasksTableView.getColumns().clear();
+                tasksTableView.getColumns().addAll(rightTaskTableColumn, workersAmountTableColumn, progressTableColumn, targetsCompletedTableColumn, moneyCollectedTableColumn);
+            });
+        });
+    }
+
+    @FXML
+    void targetsTableViewClicked(MouseEvent event) {
+
+    }
+
+    @FXML
+    void tasksTableViewClicked(MouseEvent event) {
+        String temp = event.getPickResult().toString();
+        String name = SharedDashboard.getNameFromClick(temp);
+        if(name==null)
+            return;
+
+        if(name.compareTo("null") != 0 && name.compareTo("") != 0) {
+            selectedTask.set(name);
+        }
+
+        TaskDTO task = SharedDashboard.getSelectedTask(selectedTask);
+        if(task==null) {
+            selectedTaskLabel.setText("Not Selected");
+            return;
+        }
+        else
+            selectedTaskLabel.setText(task.getTaskName());
+    }
+
     @FXML
     void pauseResumeButtonAction(ActionEvent event) {
 
@@ -117,6 +195,46 @@ public class SubscribedTasksPanelController implements ControllerW {
 
     @FXML
     void unregisterButtonAction(ActionEvent event) {
+        TaskDTO task = SharedDashboard.getSelectedTask(selectedTask);
 
+        String body =
+                "status=unregister" + LINE_SEPARATOR +
+                "taskName=" + task.getTaskName() + LINE_SEPARATOR +
+                "userName=" + mainAppControllerW.getLoggedInUserName();
+        postTaskSubscriberChange(body);
     }
+
+    private void postTaskSubscriberChange(String body){
+        HttpClientUtil.postRequest(RequestBody.create(body.getBytes()), new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                //graphsListConsumer.accept(failed);//todo
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+//                            String jsonArrayOfUsersNames = response.body().string();
+//                            //httpRequestLoggerConsumer.accept("Users Request # " + finalRequestNumber + " | Response: " + jsonArrayOfUsersNames);
+//                            Type type = new TypeToken<List<TaskDTOForWorker>>(){}.getType();
+//                            List<TaskDTOForWorker> taskDTOForWorkers = GSON_INSTANCE.fromJson(jsonArrayOfUsersNames, type);
+//                            System.out.println("----------------------------------" + taskDTOForWorkers.size() + "-------------------------");
+                response.close();
+//                            //List<String> temp = new LinkedList<>();
+//                            //taskDTOForWorkers.forEach(taskDTOForWorker -> temp.add(taskDTOForWorker.getTargetDTO().getTargetName()));
+//                            workerManager.setThreadsOnWork(taskDTOForWorkers.size());
+//                            taskDTOForWorkers.forEach(dto-> {
+//                                try {
+//                                    workerManager.addTargetToThreadPool(dto);
+//                                } catch (InterruptedException e) {
+//                                    e.printStackTrace();
+//                                }
+//                            });
+//                            //System.out.println("RESULT: " + temp);
+
+
+                //graphsListConsumer.accept(taskDTOForWorkers);*///todo
+            }
+        }, WORKER_TASK_STATUS_CHANGE);
+    }
+    //taskControlPanelController.refreshPanel(getSelectedTaskDTOFromDashboard());
 }

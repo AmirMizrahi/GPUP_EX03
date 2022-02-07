@@ -263,6 +263,8 @@ public class MainAppControllerW implements sharedMainAppController {
     public Integer getMaxThreadsAmount() {
         return this.workerManager.getThreadsAmount();
     }
+
+    public String getLoggedInUserName() {return SharedDashboard.getLoggedInUserName(dashboardControllerW.getUserNameLabel());}
 }
 
 

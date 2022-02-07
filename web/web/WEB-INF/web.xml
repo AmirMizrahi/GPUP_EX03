@@ -93,4 +93,13 @@
         <url-pattern>/engine/createtaskfromexits</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>WorkerTaskStatusChangeServlet</servlet-name>
+        <servlet-class>servlets.WorkerTaskStatusChangeServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>WorkerTaskStatusChangeServlet</servlet-name>
+        <url-pattern>/engine/workertaskstatuschange</url-pattern>
+    </servlet-mapping>
+
 </web-app>

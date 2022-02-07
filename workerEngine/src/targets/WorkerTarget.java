@@ -7,4 +7,6 @@ public interface WorkerTarget {
     void run() throws InterruptedException, IOException;
     boolean isRunFinished();
     Map<String, String> getResult();
+    Integer getWorkersAmount();
+    Double getProgress();
 }

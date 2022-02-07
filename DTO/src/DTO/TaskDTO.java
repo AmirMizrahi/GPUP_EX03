@@ -20,8 +20,9 @@ public class TaskDTO {
     private final String graphName;
     private final String taskStatus;
     private final List<UserDTO> subscribers = new LinkedList<>();
+    private final double progress;
 
-    public TaskDTO(String taskName, String uploaderName, String graphName, Set<Target> allTargets, String taskStatus, List<User> users) {
+    public TaskDTO(String taskName, String uploaderName, String graphName, Set<Target> allTargets, String taskStatus, List<User> users, double progress) {
         this.taskName = taskName;
         this.uploaderName = uploaderName;
         this.allTargets.addAll(allTargets);
@@ -37,6 +38,7 @@ public class TaskDTO {
         }
         this.graphName = graphName;
         this.taskStatus = taskStatus;
+        this.progress = progress;
         users.forEach(user -> subscribers.add(new UserDTO(user.getName(), user.getType(), user.getThreadAmount())));
     }
 
@@ -81,4 +83,8 @@ public class TaskDTO {
     public String getTaskStatus() {return this.taskStatus;}
 
     public List<UserDTO> getSubscribers() {return this.subscribers;}
+
+    public double getProgress() {
+        return progress;
+    }
 }

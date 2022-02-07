@@ -156,10 +156,10 @@ public class SharedDashboard {
 
     public static List<TaskDTO> getAllTasksDTOS() {return allTasksDTOS;}
 
-    public static void doWhenClickedOnTaskTable(String temp, SimpleStringProperty selectedTask, ListView tasksListView) {
+    public static String getNameFromClick(String temp){
         if(!temp.contains("TableColumn") && !temp.contains("Text") || temp.contains("TableColumnHeader") || temp.contains("name=System Bold") || temp.contains("text=\"No content in table\""))
-            return;
-        System.out.println(temp);//todo from here
+            return null;
+
         int start = temp.indexOf("'");
         int last = temp.lastIndexOf("'");
         if(start == -1){
@@ -168,6 +168,16 @@ public class SharedDashboard {
         }
 
         String name = temp.substring(++start, last);
+
+        return name;
+    }
+
+    public static void doWhenClickedOnTaskTable(String temp, SimpleStringProperty selectedTask, ListView tasksListView) {
+        if(!temp.contains("TableColumn") && !temp.contains("Text") || temp.contains("TableColumnHeader") || temp.contains("name=System Bold") || temp.contains("text=\"No content in table\""))
+            return;
+        //System.out.println(temp);//todo from here
+        String name = getNameFromClick(temp);
+
         if(name.compareTo("null") != 0 && name.compareTo("") != 0) {
             selectedTask.set(name);
             loadTaskInfoToListView(tasksListView, selectedTask);

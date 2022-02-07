@@ -56,7 +56,8 @@ public class TaskManager {
                 if (entry.getValue().isUserSubscribed(userName) && entry.getValue().getStatus() == AbstractTask.TASK_STATUS.PLAY) {
                     Target t = entry.getValue().getTargetForWorker();
                     if (t != null) {
-                        taskList.add(new TargetDTOForWorker(entry.getKey(), new TargetDTO(t), entry.getValue().getTaskType(), entry.getValue().getTaskInfo()));
+                        taskList.add(new TargetDTOForWorker(entry.getKey(), new TargetDTO(t), entry.getValue().getTaskType(),
+                                entry.getValue().getTaskInfo(), entry.getValue().getProgress(), entry.getValue().getWorkersAmount()));
                         t.setStatus(Target.TargetStatus.IN_PROCESS);
                         currentTargetsAmount++;
                         gotAtLeastOneTarget = true;
@@ -65,5 +66,13 @@ public class TaskManager {
             }
         }
         return taskList;
+    }
+
+    public void removeSubscriberFromTask(String userName, String taskName) {
+        for (Map.Entry<String, Task> entry : taskNameToTask.entrySet()) {
+            if (entry.getKey().compareTo(taskName) == 0) {
+                entry.getValue().removeSub(userName);
+            }
+        }
     }
 }

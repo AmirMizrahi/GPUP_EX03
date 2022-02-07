@@ -130,7 +130,9 @@ public class WorkerManager {
         list.forEach(target -> toReturn.add(new WorkerTargetDTO(target.getResult().get("targetName"),
                                                                 target.getResult().get("taskName"),
                                                                 target.getResult().get("status"),
-                                                                target.getResult().get("taskType"))));
+                                                                target.getResult().get("taskType"),
+                                                                target.getProgress(),
+                                                                target.getWorkersAmount())));
 
         return toReturn;
     }

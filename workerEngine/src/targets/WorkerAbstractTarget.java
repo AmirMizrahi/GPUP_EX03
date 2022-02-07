@@ -8,12 +8,16 @@ import java.util.Map;
 public abstract class WorkerAbstractTarget implements WorkerTarget {
     protected Map<String, String> results = new HashMap<>();
     protected boolean isRunFinished = false;
+    protected Integer workersAmount;
+    protected Double progress;
 
     protected WorkerAbstractTarget(TargetDTOForWorker dto){
         results.put("taskName", dto.getTaskName());
         results.put("targetName", dto.getTargetDTO().getTargetName());
         results.put("status", "In Process");
         results.put("taskType", dto.getTaskType());
+        this.workersAmount = dto.getWorkersAmount();
+        this.progress = dto.getProgress();
     }
 
     protected void updateResults(String totalTime, String status) {
@@ -37,4 +41,13 @@ public abstract class WorkerAbstractTarget implements WorkerTarget {
 
     public String getTaskType() {return this.results.get("taskType");}
 
+    @Override
+    public Integer getWorkersAmount() {
+        return workersAmount;
+    }
+
+    @Override
+    public Double getProgress() {
+        return progress;
+    }
 }

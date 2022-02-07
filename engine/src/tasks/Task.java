@@ -27,4 +27,7 @@ public interface Task {
     void addToWaitingQueue(Target target);
     int getCounterName();
     void addOneToCounterName();
+    double getProgress();
+    int getWorkersAmount();
+    void removeSub(String userName);
 }

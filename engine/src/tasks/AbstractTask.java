@@ -1,7 +1,9 @@
 package tasks;
 
+import DTO.GraphDTO;
 import User.User;
 import bridges.PrinterBridge;
+import graph.Graph;
 import targets.Target;
 
 import java.io.*;
@@ -185,11 +187,17 @@ public abstract class AbstractTask implements Task{
 
     @Override
     public void addSubscriber(User user) {
-        this.subscribers.add(user);
+        synchronized (subscribers) {
+            this.subscribers.add(user);
+        }
     }
 
     @Override
-    public List<User> getSubscribers(){return this.subscribers;}
+    public List<User> getSubscribers() {
+        synchronized (subscribers) {
+            return this.subscribers;
+        }
+    }
 
     @Override
     public Map<String, String> getTaskInfo() {
@@ -199,10 +207,12 @@ public abstract class AbstractTask implements Task{
     @Override
     public boolean isUserSubscribed(String userName){
         boolean isIncluded = false;
-        for (User subscriber : subscribers) {
-            if(subscriber.getName().compareTo(userName) == 0){
-                isIncluded = true;
-                break;
+        synchronized (subscribers) { //todo
+            for (User subscriber : subscribers) {
+                if (subscriber.getName().compareTo(userName) == 0) {
+                    isIncluded = true;
+                    break;
+                }
             }
         }
         return isIncluded;
@@ -237,5 +247,59 @@ public abstract class AbstractTask implements Task{
 
     public enum TASK_STATUS{
         DEFAULT, PLAY, PAUSE, STOP, FINISHED
+    }
+
+    @Override
+    public double getProgress(){
+        double finished , skipped , waiting , inProcess , frozen;
+        finished = skipped = waiting = inProcess = frozen = 0;
+
+        for (Map.Entry<Target, Integer> entry : this.targetsToRunningTime.entrySet()) {
+            switch (entry.getKey().getStatus()){
+                case WAITING:{
+                    waiting++;
+                    break;
+                }
+                case IN_PROCESS: {
+                    inProcess++;
+                    break;
+                }
+                case SKIPPED: {
+                    skipped++;
+                    break;
+                }
+                case FROZEN:{
+                    frozen++;
+                    break;
+                }
+                case FINISHED:{
+                    finished++;
+                    break;
+                }
+            }
+        }
+
+        return (finished + skipped) /
+                (skipped + waiting + inProcess + frozen + finished)
+                * 100;
+    }
+
+    @Override
+    public int getWorkersAmount() {return this.subscribers.size();}
+
+    @Override
+    public void removeSub(String userNameToDelete) {
+        User toDelete = null;
+
+        for (User subscriber : subscribers) {
+            if(subscriber.getName().compareTo(userNameToDelete) == 0)
+                toDelete = subscriber;
+        }
+
+        synchronized (subscribers) {
+            if (toDelete != null)
+                subscribers.remove(toDelete);
+        }
+
     }
 }

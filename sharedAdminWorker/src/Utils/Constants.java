@@ -20,6 +20,7 @@ public class Constants {
     public final static String GET_TARGETS = SERVER_ADDRESS + ENGINE_ADDRESS + "/gettargets";
     public final static String UPDATE_RESULTS = SERVER_ADDRESS + ENGINE_ADDRESS + "/updatetargetsresults";
     public final static String CREATE_TASK_FROM_EXITS = SERVER_ADDRESS + ENGINE_ADDRESS + "/createtaskfromexits";
+    public final static String WORKER_TASK_STATUS_CHANGE = SERVER_ADDRESS + ENGINE_ADDRESS + "/workertaskstatuschange";
 
     // GSON instance
     public final static Gson GSON_INSTANCE = new Gson();
