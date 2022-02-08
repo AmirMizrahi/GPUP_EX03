@@ -19,6 +19,7 @@ public abstract class AbstractTask implements Task{
     private final String graphName;
     private final String taskType;
     private final Map<String, String> taskInfo;
+    protected final int money;
     protected int orderOfProcess = 1, totalRunningTime = 0;
     protected final List<Target> relevantTargetsForSummaryLogFile;
     protected final Map<Target,Integer> targetsToRunningTime;
@@ -30,7 +31,8 @@ public abstract class AbstractTask implements Task{
     protected int taskCreatedFromCounter = 0;
 
     protected AbstractTask(WAYS_TO_START_SIM_TASK chosenWay, boolean firstTime, List<Target> targetsToRunOn,
-                           String pathName, String taskType, String userName, String graphName, Map<String, String> taskInfo) {
+                           String pathName, String taskType, String userName, String graphName, Map<String,
+                            String> taskInfo, int money) {
         this.chosenWay = chosenWay;
         this.firstTime = firstTime;
         this.relevantTargetsForSummaryLogFile = new ArrayList<>();
@@ -44,6 +46,7 @@ public abstract class AbstractTask implements Task{
         this.taskStatus = TASK_STATUS.DEFAULT;
         this.subscribers = new LinkedList<>();
         this.taskInfo = taskInfo;
+        this.money = money;
         targetsToRunOn.forEach(target -> {
             if(target.getStatus() == Target.TargetStatus.WAITING)
                 waitingQueue.add(target);
@@ -301,5 +304,10 @@ public abstract class AbstractTask implements Task{
                 subscribers.remove(toDelete);
         }
 
+    }
+
+    @Override
+    public int getMoney() {
+        return money;
     }
 }

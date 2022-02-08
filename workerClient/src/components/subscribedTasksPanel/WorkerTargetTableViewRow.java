@@ -9,14 +9,14 @@ public class WorkerTargetTableViewRow {
     private final SimpleStringProperty taskName;
     private final SimpleStringProperty taskType;
     private final SimpleStringProperty status;
- //   private final SimpleIntegerProperty price;
+    private final SimpleIntegerProperty price;
 
-    public WorkerTargetTableViewRow(String targetName, String taskName, String taskType, String status /*,int price*/) {
+    public WorkerTargetTableViewRow(String targetName, String taskName, String taskType, String status ,int price) {
         this.targetName = new SimpleStringProperty(targetName);
         this.taskName = new SimpleStringProperty(taskName);
         this.taskType = new SimpleStringProperty(taskType);
         this.status = new SimpleStringProperty(status);
-        //this.price = new SimpleIntegerProperty(price);
+        this.price = new SimpleIntegerProperty(price);
     }
 
     public String getTargetName() {
@@ -51,11 +51,11 @@ public class WorkerTargetTableViewRow {
         return status;
     }
 
-//    public int getPrice() {
-//        return price.get();
-//    }
-//
-//    public SimpleIntegerProperty priceProperty() {
-//        return price;
-//    }
+    public int getPrice() {
+        return price.get();
+    }
+
+    public SimpleIntegerProperty priceProperty() {
+        return price;
+    }
 }

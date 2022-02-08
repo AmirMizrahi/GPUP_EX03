@@ -418,7 +418,7 @@ public class Manager implements Serializable {
             Set<Target> allTargets = entry.getValue().getTargets();
             String taskStatus = entry.getValue().getStatus().toString();
             List<User> users = entry.getValue().getSubscribers();
-            toReturn.add(new TaskDTO(taskName,uploaderName, graphName, allTargets, taskStatus, users, entry.getValue().getProgress()));
+            toReturn.add(new TaskDTO(taskName,uploaderName, graphName, allTargets, taskStatus, users, entry.getValue().getProgress(), entry.getValue().getMoney()));
         }
 
         return toReturn;
@@ -494,6 +494,7 @@ public class Manager implements Serializable {
 
         List<Target> selectedTargets = createTaskTargetsByUserSelection(graphName, selectedTargetsNames);
 
+        int money = graphManager.getGraphs().get(graphName).getSimulationPrice();
 
         Map<String,String> taskInfo = new HashMap<>();
         taskInfo.put("taskTime", time.toString());
@@ -503,7 +504,7 @@ public class Manager implements Serializable {
 
         Task task = new SimulationTask(taskInfo,time, SimulationTask.TIME_OPTION.valueOf(time_option.toUpperCase()), successRates,
                 warningRates, AbstractTask.WAYS_TO_START_SIM_TASK.FROM_SCRATCH, selectedTargets, DEFAULT_WORKING_DIR,
-                true, userName, graphName); //todo change first time
+                true, userName, graphName,money); //todo change first time
         taskManager.addTask(taskName,task);
     }
 
@@ -516,12 +517,14 @@ public class Manager implements Serializable {
 
         List<Target> selectedTargets = createTaskTargetsByUserSelection(graphName, selectedTargetsNames);
 
+        int money = graphManager.getGraphs().get(graphName).getCompilationPrice();
+
         Map<String,String> taskInfo = new HashMap<>();
         taskInfo.put("source", source);
         taskInfo.put("destination", destination);
 
         Task task = new CompilationTask(taskInfo, AbstractTask.WAYS_TO_START_SIM_TASK.FROM_SCRATCH, selectedTargets, DEFAULT_WORKING_DIR ,
-                source, destination, true, userName, graphName); //todo change first time
+                source, destination, true, userName, graphName, money); //todo change first time
         taskManager.addTask(taskName,task);
     }
 

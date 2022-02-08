@@ -54,7 +54,7 @@
                <children>
                   <TableView fx:id="targetsTableView" onMouseClicked="#targetsTableViewClicked" prefHeight="200.0" prefWidth="200.0">
                     <columns>
-                      <TableColumn fx:id="targetTableColumn" editable="false" prefWidth="75.0" text="Target" />
+                      <TableColumn fx:id="targetTableColumn" editable="false" minWidth="60.0" prefWidth="75.0" text="Target" />
                       <TableColumn fx:id="leftTaskTableColumn" editable="false" prefWidth="75.0" text="Task Associated" />
                         <TableColumn fx:id="taskTypeTableColumn" editable="false" prefWidth="75.0" text="Task Type" />
                         <TableColumn fx:id="statusTableColumn" editable="false" prefWidth="75.0" text="Status" />
@@ -66,7 +66,7 @@
                   </TableView>
                   <TableView fx:id="tasksTableView" onMouseClicked="#tasksTableViewClicked" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="2">
                     <columns>
-                      <TableColumn fx:id="rightTaskTableColumn" editable="false" prefWidth="75.0" text="Task" />
+                      <TableColumn fx:id="rightTaskTableColumn" editable="false" minWidth="60.0" prefWidth="75.0" text="Task" />
                       <TableColumn fx:id="workersAmountTableColumn" editable="false" prefWidth="75.0" text="Workers Amount" />
                         <TableColumn fx:id="progressTableColumn" editable="false" prefWidth="75.0" text="Progress %" />
                         <TableColumn fx:id="targetsCompletedTableColumn" editable="false" prefWidth="75.0" text="Targets Completed" />

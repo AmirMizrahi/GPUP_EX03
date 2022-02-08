@@ -13,9 +13,10 @@ public class CompilationTask extends AbstractTask implements Task {
     private String sourceName;
     private String destinationName;
 
-    public CompilationTask(Map<String,String> taskInfo, AbstractTask.WAYS_TO_START_SIM_TASK way, List<Target> targetsToRunOn, String pathName, String sourceName, String destinationName,
-                           boolean firstTime, String userName, String graphName){
-        super(way, firstTime, targetsToRunOn, pathName, "Compilation", userName, graphName, taskInfo);
+    public CompilationTask(Map<String,String> taskInfo, AbstractTask.WAYS_TO_START_SIM_TASK way, List<Target> targetsToRunOn,
+                           String pathName, String sourceName, String destinationName, boolean firstTime, String userName, String graphName,
+                           int money){
+        super(way, firstTime, targetsToRunOn, pathName, "Compilation", userName, graphName, taskInfo,money);
         this.sourceName = sourceName;
         this.destinationName = destinationName;
     }

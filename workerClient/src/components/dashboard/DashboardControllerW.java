@@ -5,10 +5,7 @@ import Utils.HttpClientUtil;
 import components.mainApp.ControllerW;
 import components.mainApp.MainAppControllerW;
 import javafx.application.Platform;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.*;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -33,9 +30,10 @@ public class DashboardControllerW implements ControllerW {
     //Controllers
     private MainAppControllerW mainAppControllerW;
     private Node nodeController;
-    //
+    //Properties
     private SimpleStringProperty selectedTask;
     private SimpleBooleanProperty isAlreadySubscribed;
+    private SimpleIntegerProperty totalMoneyEarned;
     //
 
     //UI
@@ -48,6 +46,7 @@ public class DashboardControllerW implements ControllerW {
     @FXML private TableColumn<UserTableViewRow, String> typeTableColumn;
     @FXML private Label loggedInLabel;
     @FXML private Label threadsAmountLabel;
+    @FXML private Label moneyLabel;
     //
 
     @Override
@@ -78,10 +77,12 @@ public class DashboardControllerW implements ControllerW {
                 new ReadOnlyStringWrapper(cellData.getValue()));
     }
 
-    public void initializeDashboardController(SimpleStringProperty userNameProperty, SimpleStringProperty selectedTask, Integer threadsAmount){
+    public void initializeDashboardController(SimpleStringProperty userNameProperty, SimpleStringProperty selectedTask, Integer threadsAmount, SimpleIntegerProperty totalMoneyEarned){
         loggedInLabel.textProperty().bind(userNameProperty);
         threadsAmountLabel.setText(threadsAmount.toString());
+        this.moneyLabel.textProperty().bind(totalMoneyEarned.asString());
         this.selectedTask = selectedTask;
+        this.totalMoneyEarned = totalMoneyEarned;
     }
 
     @FXML void tasksTableViewOnClicked(MouseEvent event) {

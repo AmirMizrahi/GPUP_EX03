@@ -63,7 +63,12 @@
                   </HBox>
                </children>
             </HBox>
-            <Label alignment="CENTER" text="Money: []" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.hgrow="NEVER" GridPane.rowIndex="2" GridPane.valignment="BOTTOM" GridPane.vgrow="NEVER" />
+            <HBox spacing="5.0" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.hgrow="NEVER" GridPane.rowIndex="2" GridPane.valignment="BOTTOM" GridPane.vgrow="NEVER">
+               <children>
+                  <Label alignment="CENTER" text="Money:" />
+                  <Label fx:id="moneyLabel" alignment="CENTER" layoutX="10.0" layoutY="10.0" text="[]" />
+               </children>
+            </HBox>
          </children>
       </GridPane>
    </content>

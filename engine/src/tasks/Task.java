@@ -30,4 +30,5 @@ public interface Task {
     double getProgress();
     int getWorkersAmount();
     void removeSub(String userName);
+    int getMoney();
 }

@@ -197,8 +197,7 @@ public class SharedDashboard {
         List<String> usersNames = new LinkedList<>();
         taskToShow.getSubscribers().forEach(userDTO -> usersNames.add(userDTO.getName()));
         tasksListView.getItems().add("Subscribers Names: " + usersNames);
-        //this.tasksListView.getItems().add("Total Price For Task: " + taskToShow.getIndependentAmount()); //todo add
-        //this.tasksListView.getItems().add("Current Number Of Workers: " + taskToShow.getIndependentAmount());
+        tasksListView.getItems().add("Total Price For Task: " + (taskToShow.getMoney() * taskToShow.getAmountOfTargets()));
     }
 
     public static TaskDTO getSelectedTask(SimpleStringProperty selectedTask) {

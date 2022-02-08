@@ -14,6 +14,7 @@ import components.subscribedTasksPanel.SubscribedTasksPanelController;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -52,6 +53,7 @@ public class MainAppControllerW implements sharedMainAppController {
     //Properties
     private BooleanProperty isLoggedIn;
     private SimpleStringProperty selectedTask;
+    private SimpleIntegerProperty totalMoneyEarned;
     // Controllers
     private LoginControllerW loginControllerW;
     private DashboardControllerW dashboardControllerW;
@@ -75,6 +77,7 @@ public class MainAppControllerW implements sharedMainAppController {
     private void initialize() throws IOException {
         selectedTask = new SimpleStringProperty();
         isLoggedIn = new SimpleBooleanProperty(false);
+        totalMoneyEarned = new SimpleIntegerProperty(0);
         this.dashboardButton.disableProperty().bind(isLoggedIn.not().or(SharedMainApp.getServerOnProperty().not()));
         this.subscribedTasksPanelButton.disableProperty().bind(isLoggedIn.not().or(SharedMainApp.getServerOnProperty().not()));
 
@@ -129,8 +132,8 @@ public class MainAppControllerW implements sharedMainAppController {
     public void onLoggedIn() {
         sharedOnLoggedIn(gridPaneMainAppRight,isLoggedIn,this.dashboardControllerW.getNodeController());
         workerManager = new WorkerManager(this.loginControllerW.getThreadsAmount());
-        this.dashboardControllerW.initializeDashboardController(SharedLogin.userNamePropertyProperty(), this.selectedTask, this.loginControllerW.getThreadsAmount());
-        this.subscribedTasksPanelController.initializeSubscribedTasksPanelController();
+        this.dashboardControllerW.initializeDashboardController(SharedLogin.userNamePropertyProperty(), this.selectedTask, this.loginControllerW.getThreadsAmount(), totalMoneyEarned);
+        this.subscribedTasksPanelController.initializeSubscribedTasksPanelController(totalMoneyEarned);
         startTaskControlPanelRefresher();
         updateServerWithTargetsResults();
     }

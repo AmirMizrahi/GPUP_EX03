@@ -12,9 +12,9 @@ public class SimulationTask extends AbstractTask implements Task{
     private final Double chanceToSucceed;
     private final Double succeedWithWarning;
 
-    public SimulationTask(Map<String,String> taskInfo, Integer taskTime, TIME_OPTION op, Double chanceToSucceed, Double succeedWithWarning, WAYS_TO_START_SIM_TASK way,
-                          List<Target> targetsToRunOn, String pathName, boolean firstTime, String userName, String graphName) throws IllegalArgumentException {
-        super(way, firstTime, targetsToRunOn, pathName, "Simulation", userName, graphName, taskInfo);
+    public SimulationTask(Map<String, String> taskInfo, Integer taskTime, TIME_OPTION op, Double chanceToSucceed, Double succeedWithWarning, WAYS_TO_START_SIM_TASK way,
+                          List<Target> targetsToRunOn, String pathName, boolean firstTime, String userName, String graphName, int money) throws IllegalArgumentException {
+        super(way, firstTime, targetsToRunOn, pathName, "Simulation", userName, graphName, taskInfo,money);
         this.taskTime = taskTime;
         this.op = op;
         this.chanceToSucceed = chanceToSucceed;

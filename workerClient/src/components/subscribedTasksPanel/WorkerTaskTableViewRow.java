@@ -10,14 +10,14 @@ public class WorkerTaskTableViewRow {
     private final SimpleIntegerProperty workersAmount;
     private final SimpleDoubleProperty progress;
     private final SimpleIntegerProperty targetsCompleted;
-    //private final SimpleIntegerProperty moneyCollected;
+    private final SimpleIntegerProperty moneyCollected;
 
-    public WorkerTaskTableViewRow(String taskName, Integer workersAmount, Double progress, Integer targetsCompleted /*,Integer moneyCollected*/) {
+    public WorkerTaskTableViewRow(String taskName, Integer workersAmount, Double progress, Integer targetsCompleted ,Integer moneyCollected) {
         this.taskName = new SimpleStringProperty(taskName);
         this.workersAmount = new SimpleIntegerProperty(workersAmount);
         this.progress = new SimpleDoubleProperty(progress);
         this.targetsCompleted = new SimpleIntegerProperty(targetsCompleted);
-        //this.moneyCollected = new SimpleIntegerProperty(moneyCollected);
+        this.moneyCollected = new SimpleIntegerProperty(moneyCollected);
     }
 
     public String getTaskName() {
@@ -50,5 +50,13 @@ public class WorkerTaskTableViewRow {
 
     public SimpleIntegerProperty targetsCompletedProperty() {
         return targetsCompleted;
+    }
+
+    public int getMoneyCollected() {
+        return moneyCollected.get();
+    }
+
+    public SimpleIntegerProperty moneyCollectedProperty() {
+        return moneyCollected;
     }
 }
