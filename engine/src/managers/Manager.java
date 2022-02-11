@@ -417,7 +417,7 @@ public class Manager implements Serializable {
             String graphName = entry.getValue().getGraphName();
             Set<Target> allTargets = entry.getValue().getTargets();
             String taskStatus = entry.getValue().getStatus().toString();
-            List<User> users = entry.getValue().getSubscribers();
+            Map<User,Boolean> users = entry.getValue().getSubscribers();
             toReturn.add(new TaskDTO(taskName,uploaderName, graphName, allTargets, taskStatus, users, entry.getValue().getProgress(), entry.getValue().getMoney()));
         }
 
@@ -664,5 +664,9 @@ public class Manager implements Serializable {
 
     public void removeSubscriber(String userName, String taskName) {
         this.taskManager.removeSubscriberFromTask(userName, taskName);
+    }
+
+    public void updatePauseFromWorker(String userName, String taskName, Boolean isPauseSelected) {
+        this.taskManager.updatePauseFromWorker(userName,taskName, isPauseSelected);
     }
 }

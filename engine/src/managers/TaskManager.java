@@ -53,7 +53,8 @@ public class TaskManager {
                     gotMaxTargets = true;
                     break;
                 }
-                if (entry.getValue().isUserSubscribed(userName) && entry.getValue().getStatus() == AbstractTask.TASK_STATUS.PLAY) {
+                if (entry.getValue().isUserSubscribed(userName) && entry.getValue().getStatus() == AbstractTask.TASK_STATUS.PLAY &&
+                        !entry.getValue().isUserPaused(userName)) {
                     Target t = entry.getValue().getTargetForWorker();
                     if (t != null) {
                         taskList.add(new TargetDTOForWorker(entry.getKey(), new TargetDTO(t), entry.getValue().getTaskType(),
@@ -72,6 +73,14 @@ public class TaskManager {
         for (Map.Entry<String, Task> entry : taskNameToTask.entrySet()) {
             if (entry.getKey().compareTo(taskName) == 0) {
                 entry.getValue().removeSub(userName);
+            }
+        }
+    }
+
+    public void updatePauseFromWorker(String userName, String taskName, Boolean isPauseSelected) {
+        for (Map.Entry<String, Task> entry : taskNameToTask.entrySet()) {
+            if (entry.getKey().compareTo(taskName) == 0) {
+                entry.getValue().updatePauseResume(userName, isPauseSelected);
             }
         }
     }

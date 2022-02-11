@@ -1,13 +1,13 @@
 package components.subscribedTasksPanel;
 
-import DTO.GraphDTO;
 import DTO.TaskDTO;
+import DTO.UserDTO;
 import DTO.WorkerTargetDTO;
 import Utils.HttpClientUtil;
-import com.google.gson.Gson;
 import components.mainApp.ControllerW;
 import components.mainApp.MainAppControllerW;
 import javafx.application.Platform;
+import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -52,15 +52,15 @@ public class SubscribedTasksPanelController implements ControllerW {
     @FXML private TableColumn<WorkerTaskTableViewRow, String> progressTableColumn;
     @FXML private TableColumn<WorkerTaskTableViewRow, String> targetsCompletedTableColumn;
     @FXML private TableColumn<WorkerTaskTableViewRow, String> moneyCollectedTableColumn;
-    @FXML private TableView<?> taskControlTableView;
-    @FXML private TableColumn<?, ?> taskControlTableColumn;
+    @FXML private TableView<String> taskControlTableView;
+    @FXML private TableColumn<String, String> taskControlTableColumn;
     @FXML private TextArea logTextArea;
     @FXML private Button pauseResumeButton;
     @FXML private Button unregisterButton;
     @FXML private Label moneyLabel;
     @FXML private Label selectedTaskLabel;
     //Properties
-    private SimpleStringProperty selectedTask;
+    private SimpleStringProperty selectedTaskName;
     private SimpleBooleanProperty isTaskSelected;
     private SimpleIntegerProperty totalMoneyEarned;
     //
@@ -83,11 +83,12 @@ public class SubscribedTasksPanelController implements ControllerW {
     }
 
     public void initializeSubscribedTasksPanelController(SimpleIntegerProperty totalMoneyEarned) {
-        this.selectedTask = new SimpleStringProperty();
+        this.selectedTaskName = new SimpleStringProperty();
         this.isTaskSelected = new SimpleBooleanProperty(false);
         this.totalMoneyEarned = totalMoneyEarned;
         this.moneyLabel.textProperty().bind(totalMoneyEarned.asString());
         this.unregisterButton.disableProperty().bind(isTaskSelected.not());
+        this.pauseResumeButton.disableProperty().bind(isTaskSelected.not());
         SharedDashboard.wireColumnForUserList(targetTableColumn,"targetName");
         SharedDashboard.wireColumnForUserList(leftTaskTableColumn,"taskName");
         SharedDashboard.wireColumnForUserList(taskTypeTableColumn,"taskType");
@@ -98,6 +99,8 @@ public class SubscribedTasksPanelController implements ControllerW {
         SharedDashboard.wireColumnForUserList(progressTableColumn,"progress");
         SharedDashboard.wireColumnForUserList(targetsCompletedTableColumn,"targetsCompleted");
         SharedDashboard.wireColumnForUserList(moneyCollectedTableColumn,"moneyCollected");
+        taskControlTableColumn.setCellValueFactory(cellData ->
+                new ReadOnlyStringWrapper(cellData.getValue()));
 
         Consumer<Boolean> refresherConsumer = new Consumer() {
             @Override
@@ -115,6 +118,38 @@ public class SubscribedTasksPanelController implements ControllerW {
         updateTargetTable();
         updateLabels();
         updateTaskTable();
+        updateTaskControlTable();
+    }
+
+    private void updateTaskControlTable() {
+        List<String> rows = new LinkedList<>();
+        List<TaskDTO> taskDTOS = SharedDashboard.getAllTasksDTOS();
+
+        taskDTOS.forEach(taskDTO -> {
+            Map<UserDTO, Boolean> allUsers = taskDTO.getSubscribers();
+            for (UserDTO user : allUsers.keySet()) {
+                if (this.mainAppControllerW.getLoggedInUserName().compareTo(user.getName()) == 0){
+                    if((taskDTO.getTaskStatus().compareToIgnoreCase("PLAY")) == 0 ||
+                            (taskDTO.getTaskStatus().compareToIgnoreCase("Pause") == 0) ||
+                               (taskDTO.getTaskStatus().compareToIgnoreCase("DEFAULT") == 0)) {
+                        rows.add(taskDTO.getTaskName());
+                        break;
+                    }
+                }
+            }
+        });
+
+        Platform.runLater(() -> {
+            final ObservableList<String> data = FXCollections.observableArrayList(rows);
+            if(rows.isEmpty()){
+                selectedTaskLabel.setText("Not Selected");
+                this.isTaskSelected.set(false);
+            }
+            taskControlTableView.setItems(data);
+            taskControlTableView.getColumns().clear();
+            taskControlTableView.getColumns().addAll(taskControlTableColumn);
+        });
+
     }
 
     private void updateLabels(){
@@ -178,10 +213,6 @@ public class SubscribedTasksPanelController implements ControllerW {
 
             Platform.runLater(() -> {
                 final ObservableList<WorkerTaskTableViewRow> data = FXCollections.observableArrayList(rows.values());
-                if(rows.isEmpty()){
-                    selectedTaskLabel.setText("Not Selected");
-                    this.isTaskSelected.set(false);
-                }
                 this.tasksTableView.setItems(data);
                 tasksTableView.getColumns().clear();
                 tasksTableView.getColumns().addAll(rightTaskTableColumn, workersAmountTableColumn, progressTableColumn, targetsCompletedTableColumn, moneyCollectedTableColumn);
@@ -196,41 +227,32 @@ public class SubscribedTasksPanelController implements ControllerW {
     }
 
     @FXML
-    void tasksTableViewClicked(MouseEvent event) {
-        String temp = event.getPickResult().toString();
-        String name = SharedDashboard.getNameFromClick(temp);
-        if(name==null)
-            return;
+    void pauseResumeButtonAction(ActionEvent event) {
+        TaskDTO task = SharedDashboard.getSelectedTask(selectedTaskName);
 
-        if(name.compareTo("null") != 0 && name.compareTo("") != 0) {
-            selectedTask.set(name);
-        }
+        String body =
+                "status="+this.pauseResumeButton.getText() + LINE_SEPARATOR +
+                        "taskName=" + task.getTaskName() + LINE_SEPARATOR +
+                        "userName=" + mainAppControllerW.getLoggedInUserName();
 
-        TaskDTO task = SharedDashboard.getSelectedTask(selectedTask);
-        if(task==null) {
-            selectedTaskLabel.setText("Not Selected");
-            this.isTaskSelected.set(false);
-            return;
+        if(pauseResumeButton.getText().compareTo("Pause") == 0){
+            pauseResumeButton.setText("Resume");
         }
         else {
-            selectedTaskLabel.setText(task.getTaskName());
-            this.isTaskSelected.set(true);
+            pauseResumeButton.setText("Pause");
         }
-    }
 
-    @FXML
-    void pauseResumeButtonAction(ActionEvent event) {
-
+        postTaskSubscriberChange(body);
     }
 
     @FXML
     void unregisterButtonAction(ActionEvent event) {
         Alert areYouSure = new Alert(Alert.AlertType.CONFIRMATION);
-        areYouSure.setContentText("Are you sure you wish to unsubscribed from " + selectedTask.get() + "?");
+        areYouSure.setContentText("Are you sure you wish to unsubscribed from " + selectedTaskName.get() + "?");
         areYouSure.setHeaderText("Unregister from task?");
         areYouSure.showAndWait().ifPresent(type -> {
             if (type == ButtonType.OK) {
-                TaskDTO task = SharedDashboard.getSelectedTask(selectedTask);
+                TaskDTO task = SharedDashboard.getSelectedTask(selectedTaskName);
 
                 String body =
                         "status=unregister" + LINE_SEPARATOR +
@@ -279,6 +301,34 @@ public class SubscribedTasksPanelController implements ControllerW {
 
     @FXML
     void taskControlTableViewClicked(MouseEvent event) {
+        String temp = event.getPickResult().toString();
+        String name = SharedDashboard.getNameFromClick(temp);
+        if(name==null)
+            return;
 
+        if(name.compareTo("null") != 0 && name.compareTo("") != 0) {
+            selectedTaskName.set(name);
+        }
+
+        TaskDTO task = SharedDashboard.getSelectedTask(selectedTaskName);
+
+        for (Map.Entry<UserDTO, Boolean> entry : task.getSubscribers().entrySet()) {
+            if(entry.getKey().getName().compareTo(mainAppControllerW.getLoggedInUserName()) == 0){
+                if(entry.getValue())
+                    pauseResumeButton.setText("Resume");
+                else
+                    pauseResumeButton.setText("Pause");
+            }
+        }
+
+        if(task==null) {
+            selectedTaskLabel.setText("Not Selected");
+            this.isTaskSelected.set(false);
+            return;
+        }
+        else {
+            selectedTaskLabel.setText(task.getTaskName());
+            this.isTaskSelected.set(true);
+        }
     }
 }

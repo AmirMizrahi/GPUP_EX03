@@ -86,7 +86,7 @@
                         <Insets top="10.0" />
                      </GridPane.margin>
                      <children>
-                        <TableView prefHeight="200.0" prefWidth="200.0" HBox.hgrow="SOMETIMES">
+                        <TableView fx:id="taskControlTableView" onMouseClicked="#taskControlTableViewClicked" prefHeight="200.0" prefWidth="200.0" HBox.hgrow="SOMETIMES">
                           <columns>
                             <TableColumn fx:id="taskControlTableColumn" prefWidth="75.0" text="Task" />
                           </columns>

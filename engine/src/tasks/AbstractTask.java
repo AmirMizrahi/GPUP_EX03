@@ -26,7 +26,7 @@ public abstract class AbstractTask implements Task{
     protected String fileFullName;
     protected final PrinterBridge printerBridge;
     protected TASK_STATUS taskStatus;
-    protected List<User> subscribers;
+    protected Map<User,Boolean> subscribers; //user -> pause= true, unpause = false
     protected Queue<Target> waitingQueue = new LinkedList<>();
     protected int taskCreatedFromCounter = 0;
 
@@ -44,7 +44,7 @@ public abstract class AbstractTask implements Task{
         this.taskType = taskType;
         targetsToRunOn.forEach(t -> targetsToRunningTime.put(t, 0));
         this.taskStatus = TASK_STATUS.DEFAULT;
-        this.subscribers = new LinkedList<>();
+        this.subscribers = new HashMap<>();
         this.taskInfo = taskInfo;
         this.money = money;
         targetsToRunOn.forEach(target -> {
@@ -191,14 +191,14 @@ public abstract class AbstractTask implements Task{
     @Override
     public void addSubscriber(User user) {
         synchronized (subscribers) {
-            this.subscribers.add(user);
+            this.subscribers.put(user,false);
         }
     }
 
     @Override
-    public List<User> getSubscribers() {
+    public Map<User,Boolean> getSubscribers() {
         synchronized (subscribers) {
-            return this.subscribers;
+            return subscribers;
         }
     }
 
@@ -211,7 +211,7 @@ public abstract class AbstractTask implements Task{
     public boolean isUserSubscribed(String userName){
         boolean isIncluded = false;
         synchronized (subscribers) { //todo
-            for (User subscriber : subscribers) {
+            for (User subscriber : subscribers.keySet()) {
                 if (subscriber.getName().compareTo(userName) == 0) {
                     isIncluded = true;
                     break;
@@ -294,7 +294,7 @@ public abstract class AbstractTask implements Task{
     public void removeSub(String userNameToDelete) {
         User toDelete = null;
 
-        for (User subscriber : subscribers) {
+        for (User subscriber : subscribers.keySet()) {
             if(subscriber.getName().compareTo(userNameToDelete) == 0)
                 toDelete = subscriber;
         }
@@ -303,7 +303,26 @@ public abstract class AbstractTask implements Task{
             if (toDelete != null)
                 subscribers.remove(toDelete);
         }
+    }
 
+    @Override
+    public void updatePauseResume(String userName, Boolean isPauseSelected){
+        for (Map.Entry<User, Boolean> entry : subscribers.entrySet()) { //todo maybe synchronize?
+            if (entry.getKey().getName().compareTo(userName) == 0) {
+                entry.setValue(isPauseSelected);
+            }
+        }
+    }
+
+    @Override
+    public boolean isUserPaused(String userName){
+        boolean toReturn = false;
+        for (Map.Entry<User, Boolean> entry : subscribers.entrySet()) { //todo maybe synchronize?
+            if (entry.getKey().getName().compareTo(userName) == 0) {
+                toReturn = entry.getValue();
+            }
+        }
+        return toReturn;
     }
 
     @Override

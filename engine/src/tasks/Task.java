@@ -19,7 +19,7 @@ public interface Task {
     void setStatus(AbstractTask.TASK_STATUS taskStatus);
     AbstractTask.TASK_STATUS getStatus();
     void addSubscriber(User user);
-    List<User> getSubscribers();
+    Map<User,Boolean> getSubscribers();
     boolean isUserSubscribed(String userName);
     Target getTargetForWorker();
     String getTaskType();
@@ -31,4 +31,6 @@ public interface Task {
     int getWorkersAmount();
     void removeSub(String userName);
     int getMoney();
+    void updatePauseResume(String userName, Boolean isPauseSelected);
+    boolean isUserPaused(String userName);
 }

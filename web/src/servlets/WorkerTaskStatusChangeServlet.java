@@ -30,7 +30,10 @@ public class WorkerTaskStatusChangeServlet extends HttpServlet {
          try {
              if(taskStatus.compareTo("unregister") == 0)
                 manager.removeSubscriber(userName, taskName);
-             //else
+             else if (taskStatus.compareTo("Pause") == 0)
+                 manager.updatePauseFromWorker(userName, taskName, true);
+             else if (taskStatus.compareTo("Resume") == 0)
+                 manager.updatePauseFromWorker(userName, taskName, false);
              response.setStatus(HttpServletResponse.SC_OK);
              response.getOutputStream().print("Subscriber "+ userName + "is now " + taskStatus + "ed from task " + taskName + " Successfully");
          } catch (Exception e) {

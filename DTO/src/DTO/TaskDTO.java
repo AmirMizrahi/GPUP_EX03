@@ -5,10 +5,7 @@ import User.User;
 import targets.Target;
 import tasks.AbstractTask;
 
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class TaskDTO {
     private final String taskName;
@@ -19,11 +16,11 @@ public class TaskDTO {
     //private final int currentWorkersAmount;
     private final String graphName;
     private final String taskStatus;
-    private final List<UserDTO> subscribers = new LinkedList<>();
+    private final Map<UserDTO,Boolean> subscribers = new HashMap<>();
     private final double progress;
     private final int money;
 
-    public TaskDTO(String taskName, String uploaderName, String graphName, Set<Target> allTargets, String taskStatus, List<User> users, double progress, int money) {
+    public TaskDTO(String taskName, String uploaderName, String graphName, Set<Target> allTargets, String taskStatus, Map<User,Boolean> users, double progress, int money) {
         this.taskName = taskName;
         this.uploaderName = uploaderName;
         this.allTargets.addAll(allTargets);
@@ -41,7 +38,10 @@ public class TaskDTO {
         this.taskStatus = taskStatus;
         this.progress = progress;
         this.money = money;
-        users.forEach(user -> subscribers.add(new UserDTO(user.getName(), user.getType(), user.getThreadAmount())));
+
+        for (Map.Entry<User, Boolean> entry : users.entrySet()) { //todo maybe synchronize?
+            subscribers.put(new UserDTO(entry.getKey().getName(), entry.getKey().getType(), entry.getKey().getThreadAmount()), entry.getValue());
+        }
     }
 
     public String getTaskName() {
@@ -84,7 +84,7 @@ public class TaskDTO {
 
     public String getTaskStatus() {return this.taskStatus;}
 
-    public List<UserDTO> getSubscribers() {return this.subscribers;}
+    public Map<UserDTO,Boolean> getSubscribers() {return this.subscribers;}
 
     public double getProgress() {
         return progress;
