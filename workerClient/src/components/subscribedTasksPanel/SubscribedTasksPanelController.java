@@ -52,6 +52,8 @@ public class SubscribedTasksPanelController implements ControllerW {
     @FXML private TableColumn<WorkerTaskTableViewRow, String> progressTableColumn;
     @FXML private TableColumn<WorkerTaskTableViewRow, String> targetsCompletedTableColumn;
     @FXML private TableColumn<WorkerTaskTableViewRow, String> moneyCollectedTableColumn;
+    @FXML private TableView<?> taskControlTableView;
+    @FXML private TableColumn<?, ?> taskControlTableColumn;
     @FXML private TextArea logTextArea;
     @FXML private Button pauseResumeButton;
     @FXML private Button unregisterButton;
@@ -274,4 +276,9 @@ public class SubscribedTasksPanelController implements ControllerW {
         }, WORKER_TASK_STATUS_CHANGE);
     }
     //taskControlPanelController.refreshPanel(getSelectedTaskDTOFromDashboard());
+
+    @FXML
+    void taskControlTableViewClicked(MouseEvent event) {
+
+    }
 }
