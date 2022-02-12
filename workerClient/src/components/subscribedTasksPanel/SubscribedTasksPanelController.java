@@ -1,6 +1,7 @@
 package components.subscribedTasksPanel;
 
 import DTO.TaskDTO;
+import DTO.TestDTO;
 import DTO.UserDTO;
 import DTO.WorkerTargetDTO;
 import Utils.HttpClientUtil;
@@ -126,9 +127,9 @@ public class SubscribedTasksPanelController implements ControllerW {
         List<TaskDTO> taskDTOS = SharedDashboard.getAllTasksDTOS();
 
         taskDTOS.forEach(taskDTO -> {
-            Map<UserDTO, Boolean> allUsers = taskDTO.getSubscribers();
-            for (UserDTO user : allUsers.keySet()) {
-                if (this.mainAppControllerW.getLoggedInUserName().compareTo(user.getName()) == 0){
+            List<TestDTO> allUsers = taskDTO.getSubscribers();
+            for (TestDTO user : allUsers) {
+                if (this.mainAppControllerW.getLoggedInUserName().compareTo(user.getUserDTO().getName()) == 0){
                     if((taskDTO.getTaskStatus().compareToIgnoreCase("PLAY")) == 0 ||
                             (taskDTO.getTaskStatus().compareToIgnoreCase("Pause") == 0) ||
                                (taskDTO.getTaskStatus().compareToIgnoreCase("DEFAULT") == 0)) {
@@ -312,9 +313,9 @@ public class SubscribedTasksPanelController implements ControllerW {
 
         TaskDTO task = SharedDashboard.getSelectedTask(selectedTaskName);
 
-        for (Map.Entry<UserDTO, Boolean> entry : task.getSubscribers().entrySet()) {
-            if(entry.getKey().getName().compareTo(mainAppControllerW.getLoggedInUserName()) == 0){
-                if(entry.getValue())
+        for (TestDTO testDTO : task.getSubscribers()) {
+            if(testDTO.getUserDTO().getName().compareTo(mainAppControllerW.getLoggedInUserName()) == 0){
+                if(testDTO.getB())
                     pauseResumeButton.setText("Resume");
                 else
                     pauseResumeButton.setText("Pause");
