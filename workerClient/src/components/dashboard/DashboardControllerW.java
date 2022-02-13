@@ -91,7 +91,7 @@ public class DashboardControllerW implements ControllerW {
         SharedDashboard.doWhenClickedOnTaskTable(temp, this.selectedTask, this.tasksListView );
         TaskDTO selectedTaskAsDto = SharedDashboard.getSelectedTask(selectedTask);
         List<String> list = new LinkedList<>();
-        selectedTaskAsDto.getSubscribers().forEach(userDTO -> list.add(userDTO.getName()));
+        selectedTaskAsDto.getSubscribers().keySet().forEach(userDTO -> list.add(userDTO.getName()));
         if(list.contains(SharedDashboard.getLoggedInUserName(loggedInLabel)))
             Platform.runLater(()->isAlreadySubscribed.set(false));
         else
