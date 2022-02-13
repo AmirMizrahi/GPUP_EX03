@@ -16,7 +16,7 @@ public class TaskDTO {
     //private final int currentWorkersAmount;
     private final String graphName;
     private final String taskStatus;
-    private final Map<UserDTO,Boolean> subscribers = new HashMap<>();
+    private final List<TestDTO> subscribers = new LinkedList<>();
     private final double progress;
     private final int money;
 
@@ -40,7 +40,7 @@ public class TaskDTO {
         this.money = money;
 
         for (Map.Entry<User, Boolean> entry : users.entrySet()) { //todo maybe synchronize?
-            subscribers.put(new UserDTO(entry.getKey().getName(), entry.getKey().getType(), entry.getKey().getThreadAmount()), entry.getValue());
+            subscribers.add(new TestDTO(new UserDTO(entry.getKey().getName(), entry.getKey().getType(), entry.getKey().getThreadAmount()), entry.getValue()));
         }
     }
 
@@ -84,7 +84,7 @@ public class TaskDTO {
 
     public String getTaskStatus() {return this.taskStatus;}
 
-    public Map<UserDTO,Boolean> getSubscribers() {return this.subscribers;}
+    public List<TestDTO> getSubscribers() {return this.subscribers;}
 
     public double getProgress() {
         return progress;

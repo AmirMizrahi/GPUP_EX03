@@ -1,6 +1,8 @@
 package components.dashboard;
 
 import DTO.TaskDTO;
+import DTO.TestDTO;
+import DTO.UserDTO;
 import Utils.HttpClientUtil;
 import components.mainApp.ControllerW;
 import components.mainApp.MainAppControllerW;
@@ -22,6 +24,7 @@ import sharedDashboard.UserTableViewRow;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 
 import static Utils.Constants.*;
@@ -91,7 +94,9 @@ public class DashboardControllerW implements ControllerW {
         SharedDashboard.doWhenClickedOnTaskTable(temp, this.selectedTask, this.tasksListView );
         TaskDTO selectedTaskAsDto = SharedDashboard.getSelectedTask(selectedTask);
         List<String> list = new LinkedList<>();
-        selectedTaskAsDto.getSubscribers().keySet().forEach(userDTO -> list.add(userDTO.getName()));
+        //selectedTaskAsDto.getSubscribers().forEach(userDTO -> list.add(userDTO.getName()));//todo delete
+        for (TestDTO testDTO : selectedTaskAsDto.getSubscribers())
+            list.add(testDTO.getUserDTO().getName());
         if(list.contains(SharedDashboard.getLoggedInUserName(loggedInLabel)))
             Platform.runLater(()->isAlreadySubscribed.set(false));
         else

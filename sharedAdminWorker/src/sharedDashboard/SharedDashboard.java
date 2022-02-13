@@ -2,6 +2,7 @@ package sharedDashboard;
 
 import DTO.GraphDTO;
 import DTO.TaskDTO;
+import DTO.TestDTO;
 import DTO.UserDTO;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
@@ -195,7 +196,10 @@ public class SharedDashboard {
         tasksListView.getItems().add("Total Middle Targets Amount: " + taskToShow.getMiddleAmount());
         tasksListView.getItems().add("Total Independent Targets Amount: " + taskToShow.getIndependentAmount());
         List<String> usersNames = new LinkedList<>();
-        taskToShow.getSubscribers().entrySet().forEach(userDTO -> usersNames.add(userDTO.getKey().getName()));
+        //taskToShow.getSubscribers().forEach(userDTO -> usersNames.add(userDTO.getName()));//todo delete
+        for (TestDTO testDTO : taskToShow.getSubscribers())
+            usersNames.add(testDTO.getUserDTO().getName());
+
         tasksListView.getItems().add("Subscribers Names: " + usersNames);
         tasksListView.getItems().add("Total Price For Task: " + (taskToShow.getMoney() * taskToShow.getAmountOfTargets()));
     }
