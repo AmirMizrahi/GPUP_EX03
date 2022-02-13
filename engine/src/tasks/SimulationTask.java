@@ -69,8 +69,16 @@ public class SimulationTask extends AbstractTask implements Task{
         //consumerList.remove(consumer);////////////////////
     }
 
+    @Override
+    public void printAfterProcess(List<Consumer<String>> consumeImmediately, Target current, String currentTargetFilePath, Integer totalTime) throws InterruptedException, IOException {
+        Consumer<String> consumer = consumerBuilder(currentTargetFilePath);/////////////
+        consumeImmediately.add(consumer);/////////////////////////
+        this.printerBridge.acceptListOfConsumers(consumeImmediately,  this.printerBridge.getStringWithTimeStampAttached(String.format("Going to sleep for %d milliseconds", totalTime)));
+        printDetailsAfterTask(current, consumeImmediately);
+    }
+
+    //todo delete
     private void printDetailsBeforeSleep(Integer sleepingTime,List<Consumer<String>> consumerList){
-        this.printerBridge.acceptListOfConsumers(consumerList,this.printerBridge.getStringWithTimeStampAttached("New status: In Process"));
         this.printerBridge.acceptListOfConsumers(consumerList,  this.printerBridge.getStringWithTimeStampAttached(String.format("Going to sleep for %d milliseconds", sleepingTime)));
     }
 

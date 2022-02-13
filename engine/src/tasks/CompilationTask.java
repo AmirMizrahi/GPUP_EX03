@@ -56,6 +56,17 @@ public class CompilationTask extends AbstractTask implements Task {
 
     }
 
+    @Override
+    public void printAfterProcess(List<Consumer<String>> consumeImmediately, Target current, String currentTargetFilePath, Integer totalTime) throws InterruptedException, IOException {
+        Consumer<String> consumer = consumerBuilder(currentTargetFilePath);/////////////
+        consumeImmediately.add(consumer);/////////////////////////
+        this.printerBridge.acceptListOfConsumers(consumeImmediately,this.printerBridge.getStringWithTimeStampAttached(
+                   "The command that going to process: javac -d " + destinationName + " -cp " + destinationName + sourceName + "\\" + current.getData().replaceAll("\\.", "\\\\") + ".java"));
+        this.printerBridge.acceptListOfConsumers(consumeImmediately,this.printerBridge.getStringWithTimeStampAttached("Target process time: " + totalTime +"ms"));
+        printDetailsAfterTask(current, consumeImmediately);
+    }
+
+    //todo delete
     private int compileTarget(Target current, List<Consumer<String>> consumerList) throws IOException {
 
         Instant start = Instant.now();

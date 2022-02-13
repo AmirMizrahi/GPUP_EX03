@@ -13,6 +13,7 @@ public class Target{
     private final LinkedList<String> inTargets;
     private final String data;
     private Instant startingTime;
+    private String filePath;
 
     public Target(String name, String data){
         this.name = name;
@@ -22,6 +23,14 @@ public class Target{
         this.outTargets = new LinkedList<>();
         this.inTargets= new LinkedList<>();
         this.data = data;
+    }
+
+    public void setLogFilePath(String currentTargetFilePath) {
+        this.filePath = currentTargetFilePath;
+    }
+
+    public String getFilePath() {
+        return filePath;
     }
 
     public enum TargetType

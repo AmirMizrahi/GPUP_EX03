@@ -1,5 +1,4 @@
 package tasks;
-import DTO.UserDTO;
 import User.User;
 import targets.Target;
 
@@ -33,4 +32,7 @@ public interface Task {
     int getMoney();
     void updatePauseResume(String userName, Boolean isPauseSelected);
     boolean isUserPaused(String userName);
+    void printBeforeProcess(List<Consumer<String>> consumeImmediately, Target current) throws InterruptedException, IOException;
+    void printAfterProcess(List<Consumer<String>> consumeImmediately, Target current, String currentTargetFilePath, Integer totalTime)  throws InterruptedException, IOException;
+
 }

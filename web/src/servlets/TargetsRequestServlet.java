@@ -42,6 +42,8 @@ public class TargetsRequestServlet extends HttpServlet {
                 out.println(json);
                 out.flush();
             }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 }

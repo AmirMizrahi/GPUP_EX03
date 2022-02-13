@@ -161,6 +161,24 @@ public abstract class AbstractTask implements Task{
         this.printerBridge.acceptListOfConsumers(consumerList,this.printerBridge.getStringWithTimeStampAttached("Target status after task is: " + target.getStatusAfterTask()+"\n"));
     }
 
+    @Override
+    public void printBeforeProcess(List<Consumer<String>> consumeImmediately, Target current) throws InterruptedException, IOException {
+        String currentTargetFilePath;
+        relevantTargetsForSummaryLogFile.add(current);
+        File targetLogFile = new File(fileFullName + "\\" + current.getName() + ".log");
+        targetLogFile.createNewFile();
+        currentTargetFilePath = targetLogFile.getAbsolutePath();
+        current.setLogFilePath(currentTargetFilePath);
+        Consumer<String> consumer = consumerBuilder(currentTargetFilePath);/////////////
+        consumeImmediately.add(consumer);/////////////////////////
+        //need to print to the screen how much time I am going to sleep
+        printNameAndStatus(current, orderOfProcess++,consumeImmediately);
+        //need to print I am going to sleep and the current time
+
+//        targetsToRunningTime.put(current,sleepingTime);//////////////////
+        this.printerBridge.acceptListOfConsumers(consumeImmediately,this.printerBridge.getStringWithTimeStampAttached("New status: In Process"));
+    }
+
     public String getUploaderName() {
         return this.uploadedUserName;
     }

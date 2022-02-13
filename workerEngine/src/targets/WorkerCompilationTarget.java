@@ -40,8 +40,6 @@ public class WorkerCompilationTarget extends WorkerAbstractTarget{
         //..\java-project> javac -d out -cp out path/to/java/file.java
 
         String[] command = {"javac", "-d", destinationName, "-cp", destinationName, resourceName};
-     //   this.printerBridge.acceptListOfConsumers(consumerList,this.printerBridge.getStringWithTimeStampAttached(
-     //           "The command that going to process: javac -d " + destinationName + " -cp " + destinationName + sourceName + "\\" + current.getData().replaceAll("\\.", "\\\\") + ".java"));
 
         ProcessBuilder processBuilder = new ProcessBuilder(command).redirectErrorStream(false);
         Process p = processBuilder.start();
@@ -63,6 +61,11 @@ public class WorkerCompilationTarget extends WorkerAbstractTarget{
         long timeElapsed = Duration.between(start, finish).toMillis();
      //   this.printerBridge.acceptListOfConsumers(consumerList,this.printerBridge.getStringWithTimeStampAttached("Target process time: " + timeElapsed +"ms"));
 
-        updateResults(String.valueOf(timeElapsed), statusResult);
+        updateResults(String.valueOf(timeElapsed), statusResult, line);
+    }
+
+    protected void updateResults(String totalTime, String status, String errors) {
+        super.updateResults(totalTime, status);
+        results.put("errors", errors);
     }
 }

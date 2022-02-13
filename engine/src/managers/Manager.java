@@ -2,6 +2,7 @@ package managers;
 
 import DTO.*;
 import User.User;
+import bridges.PrinterBridge;
 import exceptions.TargetNotFoundException;
 import exceptions.XMLException;
 import graph.*;
@@ -543,15 +544,16 @@ public class Manager implements Serializable {
         }
     }
 
-    public List<TargetDTOForWorker> getTargetsForWorker(int availableThreads, String usernameFromParameter) {
+    public List<TargetDTOForWorker> getTargetsForWorker(int availableThreads, String usernameFromParameter) throws IOException, InterruptedException {
         return this.taskManager.getTasksForWorker(usernameFromParameter, availableThreads);
     }
 
-    public void updateTargetStatusAfterTask(String name, String taskName, String status) {
+    public void updateTargetStatusAfterTask(String name, String taskName, String status, String totalTime) throws IOException, InterruptedException {
         for (Target target : taskManager.getTasks().get(taskName).getTargets()) {
-            if (name.compareTo(target.getName()) == 0){
+            if (name.compareTo(target.getName()) == 0 && target.getStatus() != Target.TargetStatus.FINISHED){
                 target.setStatus(Target.TargetStatus.FINISHED);
                 target.setStatusAfterTask(Target.StatusAfterTask.valueOf(status.toUpperCase()));
+                taskManager.getTasks().get(taskName).printAfterProcess(new LinkedList<>(),target, target.getFilePath() ,Integer.valueOf(totalTime));
             }
         }
     }
@@ -569,7 +571,12 @@ public class Manager implements Serializable {
             if (theOne != null) {
                 List<Target> targetList = new LinkedList<>();
                 targetList.addAll(this.taskManager.getTasks().get(taskName).getTargets());
-                onFinishedTarget(theOne, taskName, targetList, new LinkedList<>(), new Consumer<File>() { //todo temp
+                List<Consumer<String>> consumerList = new LinkedList<>();
+
+                Consumer<String> consumer = consumerBuilder(theOne.getFilePath());
+                consumerList.add(consumer);
+
+                onFinishedTarget(theOne, taskName, targetList, consumerList, new Consumer<File>() { //todo temp
                     @Override
                     public void accept(File file) {
 
@@ -577,6 +584,17 @@ public class Manager implements Serializable {
                 });
             }
         }
+    }
+
+    private Consumer<String> consumerBuilder(String path){
+        return str-> {
+            try {
+                FileWriter myWriter = new FileWriter(path, true);
+                myWriter.write(str+"\n");
+                myWriter.close();
+            }
+            catch (IOException e){}
+        };
     }
 
     public void onFinishedTarget(Target target, String taskName, List<Target> targetList, List<Consumer<String>> consumerList, Consumer<File> consumeWhenFinished) throws TargetNotFoundException {
@@ -613,9 +631,9 @@ public class Manager implements Serializable {
     private void skippedDFS(Target target, String taskName, Target origin, Map<Target, ThreadManager.DFS_COLOR> M, List<Consumer<String>> consumerList) throws TargetNotFoundException {
         M.replace(target, ThreadManager.DFS_COLOR.GREY); // to avoid cycle
 
-        if(!target.equals(origin)){
+        if(!target.equals(origin) && target.getStatus()!= Target.TargetStatus.SKIPPED){
             target.setStatus(Target.TargetStatus.SKIPPED);
-            //this.printerBridge.printStringToFileWithTimeStamp(String.format("Target %s is SKIPPED", target.getName()),consumerList);
+            PrinterBridge.printStringToFileWithTimeStamp(String.format("Target %s is SKIPPED", target.getName()),consumerList);
         }
         for (String neighborName:target.getInTargets()) {
             Target neighbor = getTargetByNameFromSet(neighborName, this.taskManager.getTasks().get(taskName).getTargets());
@@ -641,8 +659,7 @@ public class Manager implements Serializable {
                     synchronized (current) {
                         current.setStatus(Target.TargetStatus.WAITING);
                         this.taskManager.getTasks().get(taskName).addToWaitingQueue(current);
-                     //   this.printerBridge.printStringToFileWithTimeStamp(String.format("Target %s is WAITING", current.getName()), consumerList);
-                     //   this.threadPool.execute(this.makeRunnable(current,isPaused, consumeWhenFinished));
+                        PrinterBridge.printStringToFileWithTimeStamp(String.format("Target %s is WAITING", current.getName()), consumerList);
                     }
                 }
 

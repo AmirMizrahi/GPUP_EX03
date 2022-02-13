@@ -6,7 +6,10 @@ import targets.Target;
 import tasks.AbstractTask;
 import tasks.Task;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
+import java.util.function.Consumer;
 
 public class TaskManager {
     private final Map<String, Task> taskNameToTask;
@@ -41,7 +44,7 @@ public class TaskManager {
         }
     }
 
-    public List<TargetDTOForWorker> getTasksForWorker(String userName, int availableThreads) {
+    public List<TargetDTOForWorker> getTasksForWorker(String userName, int availableThreads) throws IOException, InterruptedException {
         List<TargetDTOForWorker> taskList = new LinkedList<>();
         int currentTargetsAmount = 0;
         boolean gotMaxTargets = false, gotAtLeastOneTarget = true;
@@ -57,6 +60,8 @@ public class TaskManager {
                         !entry.getValue().isUserPaused(userName)) {
                     Target t = entry.getValue().getTargetForWorker();
                     if (t != null) {
+                       // List<Consumer<String>> bla = new LinkedList<>();
+                        entry.getValue().printBeforeProcess(new LinkedList<>() ,t);
                         taskList.add(new TargetDTOForWorker(entry.getKey(), new TargetDTO(t), entry.getValue().getTaskType(),
                                 entry.getValue().getTaskInfo(), entry.getValue().getProgress(), entry.getValue().getWorkersAmount()));
                         t.setStatus(Target.TargetStatus.IN_PROCESS);

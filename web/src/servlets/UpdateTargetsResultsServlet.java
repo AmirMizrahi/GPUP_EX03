@@ -36,13 +36,18 @@ public class UpdateTargetsResultsServlet extends HttpServlet {
             String targetName = result.get("targetName");
             String taskName = result.get("taskName");
             String targetStatus = result.get("status");
-            if (targetName == null || taskName == null || targetStatus == null) {
+            String totalTime = result.get("totalTime");
+            if (targetName == null || taskName == null || targetStatus == null || totalTime == null) {
                 response.getWriter().println("Missing info");
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 response.getOutputStream().print("Missing info");
                 throw new NullPointerException("Missing info");
             }
-            manager.updateTargetStatusAfterTask(targetName, taskName, targetStatus);
+            try {
+                manager.updateTargetStatusAfterTask(targetName, taskName, targetStatus, totalTime);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             try {
                 manager.updateTargetsByTargetResult(targetName, taskName, targetStatus);
             } catch (TargetNotFoundException e) {
