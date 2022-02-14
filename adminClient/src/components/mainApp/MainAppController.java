@@ -292,16 +292,16 @@ public class MainAppController implements Closeable, sharedMainAppController {
     }
 
     //Used by What-if
-    public List<String> getAllEffectedTargets(String targetName, String selectedRadioButton) {
+    public List<String> getAllEffectedTargets(String targetName, String selectedRadioButton, GraphDTO graphDTO) {
         List<String> returnedList =  new LinkedList<>();
 
-        List<TargetDTO> dtos = getSelectedGraphDTOFromDashboard().getAllEffected(targetName,selectedRadioButton);
+        List<TargetDTO> dtos = graphDTO.getAllEffected(targetName,selectedRadioButton);
         dtos.forEach(targetDTO ->returnedList.add(targetDTO.getTargetName()));
         return returnedList;
     }
 
     public List<String> getAllEffectedTargetsAdapter(String targetName, String textInRadioButton) throws TargetNotFoundException, XMLException {
-        return getAllEffectedTargets(targetName, textInRadioButton);
+        return getAllEffectedTargets(targetName, textInRadioButton, getSelectedGraphDTOFromDashboard());
     }
 
 

@@ -1,5 +1,6 @@
 package components.createNewTask.createTask;
 
+import DTO.GraphDTO;
 import DTO.TargetDTO;
 import Utils.HttpClientUtil;
 import com.google.gson.Gson;
@@ -297,8 +298,8 @@ public class CreateTaskController implements Controller {
         this.mainAppController.informPauseToMainAppController(pause);
     }
 
-    public List<String> getAllEffectedTargets(String targetName, String depends_on) throws TargetNotFoundException, XMLException {
-        return this.mainAppController.getAllEffectedTargets(targetName,depends_on);
+    public List<String> getAllEffectedTargets(String targetName, String depends_on, GraphDTO graphDTO) throws TargetNotFoundException, XMLException {
+        return this.mainAppController.getAllEffectedTargets(targetName,depends_on, graphDTO);
     }
 
     public Stage getPrimaryStage() {

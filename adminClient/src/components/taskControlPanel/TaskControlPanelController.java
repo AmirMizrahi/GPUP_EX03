@@ -1,5 +1,6 @@
 package components.taskControlPanel;
 
+import DTO.GraphDTO;
 import DTO.TargetDTO;
 import DTO.TaskDTO;
 import Utils.HttpClientUtil;
@@ -10,6 +11,7 @@ import exceptions.XMLException;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -22,13 +24,13 @@ import okhttp3.Callback;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
+import sharedDashboard.SharedDashboard;
 
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 
 import static Utils.Constants.*;
 
@@ -436,10 +438,16 @@ public class TaskControlPanelController implements Controller {
     }
 
     private void printAccordingToCurrentStatus(TargetDTO targetDTO) throws TargetNotFoundException, XMLException {
+        SimpleStringProperty temp = new SimpleStringProperty(taskNameLabel.getText());
+        String graphName = SharedDashboard.getSelectedTask(temp).getGraphName();
+        GraphDTO dto = null;
+        for (GraphDTO graphDTO : SharedDashboard.getAllGraphsDTOS()) {
+            if(graphName.compareTo(graphDTO.getGraphName()) == 0)
+                dto = graphDTO;
+        }
         if(targetDTO.getTargetStatus().compareTo("FROZEN") == 0){
             String buffer ="Targets which keeps '" +targetDTO.getTargetName() + "' FROZEN: ";
-            //List<String> transitives = targetDTO.getTransitiveOutList();
-            List<String> transitives = this.mainAppController.getAllEffectedTargets(targetDTO.getTargetName(), "Depends On");
+            List<String> transitives = this.mainAppController.getAllEffectedTargets(targetDTO.getTargetName(), "Depends On", dto);
             for (String transitiveTargetName : transitives) {
                 for (TargetDTO target : this.tasksTargets) {
                     if(target.getTargetName().compareTo(transitiveTargetName) == 0){
@@ -451,15 +459,15 @@ public class TaskControlPanelController implements Controller {
             this.targetInfoListView.getItems().add(buffer);
         }
 
-        else if(targetDTO.getTargetStatus().compareTo("WAITING") == 0){
+        else if(targetDTO.getTargetStatus().compareTo("WAITING") == 0 && startButton.isDisabled()){
             Instant currentTime = Instant.now();
-           // long timeElapsed = Duration.between(startTaskTime, currentTime).toMillis(); //todo the starting time will provided start
-           // this.targetInfoListView.getItems().add("Target '"+ targetDTO.getTargetName() + "' is waiting for " + timeElapsed +"ms");
+            long timeElapsed = Duration.between(SharedDashboard.getSelectedTask(temp).getTaskStartingTime(), currentTime).toMillis();
+            this.targetInfoListView.getItems().add("Target '"+ targetDTO.getTargetName() + "' is waiting for " + timeElapsed +"ms");
         }
 
         else if(targetDTO.getTargetStatus().compareTo("SKIPPED") == 0){
             String buffer ="Failed targets which caused '" +targetDTO.getTargetName() + "' becoming SKIPPED: ";
-            List<String> transitives = this.mainAppController.getAllEffectedTargets(targetDTO.getTargetName(), "Depends On");
+            List<String> transitives = this.mainAppController.getAllEffectedTargets(targetDTO.getTargetName(), "Depends On", dto);
             for (String transitiveTargetName : transitives) {
                 for (TargetDTO target : this.tasksTargets) {
                     if(target.getTargetName().compareTo(transitiveTargetName) == 0){

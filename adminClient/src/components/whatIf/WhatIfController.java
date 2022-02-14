@@ -98,7 +98,7 @@ public class WhatIfController implements Controller {
 
     @FXML
     void startButtonAction(ActionEvent event) throws TargetNotFoundException, XMLException {
-        List<String> allEffectedTargets = this.mainAppController.getAllEffectedTargets(this.targetComboBox.getValue(), ((RadioButton)relation.getSelectedToggle()).getText());
+        List<String> allEffectedTargets = this.mainAppController.getAllEffectedTargetsAdapter(this.targetComboBox.getValue(), ((RadioButton)relation.getSelectedToggle()).getText());
         this.resultListView.getItems().clear();
         this.resultListView.getItems().addAll(allEffectedTargets);
     }

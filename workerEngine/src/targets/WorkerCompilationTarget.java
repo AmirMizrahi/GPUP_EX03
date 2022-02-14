@@ -44,14 +44,17 @@ public class WorkerCompilationTarget extends WorkerAbstractTarget{
         ProcessBuilder processBuilder = new ProcessBuilder(command).redirectErrorStream(false);
         Process p = processBuilder.start();
         BufferedReader r = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-        String line;
+        String line, errorLines = "";
         boolean error = false;
         while (true) {
-            line=r.readLine();
+            line = r.readLine();
             if (line == null) {
                 break;
             }
-           // this.printerBridge.acceptListOfConsumers(consumerList,this.printerBridge.getStringWithTimeStampAttached(line));
+            //this.printerBridge.acceptListOfConsumers(consumerList,this.printerBridge.getStringWithTimeStampAttached(line));
+            line = line.replace("\\","\\\\");
+            line += "\n";
+            errorLines += line;
             error = true;
         }
         if(error)
@@ -61,11 +64,13 @@ public class WorkerCompilationTarget extends WorkerAbstractTarget{
         long timeElapsed = Duration.between(start, finish).toMillis();
      //   this.printerBridge.acceptListOfConsumers(consumerList,this.printerBridge.getStringWithTimeStampAttached("Target process time: " + timeElapsed +"ms"));
 
-        updateResults(String.valueOf(timeElapsed), statusResult, line);
+
+
+        updateResults(String.valueOf(timeElapsed), statusResult, errorLines);
     }
 
-    protected void updateResults(String totalTime, String status, String errors) {
+    protected void updateResults(String totalTime, String status, String errorLines) {
         super.updateResults(totalTime, status);
-        results.put("errors", errors);
+        results.put("errors", errorLines);
     }
 }

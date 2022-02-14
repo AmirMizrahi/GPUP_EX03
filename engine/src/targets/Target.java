@@ -2,6 +2,7 @@ package targets;
 
 import java.time.Instant;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Objects;
 
 public class Target{
@@ -14,6 +15,7 @@ public class Target{
     private final String data;
     private Instant startingTime;
     private String filePath;
+    private List<String> logs;
 
     public Target(String name, String data){
         this.name = name;
@@ -23,6 +25,7 @@ public class Target{
         this.outTargets = new LinkedList<>();
         this.inTargets= new LinkedList<>();
         this.data = data;
+        this.logs = new LinkedList<>();
     }
 
     public void setLogFilePath(String currentTargetFilePath) {
@@ -120,4 +123,12 @@ public class Target{
             //public int hashCode() {
         //    return Objects.hash(name, category, status, statusAfterTask, outTargets, inTargets);
         //}
+
+    public List<String> getLogs() {
+        return logs;
+    }
+
+    public void addLog(String log) {
+        this.logs.add(log);
+    }
 }

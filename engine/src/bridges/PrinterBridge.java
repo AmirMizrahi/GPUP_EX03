@@ -23,6 +23,4 @@ public class PrinterBridge {
 
         return (strDate + " - " + attachMe);
     }
-
-
 }

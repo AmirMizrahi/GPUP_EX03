@@ -359,7 +359,7 @@ public class ProcessLogController implements TaskController {
         if(targetDTO.getTargetStatus().compareTo("FROZEN") == 0){
             String buffer ="Targets which keeps '" +targetDTO.getTargetName() + "' FROZEN: ";
             //List<String> transitives = targetDTO.getTransitiveOutList();
-            List<String> transitives = this.createTaskController.getAllEffectedTargets(targetDTO.getTargetName(), "Depends On");
+            List<String> transitives = this.createTaskController.getAllEffectedTargets(targetDTO.getTargetName(), "Depends On",null);
             for (String transitiveTargetName : transitives) {
                 for (TargetDTO target : this.newTargetsStatus) {
                     if(target.getTargetName().compareTo(transitiveTargetName) == 0){
@@ -379,7 +379,7 @@ public class ProcessLogController implements TaskController {
 
         else if(targetDTO.getTargetStatus().compareTo("SKIPPED") == 0){
             String buffer ="Failed targets which caused '" +targetDTO.getTargetName() + "' becoming SKIPPED: ";
-            List<String> transitives = this.createTaskController.getAllEffectedTargets(targetDTO.getTargetName(), "Depends On");
+            List<String> transitives = this.createTaskController.getAllEffectedTargets(targetDTO.getTargetName(), "Depends On", null);
             for (String transitiveTargetName : transitives) {
                 for (TargetDTO target : this.newTargetsStatus) {
                     if(target.getTargetName().compareTo(transitiveTargetName) == 0){

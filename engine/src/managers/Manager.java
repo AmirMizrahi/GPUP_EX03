@@ -419,7 +419,7 @@ public class Manager implements Serializable {
             Set<Target> allTargets = entry.getValue().getTargets();
             String taskStatus = entry.getValue().getStatus().toString();
             Map<User,Boolean> users = entry.getValue().getSubscribers();
-            toReturn.add(new TaskDTO(taskName,uploaderName, graphName, allTargets, taskStatus, users, entry.getValue().getProgress(), entry.getValue().getMoney()));
+            toReturn.add(new TaskDTO(taskName,uploaderName, graphName, allTargets, taskStatus, users, entry.getValue().getProgress(), entry.getValue().getMoney(), entry.getValue().getStartingTime()));
         }
 
         return toReturn;
@@ -548,17 +548,17 @@ public class Manager implements Serializable {
         return this.taskManager.getTasksForWorker(usernameFromParameter, availableThreads);
     }
 
-    public void updateTargetStatusAfterTask(String name, String taskName, String status, String totalTime) throws IOException, InterruptedException {
+    public void updateTargetStatusAfterTask(String name, String taskName, String status, String totalTime, String errors) throws IOException, InterruptedException {
         for (Target target : taskManager.getTasks().get(taskName).getTargets()) {
             if (name.compareTo(target.getName()) == 0 && target.getStatus() != Target.TargetStatus.FINISHED){
                 target.setStatus(Target.TargetStatus.FINISHED);
                 target.setStatusAfterTask(Target.StatusAfterTask.valueOf(status.toUpperCase()));
-                taskManager.getTasks().get(taskName).printAfterProcess(new LinkedList<>(),target, target.getFilePath() ,Integer.valueOf(totalTime));
+                taskManager.getTasks().get(taskName).printAfterProcess(new LinkedList<>(),target, target.getFilePath() ,Integer.valueOf(totalTime), errors);
             }
         }
     }
 
-    public void updateTargetsByTargetResult(String name, String taskName, String targetStatus) throws TargetNotFoundException {
+    public void updateTargetsByTargetResult(String name, String taskName, String targetStatus) throws TargetNotFoundException, IOException {
         Target theOne = null;
         for (Target target : this.taskManager.getTasks().get(taskName).getTargets()) {
             if(name.compareTo(target.getName()) == 0){
@@ -597,10 +597,11 @@ public class Manager implements Serializable {
         };
     }
 
-    public void onFinishedTarget(Target target, String taskName, List<Target> targetList, List<Consumer<String>> consumerList, Consumer<File> consumeWhenFinished) throws TargetNotFoundException {
+    public void onFinishedTarget(Target target, String taskName, List<Target> targetList, List<Consumer<String>> consumerList, Consumer<File> consumeWhenFinished) throws TargetNotFoundException, IOException {
         setStatusAfterTaskForAllEffected(target, taskName,targetList,consumerList, consumeWhenFinished);
-        if (isJobDone(this.taskManager.getTasks().get(taskName).getTargets())){
+        if (isJobDone(this.taskManager.getTasks().get(taskName).getTargets()) && this.taskManager.getTasks().get(taskName).getStatus() != AbstractTask.TASK_STATUS.FINISHED){
             this.taskManager.getTasks().get(taskName).setStatus(AbstractTask.TASK_STATUS.FINISHED);
+            this.taskManager.getTasks().get(taskName).doWhenTaskIsFinished(this.taskManager.getTasks().get(taskName).getTargets());
         }
     }
 

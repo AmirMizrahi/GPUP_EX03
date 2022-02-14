@@ -54,7 +54,7 @@ public class ExecutorManager {
             keyForMainExecute.wait();
         }
 
-        this.task.doWhenTaskIsFinished(this.targetList,this.consumerList, consumeWhenFinished);
+       // this.task.doWhenTaskIsFinished(this.targetList,this.consumerList, consumeWhenFinished);
         threadExecutor.shutdown();
 
 /*      String summaryLogFilePath = createSummaryFile(SimulationFileFullName);     WE HAVE THE SIMULATION FILE FULL NAME IN THE SIMULATION TASK

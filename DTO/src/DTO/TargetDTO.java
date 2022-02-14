@@ -53,5 +53,5 @@ public class TargetDTO {
 
     public String getTargetStatusAfterTask(){return this.target.getStatusAfterTask().toString();}
 
-    public Target returnTargetTest(){return this.target;}
+    public List<String> getLogs(){return this.target.getLogs();}
 }

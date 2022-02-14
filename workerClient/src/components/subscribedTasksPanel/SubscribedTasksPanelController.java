@@ -1,9 +1,6 @@
 package components.subscribedTasksPanel;
 
-import DTO.TaskDTO;
-import DTO.TestDTO;
-import DTO.UserDTO;
-import DTO.WorkerTargetDTO;
+import DTO.*;
 import Utils.HttpClientUtil;
 import components.mainApp.ControllerW;
 import components.mainApp.MainAppControllerW;
@@ -12,6 +9,8 @@ import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -112,7 +111,7 @@ public class SubscribedTasksPanelController implements ControllerW {
 
         targetTableTimer = new Timer();
         targetTableRefresher = new TargetTableRefresher(refresherConsumer);
-        targetTableTimer.schedule(targetTableRefresher, TARGET_REFRESH_RATE, TARGET_REFRESH_RATE);
+        targetTableTimer.schedule(targetTableRefresher, TARGET_REFRESH_RATE2, TARGET_REFRESH_RATE2);
     }
 
     private void updateSubscribedTaskPanel(){
@@ -224,7 +223,22 @@ public class SubscribedTasksPanelController implements ControllerW {
 
     @FXML
     void targetsTableViewClicked(MouseEvent event) {
-
+        if (targetsTableView.getSelectionModel().selectedItemProperty().get() != null) {
+            String selectedTargetName = targetsTableView.getSelectionModel().selectedItemProperty().get().getTargetName();
+            String selectedTargetTask = targetsTableView.getSelectionModel().selectedItemProperty().get().getTaskName();
+            List<TaskDTO> allTasks = SharedDashboard.getAllTasksDTOS();
+            for (TaskDTO taskDTO : allTasks) {
+                if (taskDTO.getTaskName().compareTo(selectedTargetTask) == 0) {
+                    for (TargetDTO targetDTO : taskDTO.getAllTargets()) {
+                        if (targetDTO.getTargetName().compareTo(selectedTargetName) == 0) {
+                            List<String> logs = targetDTO.getLogs();
+                            logTextArea.clear();
+                            logs.forEach(s -> logTextArea.appendText(s + "\n"));
+                        }
+                    }
+                }
+            }
+        }
     }
 
     @FXML

@@ -5,6 +5,8 @@ import User.User;
 import targets.Target;
 import tasks.AbstractTask;
 
+import java.time.Instant;
+import java.time.temporal.Temporal;
 import java.util.*;
 
 public class TaskDTO {
@@ -19,8 +21,9 @@ public class TaskDTO {
     private final List<TestDTO> subscribers = new LinkedList<>();
     private final double progress;
     private final int money;
+    private final Instant startingTime;
 
-    public TaskDTO(String taskName, String uploaderName, String graphName, Set<Target> allTargets, String taskStatus, Map<User,Boolean> users, double progress, int money) {
+    public TaskDTO(String taskName, String uploaderName, String graphName, Set<Target> allTargets, String taskStatus, Map<User,Boolean> users, double progress, int money, Instant startingTime) {
         this.taskName = taskName;
         this.uploaderName = uploaderName;
         this.allTargets.addAll(allTargets);
@@ -38,6 +41,7 @@ public class TaskDTO {
         this.taskStatus = taskStatus;
         this.progress = progress;
         this.money = money;
+        this.startingTime = startingTime;
 
         for (Map.Entry<User, Boolean> entry : users.entrySet()) { //todo maybe synchronize?
             subscribers.add(new TestDTO(new UserDTO(entry.getKey().getName(), entry.getKey().getType(), entry.getKey().getThreadAmount()), entry.getValue()));
@@ -92,5 +96,9 @@ public class TaskDTO {
 
     public int getMoney() {
         return money;
+    }
+
+    public Instant getTaskStartingTime() {
+        return this.startingTime;
     }
 }

@@ -7,6 +7,7 @@ import graph.Graph;
 import targets.Target;
 
 import java.io.*;
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -29,6 +30,7 @@ public abstract class AbstractTask implements Task{
     protected Map<User,Boolean> subscribers; //user -> pause= true, unpause = false
     protected Queue<Target> waitingQueue = new LinkedList<>();
     protected int taskCreatedFromCounter = 0;
+    protected Instant startingTime;
 
     protected AbstractTask(WAYS_TO_START_SIM_TASK chosenWay, boolean firstTime, List<Target> targetsToRunOn,
                            String pathName, String taskType, String userName, String graphName, Map<String,
@@ -85,22 +87,24 @@ public abstract class AbstractTask implements Task{
         return file;
     }
 
-    public void doWhenTaskIsFinished(List<Target> targetList, List<Consumer<String>> consumerList,Consumer<File> consumeWhenFinished) throws IOException {
+    public void doWhenTaskIsFinished(Set<Target> targetList) throws IOException {
         List<Target> skippedTargetsForSummaryLogFile = new ArrayList<>();
 
         for (Target t: targetList) {
             if (t.getStatus() != Target.TargetStatus.SKIPPED && t.getStatus() != Target.TargetStatus.FINISHED)
-                throw (new IllegalArgumentException("The task isn't finished yet."));
+                //throw (new IllegalArgumentException("The task isn't finished yet."));
+                return;
             else if (t.getStatus() == Target.TargetStatus.SKIPPED)
                 skippedTargetsForSummaryLogFile.add(t);
         }
 
+        List<Consumer<String>> consumerList = new LinkedList<>();
         File summaryLogFile = createSummaryFile(fileFullName);
         String summaryLogFilePath = summaryLogFile.getAbsolutePath();
         Consumer<String> consumer = consumerBuilder(summaryLogFilePath);
         consumerList.add(consumer);
         printToSummaryLogFile(consumerList,totalRunningTime, relevantTargetsForSummaryLogFile, targetsToRunningTime, skippedTargetsForSummaryLogFile);
-        consumeWhenFinished.accept(summaryLogFile);
+        //consumeWhenFinished.accept(summaryLogFile);
     }
 
     private void printToSummaryLogFile(List<Consumer<String>> consumerList ,int totalRunningTime, List<Target> targetList, Map<Target,Integer> targetsToRunningTime, List<Target> skippedTargetsForSummaryLogFile){
@@ -171,6 +175,12 @@ public abstract class AbstractTask implements Task{
         current.setLogFilePath(currentTargetFilePath);
         Consumer<String> consumer = consumerBuilder(currentTargetFilePath);/////////////
         consumeImmediately.add(consumer);/////////////////////////
+        consumeImmediately.add(new Consumer<String>() {
+            @Override
+            public void accept(String s) {
+                current.addLog(s);
+            }
+        });
         //need to print to the screen how much time I am going to sleep
         printNameAndStatus(current, orderOfProcess++,consumeImmediately);
         //need to print I am going to sleep and the current time
@@ -199,6 +209,13 @@ public abstract class AbstractTask implements Task{
     @Override
     public void setStatus(TASK_STATUS taskStatus) {
         this.taskStatus = taskStatus;
+        if(taskStatus == TASK_STATUS.PLAY)
+            startingTime = Instant.now();
+    }
+
+    @Override
+    public Instant getStartingTime() {
+        return startingTime;
     }
 
     @Override

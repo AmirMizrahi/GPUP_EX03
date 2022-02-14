@@ -70,9 +70,15 @@ public class SimulationTask extends AbstractTask implements Task{
     }
 
     @Override
-    public void printAfterProcess(List<Consumer<String>> consumeImmediately, Target current, String currentTargetFilePath, Integer totalTime) throws InterruptedException, IOException {
+    public void printAfterProcess(List<Consumer<String>> consumeImmediately, Target current, String currentTargetFilePath, Integer totalTime, String errors) throws InterruptedException, IOException {
         Consumer<String> consumer = consumerBuilder(currentTargetFilePath);/////////////
         consumeImmediately.add(consumer);/////////////////////////
+        consumeImmediately.add(new Consumer<String>() {
+            @Override
+            public void accept(String s) {
+                current.addLog(s);
+            }
+        });
         this.printerBridge.acceptListOfConsumers(consumeImmediately,  this.printerBridge.getStringWithTimeStampAttached(String.format("Going to sleep for %d milliseconds", totalTime)));
         printDetailsAfterTask(current, consumeImmediately);
     }
