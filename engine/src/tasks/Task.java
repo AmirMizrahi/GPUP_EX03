@@ -36,4 +36,5 @@ public interface Task {
     void printBeforeProcess(List<Consumer<String>> consumeImmediately, Target current) throws InterruptedException, IOException;
     void printAfterProcess(List<Consumer<String>> consumeImmediately, Target current, String currentTargetFilePath, Integer totalTime, String errors)  throws InterruptedException, IOException;
     Instant getStartingTime();
+    void setTotalTimeToTarget(Target target, int taskTime);
 }

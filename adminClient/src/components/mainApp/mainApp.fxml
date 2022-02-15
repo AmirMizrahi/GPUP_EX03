@@ -47,7 +47,7 @@
                            </graphic>
                         </Label>
                         <Separator prefWidth="200.0" />
-                        <Button mnemonicParsing="false" onAction="#howToUseAction" text="How To Use?" />
+                        <Button fx:id="howToUseButton" mnemonicParsing="false" onAction="#howToUseAction" text="How To Use?" />
                         <Button fx:id="animationButton" mnemonicParsing="false" onAction="#animationAction" text="Animation" />
                         <Button fx:id="graphvizButton" layoutX="20.0" layoutY="343.0" mnemonicParsing="false" onAction="#graphvizAction" text="Graphviz" />
                         <Label layoutX="20.0" layoutY="40.0" text="Switch Skin:" />

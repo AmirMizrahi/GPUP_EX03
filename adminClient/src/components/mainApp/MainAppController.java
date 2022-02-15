@@ -17,6 +17,7 @@ import components.welcomeAnimation.welcomeAnimationController;
 import components.welcomeToGPUP.welcomeToGPUPController;
 import exceptions.TargetNotFoundException;
 import exceptions.XMLException;
+import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
@@ -24,9 +25,11 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -47,6 +50,7 @@ import tasks.SimulationTask;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Timer;
@@ -382,9 +386,27 @@ public class MainAppController implements Closeable, sharedMainAppController {
         SharedMainApp.changeSkin(changeSkinComboBox,getClass(),this.primaryStage.getScene());
     }
 
+    @FXML private Button howToUseButton;
     @FXML
     void howToUseAction(ActionEvent event) {
-
+        howToUseButton.setOnMouseClicked((event2) -> {
+            try {
+                FXMLLoader fxmlLoader = new FXMLLoader();
+                fxmlLoader.setLocation(getClass().getResource("components/mainApp/info.fxml"));
+                /*
+                 * if "fx:controller" is not set in fxml
+                 * fxmlLoader.setController(NewWindowController);
+                 */
+                Scene scene = new Scene(fxmlLoader.load(), 600, 400);
+                Stage stage = new Stage();
+                stage.setTitle("New Window");
+                stage.setScene(scene);
+                stage.show();
+            } catch (IOException e) {
+                //Logger logger = Logger.getLogger(getClass().getName());
+                //logger.log(Level.SEVERE, "Failed to create new Window.", e);
+            }
+        });
     }
 
     public void informPauseToMainAppController(boolean pause) {
@@ -421,3 +443,4 @@ public class MainAppController implements Closeable, sharedMainAppController {
         return this.dashboardController.getLoggedInUserName();
     }
 }
+

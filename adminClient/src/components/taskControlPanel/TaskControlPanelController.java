@@ -182,7 +182,8 @@ public class TaskControlPanelController implements Controller {
         }
         try {
             String name = temp.substring(++start, last);
-            if(name.compareTo("null") != 0)
+            System.out.println("-----------------------(" + name+")");
+            if(name.compareTo("null") != 0 && name.compareTo("") != 0)
                 this.showTargetOnTable(name);
         }
         catch (Exception e) {};
@@ -190,6 +191,8 @@ public class TaskControlPanelController implements Controller {
 
     private void showTargetOnTable(String targetName) throws XMLException {
         TargetDTO targetDTO = searchForRefreshedTarget(targetName);
+        if (targetDTO==null)
+            return;
         Platform.runLater(()->{
             this.targetInfoListView.getItems().clear();
             this.targetInfoListView.getItems().add("Target name: " + targetDTO.getTargetName());

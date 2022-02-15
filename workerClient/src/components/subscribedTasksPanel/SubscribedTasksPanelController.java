@@ -326,6 +326,8 @@ public class SubscribedTasksPanelController implements ControllerW {
         }
 
         TaskDTO task = SharedDashboard.getSelectedTask(selectedTaskName);
+        if(task == null)
+            return;
 
         for (TestDTO testDTO : task.getSubscribers()) {
             if(testDTO.getUserDTO().getName().compareTo(mainAppControllerW.getLoggedInUserName()) == 0){

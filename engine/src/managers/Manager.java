@@ -553,6 +553,7 @@ public class Manager implements Serializable {
             if (name.compareTo(target.getName()) == 0 && target.getStatus() != Target.TargetStatus.FINISHED){
                 target.setStatus(Target.TargetStatus.FINISHED);
                 target.setStatusAfterTask(Target.StatusAfterTask.valueOf(status.toUpperCase()));
+                this.taskManager.getTasks().get(taskName).setTotalTimeToTarget(target,Integer.parseInt(totalTime));
                 taskManager.getTasks().get(taskName).printAfterProcess(new LinkedList<>(),target, target.getFilePath() ,Integer.valueOf(totalTime), errors);
             }
         }

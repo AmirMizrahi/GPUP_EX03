@@ -364,4 +364,12 @@ public abstract class AbstractTask implements Task{
     public int getMoney() {
         return money;
     }
+
+    @Override
+    public void setTotalTimeToTarget(Target target, int taskTime){
+        synchronized (targetsToRunningTime) {
+            this.targetsToRunningTime.replace(target, taskTime);
+            this.totalRunningTime += taskTime;
+        }
+    }
 }
