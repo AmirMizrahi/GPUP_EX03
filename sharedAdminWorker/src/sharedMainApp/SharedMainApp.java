@@ -46,28 +46,4 @@ public class SharedMainApp {
                 break;
         }
     }
-
-    public static void info(){
-        FXMLLoader loader = new FXMLLoader();
-
-        // load main fxml
-        URL mainFXML = SharedMainApp.class.getResource("sharedMainApp/info.fxml");
-//        loader.setLocation(mainFXML);
-//        Parent rootContainer = loader.load();
-//        // wire up controller
-//        mainAppController = loader.getController();
-//        mainAppController.setPrimaryStage(primaryStage);
-//
-//
-//
-//        // set stage
-//        primaryStage.setTitle("G.P.U.P - Admin Client");
-//        Scene scene = new Scene(rootContainer);
-//        primaryStage.setMinHeight(400f);
-//        primaryStage.setMinWidth(600f);
-//        primaryStage.setHeight(800f);
-//        primaryStage.setWidth(1500f);
-//        primaryStage.setScene(scene);
-//        primaryStage.show();
-    }
 }

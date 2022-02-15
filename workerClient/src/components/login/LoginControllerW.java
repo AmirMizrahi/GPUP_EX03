@@ -28,6 +28,11 @@ public class LoginControllerW implements ControllerW {
 
     @FXML
     private void initialize() {
+        userNameTextField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\sa-zA-Z*\\d*")) {
+                userNameTextField.setText(newValue.replaceAll("[^\\sa-zA-Z\\d]", ""));
+            }
+        });
         SpinnerValueFactory factory = new SpinnerValueFactory.IntegerSpinnerValueFactory(1,5,1);
         this.WorkerThreadSpinner.setValueFactory(factory);
     }

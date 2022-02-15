@@ -44,6 +44,11 @@ public class LoginController implements Controller {
 
     @FXML
     public void initialize() {
+        userNameTextField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\sa-zA-Z*\\d*")) {
+                userNameTextField.setText(newValue.replaceAll("[^\\sa-zA-Z\\d]", ""));
+            }
+        });
 //        errorMessageLabel.textProperty().bind(errorMessageProperty);
 //        HttpClientUtil.setCookieManagerLoggingFacility(line ->
 //                Platform.runLater(() ->

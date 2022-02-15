@@ -419,7 +419,8 @@ public class Manager implements Serializable {
             Set<Target> allTargets = entry.getValue().getTargets();
             String taskStatus = entry.getValue().getStatus().toString();
             Map<User,Boolean> users = entry.getValue().getSubscribers();
-            toReturn.add(new TaskDTO(taskName,uploaderName, graphName, allTargets, taskStatus, users, entry.getValue().getProgress(), entry.getValue().getMoney(), entry.getValue().getStartingTime()));
+            toReturn.add(new TaskDTO(taskName,uploaderName, graphName, allTargets, taskStatus, users, entry.getValue().getProgress(),
+                    entry.getValue().getMoney(), entry.getValue().getStartingTime(), entry.getValue().getLogs(), entry.getValue().getTaskType()));
         }
 
         return toReturn;
@@ -601,8 +602,8 @@ public class Manager implements Serializable {
     public void onFinishedTarget(Target target, String taskName, List<Target> targetList, List<Consumer<String>> consumerList, Consumer<File> consumeWhenFinished) throws TargetNotFoundException, IOException {
         setStatusAfterTaskForAllEffected(target, taskName,targetList,consumerList, consumeWhenFinished);
         if (isJobDone(this.taskManager.getTasks().get(taskName).getTargets()) && this.taskManager.getTasks().get(taskName).getStatus() != AbstractTask.TASK_STATUS.FINISHED){
-            this.taskManager.getTasks().get(taskName).setStatus(AbstractTask.TASK_STATUS.FINISHED);
             this.taskManager.getTasks().get(taskName).doWhenTaskIsFinished(this.taskManager.getTasks().get(taskName).getTargets());
+            this.taskManager.getTasks().get(taskName).setStatus(AbstractTask.TASK_STATUS.FINISHED);
         }
     }
 

@@ -201,7 +201,7 @@ public class SharedDashboard {
             usersNames.add(testDTO.getUserDTO().getName());
 
         tasksListView.getItems().add("Subscribers Names: " + usersNames);
-        tasksListView.getItems().add("Total Price For Task: " + (taskToShow.getMoney() * taskToShow.getAmountOfTargets()));
+        tasksListView.getItems().add("Subscribers Amount: " + usersNames.size());
     }
 
     public static TaskDTO getSelectedTask(SimpleStringProperty selectedTask) {

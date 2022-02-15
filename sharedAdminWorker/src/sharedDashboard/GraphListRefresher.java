@@ -36,7 +36,6 @@ public class GraphListRefresher extends TimerTask {
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                 String jsonArrayOfUsersNames = response.body().string();
-                System.out.println("222" +jsonArrayOfUsersNames);
                 //httpRequestLoggerConsumer.accept("Users Request # " + finalRequestNumber + " | Response: " + jsonArrayOfUsersNames);
                 Type type = new TypeToken<List<GraphDTO>>(){}.getType();
                 List<GraphDTO> graphDTOS= GSON_INSTANCE.fromJson(jsonArrayOfUsersNames, type);

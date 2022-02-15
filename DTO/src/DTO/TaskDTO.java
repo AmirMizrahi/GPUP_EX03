@@ -14,7 +14,7 @@ public class TaskDTO {
     private final String uploaderName;
     private final Set<Target> allTargets = new HashSet<>();
     private final int[] targetTypeArray = new int[4];
-    //private final int taskTotalPrice;
+    private final String taskType;
     //private final int currentWorkersAmount;
     private final String graphName;
     private final String taskStatus;
@@ -22,8 +22,10 @@ public class TaskDTO {
     private final double progress;
     private final int money;
     private final Instant startingTime;
+    private List<String> logs;
 
-    public TaskDTO(String taskName, String uploaderName, String graphName, Set<Target> allTargets, String taskStatus, Map<User,Boolean> users, double progress, int money, Instant startingTime) {
+    public TaskDTO(String taskName, String uploaderName, String graphName, Set<Target> allTargets, String taskStatus,
+                   Map<User,Boolean> users, double progress, int money, Instant startingTime, List<String> logs, String taskType) {
         this.taskName = taskName;
         this.uploaderName = uploaderName;
         this.allTargets.addAll(allTargets);
@@ -42,6 +44,8 @@ public class TaskDTO {
         this.progress = progress;
         this.money = money;
         this.startingTime = startingTime;
+        this.logs = logs;
+        this.taskType = taskType;
 
         for (Map.Entry<User, Boolean> entry : users.entrySet()) { //todo maybe synchronize?
             subscribers.add(new TestDTO(new UserDTO(entry.getKey().getName(), entry.getKey().getType(), entry.getKey().getThreadAmount()), entry.getValue()));
@@ -100,5 +104,11 @@ public class TaskDTO {
 
     public Instant getTaskStartingTime() {
         return this.startingTime;
+    }
+
+    public List<String> getLogs(){return this.logs;}
+
+    public String getTaskType() {
+        return taskType;
     }
 }

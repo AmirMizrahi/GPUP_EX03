@@ -92,7 +92,6 @@ public class DashboardController implements Controller {
     void graphsTableViewOnClicked(MouseEvent event) {
         //Get the pressed graph name from the tables
         String temp = event.getPickResult().toString();
-        System.out.println(temp);
         if(!temp.contains("TableColumn") && !temp.contains("Text") || temp.contains("TableColumnHeader") || temp.contains("name=System Bold") || temp.contains("text=\"No content in table\""))
             return;
         int start = temp.indexOf("'");
@@ -131,11 +130,17 @@ public class DashboardController implements Controller {
         isTaskFinished.set(false);
         String temp = event.getPickResult().toString();
         SharedDashboard.doWhenClickedOnTaskTable(temp, this.selectedTask, this.tasksListView);
+        TaskDTO taskToShow = mainAppController.getSelectedTaskDTOFromDashboard();
+        if(taskToShow == null)
+            return;
+        tasksListView.getItems().add("Graph Name: " + taskToShow.getGraphName());
+        tasksListView.getItems().add("Total Price For Task: " + (taskToShow.getMoney() * taskToShow.getAmountOfTargets()));
 
         if(selectedTask.get() == null)
             return;
-        if (SharedDashboard.getLoggedInUserName(loggedInLabel).compareTo(SharedDashboard.getSelectedTask(this.selectedTask).getUploaderName()) == 0)
+        if (SharedDashboard.getLoggedInUserName(loggedInLabel).compareTo(SharedDashboard.getSelectedTask(this.selectedTask).getUploaderName()) == 0) {
             this.matchingUserName.set(true);
+        }
         else
             this.matchingUserName.set(false);
         if(SharedDashboard.getSelectedTask(this.selectedTask).getTaskStatus().compareToIgnoreCase("finished") == 0)

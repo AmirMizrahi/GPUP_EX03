@@ -20,6 +20,8 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -35,6 +37,7 @@ import sharedMainApp.SharedMainApp;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Timer;
@@ -62,6 +65,7 @@ public class MainAppControllerW implements sharedMainAppController {
     @FXML private Label serverStatusLabel;
     @FXML private Button dashboardButton;
     @FXML private Button subscribedTasksPanelButton;
+    @FXML private Button howToUseButton;
     @FXML private ComboBox<String> changeSkinComboBox;
     @FXML private GridPane gridPaneMainAppRight;
 
@@ -268,6 +272,35 @@ public class MainAppControllerW implements sharedMainAppController {
     }
 
     public String getLoggedInUserName() {return SharedDashboard.getLoggedInUserName(dashboardControllerW.getUserNameLabel());}
+
+    @FXML
+    void howToUseButtonAction(ActionEvent event) {
+        howToUseButton.setOnMouseClicked((event2) -> {
+            try {
+                FXMLLoader fxmlLoader = new FXMLLoader();
+                URL mainFXML = getClass().getResource("/sharedMainApp/info.fxml");
+                fxmlLoader.setLocation(mainFXML);
+                /*
+                 * if "fx:controller" is not set in fxml
+                 * fxmlLoader.setController(NewWindowController);
+                 */
+                Parent rootContainer = fxmlLoader.load();
+
+                Scene scene = new Scene(rootContainer, 749, 528);
+                Stage stage = new Stage();
+                stage.setMinHeight(528);
+                stage.setMinWidth(749);
+                stage.setMaxHeight(528);
+                stage.setMaxWidth(749);
+                stage.setTitle("Info");
+                stage.setScene(scene);
+                stage.show();
+            } catch (IOException e) {
+                //Logger logger = Logger.getLogger(getClass().getName());
+                //logger.log(Level.SEVERE, "Failed to create new Window.", e);
+            }
+        });
+    }
 }
 
 

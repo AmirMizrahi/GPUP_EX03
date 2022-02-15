@@ -29,8 +29,10 @@ import sharedDashboard.SharedDashboard;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import static Utils.Constants.*;
 
@@ -81,6 +83,8 @@ public class TaskControlPanelController implements Controller {
     @FXML private ListView<String> targetInfoListView;
     @FXML private ProgressBar taskProgressBar;
     @FXML private TextArea logTextArea;
+    private Map<String, Boolean> targetNameToBool;
+    private boolean isSummaryPrinted;
 
     public TaskControlPanelController(){
         inProcessData = new LinkedList<>();
@@ -96,6 +100,8 @@ public class TaskControlPanelController implements Controller {
         isFinished = new SimpleBooleanProperty(false);
         this.pauseResumeButton.disableProperty().bind(startButton.disableProperty().not().or(isStopped).or(isFinished));
         this.stopButton.disableProperty().bind(startButton.disableProperty().not().or(isFinished));
+        this.targetNameToBool = new HashMap<>();
+        this.isSummaryPrinted = false;
     }
 
     @Override
@@ -289,6 +295,16 @@ public class TaskControlPanelController implements Controller {
         currentPlusWaitingTargets.setText(String.valueOf(p + w));
 
         this.registeredWorkersLabel.setText(String.valueOf(selectedTaskDTOFromDashboard.getSubscribers().size()));
+    }
+
+    public void refreshMap(){
+        this.isSummaryPrinted = false;
+        this.targetNameToBool = new HashMap<>();
+        Platform.runLater(()->logTextArea.clear());
+        List<TargetDTO> targets = this.mainAppController.getSelectedTaskDTOFromDashboard().getAllTargets();
+        for (TargetDTO targetDTO : targets) {
+            this.targetNameToBool.put(targetDTO.getTargetName(),false);
+        }
     }
 
     private void updateProgressBar() {
@@ -512,4 +528,32 @@ public class TaskControlPanelController implements Controller {
         });
     }
 
+    public void fillLogs(TaskDTO selectedTask) {
+        if (selectedTask != null) {
+            List<TargetDTO> allTargets = selectedTask.getAllTargets();
+
+            for (Map.Entry<String, Boolean> entry : targetNameToBool.entrySet()) {
+                if (!entry.getValue()) {
+                    for (TargetDTO target : allTargets) {
+                        if (target.getTargetName().compareTo(entry.getKey()) == 0) {
+                            List<String> targetLogs = target.getLogs();
+                            if (targetLogs.size() > 0 && target.getTargetStatus().compareToIgnoreCase("finished") == 0) {
+                                Platform.runLater(() -> {
+                                    targetLogs.forEach(s -> logTextArea.appendText(s + "\n"));
+                                });
+                                entry.setValue(true);
+                            }
+                        }
+                    }
+                }
+            }
+            List<String> taskLogs = selectedTask.getLogs();
+            if(!isSummaryPrinted && selectedTask.getTaskStatus().compareToIgnoreCase("finished") == 0){
+                Platform.runLater(() -> {
+                    taskLogs.forEach(s -> logTextArea.appendText(s + "\n"));
+                });
+                isSummaryPrinted = true;
+            }
+        }
+    }
 }

@@ -89,10 +89,24 @@ public class DashboardControllerW implements ControllerW {
     }
 
     @FXML void tasksTableViewOnClicked(MouseEvent event) {
+        boolean isSubscribed = false;
+
         Platform.runLater(()->isAlreadySubscribed.set(true));
         String temp = event.getPickResult().toString();
         SharedDashboard.doWhenClickedOnTaskTable(temp, this.selectedTask, this.tasksListView );
+
         TaskDTO selectedTaskAsDto = SharedDashboard.getSelectedTask(selectedTask);
+        if(selectedTaskAsDto == null)
+            return;
+        tasksListView.getItems().add("Task Type: " + selectedTaskAsDto.getTaskType());
+        tasksListView.getItems().add("Price Per Target: " + selectedTaskAsDto.getMoney());
+
+        for (TestDTO subscriber : selectedTaskAsDto.getSubscribers()) {
+            if(subscriber.getUserDTO().getName().compareTo(SharedDashboard.getLoggedInUserName(loggedInLabel)) == 0)
+                isSubscribed = true;
+        }
+        tasksListView.getItems().add("Is Current Worker Registered?: " + isSubscribed);
+
         List<String> list = new LinkedList<>();
         //selectedTaskAsDto.getSubscribers().forEach(userDTO -> list.add(userDTO.getName()));//todo delete
         for (TestDTO testDTO : selectedTaskAsDto.getSubscribers())

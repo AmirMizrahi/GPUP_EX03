@@ -75,6 +75,7 @@ public class MainAppController implements Closeable, sharedMainAppController {
     @FXML private Button taskControlPanelButton;
     @FXML private Button animationButton;
     @FXML private Button graphvizButton;
+    @FXML private Button howToUseButton;
     @FXML private ComboBox<String> changeSkinComboBox;
     @FXML private Label serverStatusLabel;
     //Properties
@@ -238,6 +239,7 @@ public class MainAppController implements Closeable, sharedMainAppController {
     void taskControlPanelButtonAction(ActionEvent event) {
         gridPaneMainAppRight.getChildren().remove(0); //move to property
         //this.mainActivateTaskController.setParallelTaskAmount(parallelTaskAmount);
+        taskControlPanelController.refreshMap();
         taskControlPanelController.refreshButtons(getSelectedTaskDTOFromDashboard().getTaskStatus());
         taskControlPanelController.refreshLabels(getSelectedTaskDTOFromDashboard());
         gridPaneMainAppRight.getChildren().add(this.taskControlPanelController.getNodeController());
@@ -354,6 +356,7 @@ public class MainAppController implements Closeable, sharedMainAppController {
                 //List<TargetDTO> newTargetStatus = manager.getCurrentTargetsStatus();
                 //createTaskController.updateProcessLog(newTargetStatus);
                 taskControlPanelController.refreshPanel(getSelectedTaskDTOFromDashboard());
+                taskControlPanelController.fillLogs(getSelectedTaskDTOFromDashboard());
             }
         };
 
@@ -386,13 +389,12 @@ public class MainAppController implements Closeable, sharedMainAppController {
         SharedMainApp.changeSkin(changeSkinComboBox,getClass(),this.primaryStage.getScene());
     }
 
-    @FXML private Button howToUseButton;
     @FXML
     void howToUseAction(ActionEvent event) {
         howToUseButton.setOnMouseClicked((event2) -> {
             try {
                 FXMLLoader fxmlLoader = new FXMLLoader();
-                URL mainFXML =getClass().getResource("info.fxml");
+                URL mainFXML = getClass().getResource("/sharedMainApp/info.fxml");
                 fxmlLoader.setLocation(mainFXML);
                 /*
                  * if "fx:controller" is not set in fxml

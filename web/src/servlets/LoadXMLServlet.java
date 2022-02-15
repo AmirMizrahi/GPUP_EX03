@@ -28,14 +28,6 @@ public class LoadXMLServlet extends HttpServlet {
         //check if file exits?
 
         if (!parts.isEmpty()) { // File received from client
-            for (Part part : parts) {
-                int content;
-                InputStream fileAsStream = part.getInputStream();
-                while ((content = fileAsStream.read()) != -1) {
-                    System.out.print((char) content);
-                }
-            }
-
             Part p = parts.iterator().next(); //get the file
             Manager manager = ServletUtils.getManager(getServletContext());
             try {

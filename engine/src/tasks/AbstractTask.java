@@ -31,6 +31,7 @@ public abstract class AbstractTask implements Task{
     protected Queue<Target> waitingQueue = new LinkedList<>();
     protected int taskCreatedFromCounter = 0;
     protected Instant startingTime;
+    protected List<String> logs;
 
     protected AbstractTask(WAYS_TO_START_SIM_TASK chosenWay, boolean firstTime, List<Target> targetsToRunOn,
                            String pathName, String taskType, String userName, String graphName, Map<String,
@@ -49,6 +50,7 @@ public abstract class AbstractTask implements Task{
         this.subscribers = new HashMap<>();
         this.taskInfo = taskInfo;
         this.money = money;
+        this.logs = new LinkedList<>();
         targetsToRunOn.forEach(target -> {
             if(target.getStatus() == Target.TargetStatus.WAITING)
                 waitingQueue.add(target);
@@ -103,6 +105,12 @@ public abstract class AbstractTask implements Task{
         String summaryLogFilePath = summaryLogFile.getAbsolutePath();
         Consumer<String> consumer = consumerBuilder(summaryLogFilePath);
         consumerList.add(consumer);
+        consumerList.add(new Consumer<String>() {
+            @Override
+            public void accept(String s) {
+                logs.add(s);
+            }
+        });
         printToSummaryLogFile(consumerList,totalRunningTime, relevantTargetsForSummaryLogFile, targetsToRunningTime, skippedTargetsForSummaryLogFile);
         //consumeWhenFinished.accept(summaryLogFile);
     }
@@ -371,5 +379,15 @@ public abstract class AbstractTask implements Task{
             this.targetsToRunningTime.replace(target, taskTime);
             this.totalRunningTime += taskTime;
         }
+    }
+
+    @Override
+    public List<String> getLogs() {
+        return logs;
+    }
+
+    @Override
+    public void addLog(String log) {
+        this.logs.add(log);
     }
 }
