@@ -392,14 +392,21 @@ public class MainAppController implements Closeable, sharedMainAppController {
         howToUseButton.setOnMouseClicked((event2) -> {
             try {
                 FXMLLoader fxmlLoader = new FXMLLoader();
-                fxmlLoader.setLocation(getClass().getResource("components/mainApp/info.fxml"));
+                URL mainFXML =getClass().getResource("info.fxml");
+                fxmlLoader.setLocation(mainFXML);
                 /*
                  * if "fx:controller" is not set in fxml
                  * fxmlLoader.setController(NewWindowController);
                  */
-                Scene scene = new Scene(fxmlLoader.load(), 600, 400);
+                Parent rootContainer = fxmlLoader.load();
+
+                Scene scene = new Scene(rootContainer, 749, 528);
                 Stage stage = new Stage();
-                stage.setTitle("New Window");
+                stage.setMinHeight(528);
+                stage.setMinWidth(749);
+                stage.setMaxHeight(528);
+                stage.setMaxWidth(749);
+                stage.setTitle("Info");
                 stage.setScene(scene);
                 stage.show();
             } catch (IOException e) {
