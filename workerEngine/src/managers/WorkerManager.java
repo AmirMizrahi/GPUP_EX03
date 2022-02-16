@@ -23,6 +23,7 @@ public class WorkerManager {
     private ThreadPoolExecutor threadExecutor;
     private List<WorkerTarget> targetsOnWork;
     private TargetManager targetManager;
+    private Object dummy = new Object();
 
     public WorkerManager(Integer threadsAmount) {
         this.threadsAmount = threadsAmount;
@@ -57,30 +58,32 @@ public class WorkerManager {
     }
 
     public void setThreadsOnWork(Integer threadsOnWork) {
-        synchronized (threadsOnWork) {
-            System.out.println("--------------------------------------------Threads on work: " + (this.threadsOnWork));
+        synchronized (dummy) {
             this.threadsOnWork = this.threadsOnWork + threadsOnWork;
+            System.out.println("--------------------------------------------Threads on work: " + (this.threadsOnWork));
         }
     }
 
     public Integer getAvailableThreadsAmount() {
-        synchronized (threadsOnWork) {
+        synchronized (dummy) {
             System.out.println("--------------------------------------------Threads request: " + (this.threadsAmount - this.threadsOnWork));
             return this.threadsAmount - this.threadsOnWork;
         }
     }
 
     public void addTargetToThreadPool(TargetDTOForWorker dto) throws InterruptedException {
-        if (dto.getTaskType().compareToIgnoreCase("simulation") == 0) {
-            WorkerSimulationTarget simulationTarget = new WorkerSimulationTarget(dto, dto.getTaskInfo());
-            targetsOnWork.add(simulationTarget);
-            targetManager.addTarget(simulationTarget);
-            this.threadExecutor.execute(makeRunnable(simulationTarget));
-        } else {
-            WorkerCompilationTarget compilationTarget = new WorkerCompilationTarget(dto, dto.getTaskInfo());
-            targetsOnWork.add(compilationTarget);
-            targetManager.addTarget(compilationTarget);
-            this.threadExecutor.execute(makeRunnable(compilationTarget));
+        synchronized (dummy) {
+            if (dto.getTaskType().compareToIgnoreCase("simulation") == 0) {
+                WorkerSimulationTarget simulationTarget = new WorkerSimulationTarget(dto, dto.getTaskInfo());
+                targetsOnWork.add(simulationTarget);
+                targetManager.addTarget(simulationTarget);
+                this.threadExecutor.execute(makeRunnable(simulationTarget));
+            } else {
+                WorkerCompilationTarget compilationTarget = new WorkerCompilationTarget(dto, dto.getTaskInfo());
+                targetsOnWork.add(compilationTarget);
+                targetManager.addTarget(compilationTarget);
+                this.threadExecutor.execute(makeRunnable(compilationTarget));
+            }
         }
     }
 
@@ -88,9 +91,10 @@ public class WorkerManager {
         return () -> {
             try {
                 target.run();
-                synchronized (threadsOnWork) {
+                synchronized (dummy) {
                     threadsOnWork--;
                 }
+
             } catch (InterruptedException | IOException e) {
                 e.printStackTrace();
             }
@@ -98,50 +102,59 @@ public class WorkerManager {
     }
 
     public boolean areThereTargetsToSend() {
-        boolean res = false;
-        for (WorkerTarget workerTarget : targetsOnWork) {
-            if (workerTarget.isRunFinished()) {
-                res = true;
-                break;
+        synchronized (dummy) {
+            boolean res = false;
+            for (WorkerTarget workerTarget : targetsOnWork) {
+                if (workerTarget.isRunFinished()) {
+                    res = true;
+                    break;
+                }
             }
+            return res;
         }
-        return res;
     }
 
     public List<Map<String,String>> getUpdatedTargetsResults(){
-        List<Map<String,String>> resultsList = new LinkedList<>();
-
-        for (WorkerTarget workerTarget : targetsOnWork) {
-            if(workerTarget.isRunFinished()){
-                resultsList.add(workerTarget.getResult());
+        synchronized (dummy) {
+            List<Map<String, String>> resultsList = new LinkedList<>();
+            for (WorkerTarget workerTarget : targetsOnWork) {
+                if (workerTarget.isRunFinished()) {
+                    resultsList.add(workerTarget.getResult());
+                }
             }
+            for (Map<String, String> stringStringMap : resultsList) {
+                this.targetsOnWork.remove(stringStringMap);
+            }
+            return resultsList;
         }
-
-        for (Map<String, String> stringStringMap : resultsList) {
-            this.targetsOnWork.remove(stringStringMap);
-        }
-        return resultsList;
     }
 
     public List<WorkerTargetDTO> getAllTargets() {
-        List<WorkerTargetDTO> toReturn = new LinkedList<>();
-        List<WorkerTarget> list = targetManager.getAllTargets();
+        synchronized (dummy) {
+            List<WorkerTargetDTO> toReturn = new LinkedList<>();
+            List<WorkerTarget> list = targetManager.getAllTargets();
 
-        list.forEach(target -> toReturn.add(new WorkerTargetDTO(target.getResult().get("targetName"),
-                                                                target.getResult().get("taskName"),
-                                                                target.getResult().get("status"),
-                                                                target.getResult().get("taskType"),
-                                                                target.getProgress(),
-                                                                target.getWorkersAmount())));
+            list.forEach(target -> toReturn.add(new WorkerTargetDTO(target.getResult().get("targetName"),
+                    target.getResult().get("taskName"),
+                    target.getResult().get("status"),
+                    target.getResult().get("taskType"),
+                    target.getProgress(),
+                    target.getWorkersAmount())));
 
-        return toReturn;
+            return toReturn;
+        }
     }
 
     public Integer getThreadsAmount() {
-        return threadsAmount;
+        synchronized (dummy) {
+            return threadsAmount;
+        }
     }
 
     public Integer getThreadsOnWork() {
-        return threadsOnWork;
+        synchronized (dummy) {
+            return threadsOnWork;
+        }
     }
+
 }
