@@ -30,6 +30,7 @@ import javafx.stage.Stage;
 import managers.WorkerManager;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
+import sharedChat.SharedChat;
 import sharedControllers.sharedMainAppController;
 import sharedDashboard.SharedDashboard;
 import sharedLogin.SharedLogin;
@@ -140,6 +141,7 @@ public class MainAppControllerW implements sharedMainAppController {
         this.subscribedTasksPanelController.initializeSubscribedTasksPanelController(totalMoneyEarned);
         startTaskControlPanelRefresher();
         updateServerWithTargetsResults();
+        SharedChat.startChatRefresher(this.dashboardControllerW.getChatTextArea(), this.subscribedTasksPanelController.getChatTextArea());
     }
 
     private void startTaskControlPanelRefresher() {

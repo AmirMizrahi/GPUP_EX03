@@ -7,6 +7,7 @@ public class Constants {
     public final static int TARGET_REFRESH_RATE = 100;
     public final static int TARGET_REFRESH_RATE2 = 500;
     public final static int DASHBOARD_REFRESH_RATE = 1500;
+    public final static String CHAT_LINE_FORMATTING = "%tH:%tM:%tS | %.10s: %s%n";
     public final static String GRAPHVIZ_LOCATION = "JavaFX/src/components/graphviz";
     public final static String XOO_LOCATION = "./engine/src/resources/XOO";
     private final static String SERVER_ADDRESS = "http://localhost:8080/gpupAdmin";
@@ -22,6 +23,12 @@ public class Constants {
     public final static String UPDATE_RESULTS = SERVER_ADDRESS + ENGINE_ADDRESS + "/updatetargetsresults";
     public final static String CREATE_TASK_FROM_EXITS = SERVER_ADDRESS + ENGINE_ADDRESS + "/createtaskfromexits";
     public final static String WORKER_TASK_STATUS_CHANGE = SERVER_ADDRESS + ENGINE_ADDRESS + "/workertaskstatuschange";
+
+    //CHAT
+    public final static String SEND_CHAT_LINE = SERVER_ADDRESS + "/chatroom/sendChat";
+    public final static String CHAT_LINES_LIST = SERVER_ADDRESS + "/chat";
+
+
 
     // GSON instance
     public final static Gson GSON_INSTANCE = new Gson();

@@ -3,11 +3,11 @@ package utils;
 //import engine.chat.ChatManager;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
+import managers.ChatManager;
 import managers.Manager;
 import managers.UserManager;
 
-import static utils.Constants.MANAGER_ATTRIBUTE_NAME;
-import static utils.Constants.USER_MANAGER_ATTRIBUTE_NAME;
+import static utils.Constants.*;
 
 //import static chat.constants.Utils.Constants.INT_PARAMETER_ERROR;
 
@@ -40,14 +40,14 @@ public class ServletUtils {
 		return (Manager) servletContext.getAttribute(MANAGER_ATTRIBUTE_NAME);
 	}
 
-//	public static ChatManager getChatManager(ServletContext servletContext) {
-//		synchronized (chatManagerLock) {
-//			if (servletContext.getAttribute(CHAT_MANAGER_ATTRIBUTE_NAME) == null) {
-//				servletContext.setAttribute(CHAT_MANAGER_ATTRIBUTE_NAME, new ChatManager());
-//			}
-//		}
-//		return (ChatManager) servletContext.getAttribute(CHAT_MANAGER_ATTRIBUTE_NAME);
-//	}
+	public static ChatManager getChatManager(ServletContext servletContext) {
+		synchronized (chatManagerLock) {
+			if (servletContext.getAttribute(CHAT_MANAGER_ATTRIBUTE_NAME) == null) {
+				servletContext.setAttribute(CHAT_MANAGER_ATTRIBUTE_NAME, new ChatManager());
+			}
+		}
+		return (ChatManager) servletContext.getAttribute(CHAT_MANAGER_ATTRIBUTE_NAME);
+	}
 
 	public static int getIntParameter(HttpServletRequest request, String name) {
 		String value = request.getParameter(name);

@@ -102,4 +102,13 @@
         <url-pattern>/engine/workertaskstatuschange</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>ChatServlet</servlet-name>
+        <servlet-class>servlets.ChatServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ChatServlet</servlet-name>
+        <url-pattern>/chat</url-pattern>
+    </servlet-mapping>
+
 </web-app>

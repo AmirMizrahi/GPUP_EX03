@@ -1,6 +1,7 @@
 package components.subscribedTasksPanel;
 
 import DTO.*;
+import Utils.Constants;
 import Utils.HttpClientUtil;
 import components.mainApp.ControllerW;
 import components.mainApp.MainAppControllerW;
@@ -18,10 +19,7 @@ import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.RequestBody;
-import okhttp3.Response;
+import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 import sharedDashboard.SharedDashboard;
 
@@ -59,6 +57,11 @@ public class SubscribedTasksPanelController implements ControllerW {
     @FXML private Button unregisterButton;
     @FXML private Label moneyLabel;
     @FXML private Label selectedTaskLabel;
+    //Chat
+    @FXML private TextArea chatTextArea;
+    @FXML private TextField chatMessageTextField;
+    @FXML private Button sendChatButton;
+    //
     //Properties
     private SimpleStringProperty selectedTaskName;
     private SimpleBooleanProperty isTaskSelected;
@@ -347,5 +350,34 @@ public class SubscribedTasksPanelController implements ControllerW {
             selectedTaskLabel.setText(task.getTaskName());
             this.isTaskSelected.set(true);
         }
+    }
+
+    @FXML
+    void sendChatButtonAction(ActionEvent event) {
+        String chatLine = chatMessageTextField.getText();
+        String finalUrl = HttpUrl
+                .parse(Constants.SEND_CHAT_LINE)
+                .newBuilder()
+                .addQueryParameter("userstring", chatLine)
+                .build()
+                .toString();
+
+        HttpClientUtil.runAsync(finalUrl, new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                if (!response.isSuccessful()) {
+                }
+            }
+        });
+
+        chatMessageTextField.clear();
+    }
+
+    public TextArea getChatTextArea() {
+        return this.chatTextArea;
     }
 }

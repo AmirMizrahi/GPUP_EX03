@@ -40,6 +40,7 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
+import sharedChat.SharedChat;
 import sharedControllers.sharedMainAppController;
 import sharedDashboard.SharedDashboard;
 import sharedLogin.SharedLogin;
@@ -434,6 +435,7 @@ public class MainAppController implements Closeable, sharedMainAppController {
         sharedOnLoggedIn(gridPaneMainAppRight,isLoggedIn,this.dashboardController.getNodeController());
         this.dashboardController.initializeDashboardController(SharedLogin.userNamePropertyProperty(), this.selectedGraph, this.selectedTask, this.matchingUserName);
         startTaskControlPanelRefresher();
+        SharedChat.startChatRefresher(this.dashboardController.getChatTextArea(), this.taskControlPanelController.getChatTextArea());
     }
 
     @FXML

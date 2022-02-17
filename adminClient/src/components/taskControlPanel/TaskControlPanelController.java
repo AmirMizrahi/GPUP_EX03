@@ -3,6 +3,7 @@ package components.taskControlPanel;
 import DTO.GraphDTO;
 import DTO.TargetDTO;
 import DTO.TaskDTO;
+import Utils.Constants;
 import Utils.HttpClientUtil;
 import components.mainApp.Controller;
 import components.mainApp.MainAppController;
@@ -19,10 +20,7 @@ import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.RequestBody;
-import okhttp3.Response;
+import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 import sharedDashboard.SharedDashboard;
 
@@ -68,6 +66,7 @@ public class TaskControlPanelController implements Controller {
     @FXML private Button pauseResumeButton;
     @FXML private Button stopButton;
     @FXML private Button clearButton;
+    @FXML private Button sendChatButton;
     //TableView / Column
     @FXML private TableView<String> frozenTableView;
     @FXML private TableColumn<String, String> frozenNameCol;
@@ -83,6 +82,9 @@ public class TaskControlPanelController implements Controller {
     @FXML private ListView<String> targetInfoListView;
     @FXML private ProgressBar taskProgressBar;
     @FXML private TextArea logTextArea;
+    @FXML private TextArea chatTextArea;
+    @FXML private TextField chatMessageTextField;
+
     private Map<String, Boolean> targetNameToBool;
     private boolean isSummaryPrinted;
 
@@ -555,5 +557,35 @@ public class TaskControlPanelController implements Controller {
                 isSummaryPrinted = true;
             }
         }
+    }
+
+    public TextArea getChatTextArea() {
+        return this.chatTextArea;
+    }
+
+
+    @FXML
+    void sendChatButtonAction(ActionEvent event) {
+        String chatLine = chatMessageTextField.getText();
+        String finalUrl = HttpUrl
+                .parse(Constants.SEND_CHAT_LINE)
+                .newBuilder()
+                .addQueryParameter("userstring", chatLine)
+                .build()
+                .toString();
+
+        HttpClientUtil.runAsync(finalUrl, new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                if (!response.isSuccessful()) {
+                }
+            }
+        });
+
+        chatMessageTextField.clear();
     }
 }

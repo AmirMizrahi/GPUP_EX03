@@ -2,6 +2,7 @@ package components.dashboard;
 
 import DTO.GraphDTO;
 import DTO.TaskDTO;
+import Utils.Constants;
 import Utils.HttpClientUtil;
 import components.mainApp.Controller;
 import components.mainApp.MainAppController;
@@ -15,10 +16,7 @@ import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.RequestBody;
-import okhttp3.Response;
+import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 import sharedDashboard.SharedDashboard;
 import sharedDashboard.UserTableViewRow;
@@ -49,6 +47,9 @@ public class DashboardController implements Controller {
     @FXML private Label loggedInLabel;
     @FXML private Button incrementalButton;
     @FXML private Button fromScratchButton;
+    @FXML private TextArea chatTextArea;
+    @FXML private TextField chatLineTextField;
+    @FXML private Button sendChatButton;
    //
     //Properties
     private SimpleStringProperty selectedGraph;
@@ -218,5 +219,34 @@ public class DashboardController implements Controller {
                 Platform.runLater(() -> p.show() );
             }
             }, CREATE_TASK_FROM_EXITS);
+    }
+
+    @FXML
+    void sendChatButtonAction(ActionEvent event) {
+        String chatLine = chatLineTextField.getText();
+        String finalUrl = HttpUrl
+                .parse(Constants.SEND_CHAT_LINE)
+                .newBuilder()
+                .addQueryParameter("userstring", chatLine)
+                .build()
+                .toString();
+
+        HttpClientUtil.runAsync(finalUrl, new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                if (!response.isSuccessful()) {
+                }
+            }
+        });
+
+        chatLineTextField.clear();
+    }
+
+    public TextArea getChatTextArea() {
+        return this.chatTextArea;
     }
 }

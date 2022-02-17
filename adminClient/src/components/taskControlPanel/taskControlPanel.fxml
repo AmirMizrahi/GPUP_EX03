@@ -12,6 +12,7 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
@@ -186,6 +187,24 @@
                            <children>
                               <Button fx:id="clearButton" alignment="CENTER" mnemonicParsing="false" onAction="#clearButtonAction" text="Clear" />
                               <TextArea fx:id="logTextArea" editable="false" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
+                           </children>
+                        </VBox>
+                     </content>
+                  </Tab>
+                  <Tab text="Chat">
+                     <content>
+                        <VBox>
+                           <children>
+                              <TextArea fx:id="chatTextArea" editable="false" prefHeight="200.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
+                              <HBox>
+                                 <children>
+                                    <TextField fx:id="chatMessageTextField" promptText="Write here" HBox.hgrow="ALWAYS" />
+                                    <Button fx:id="sendChatButton" mnemonicParsing="false" onAction="#sendChatButtonAction" text="Send" />
+                                 </children>
+                                 <VBox.margin>
+                                    <Insets top="5.0" />
+                                 </VBox.margin>
+                              </HBox>
                            </children>
                         </VBox>
                      </content>
