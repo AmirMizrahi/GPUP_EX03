@@ -51,13 +51,30 @@ public class LightweightLoginServlet extends HttpServlet {
                         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                         response.getOutputStream().print(errorMessage);
                     }
+                    else if(userTypeFromParameter.compareToIgnoreCase("Worker") != 0 &&
+                            userTypeFromParameter.compareToIgnoreCase("Admin") != 0){
+                        String errorMessage = "Authorized type are 'Admin' or 'Worker' only!";
+
+                        // stands for unauthorized user type
+                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                        response.getOutputStream().print(errorMessage);
+                    }
+
                     else {
                         //add the new user to the users list
-                        if(userTypeFromParameter.compareTo("Worker") == 0){
+                        if(userTypeFromParameter.compareToIgnoreCase("Worker") == 0){
                             int threads = Integer.parseInt(threadsFromParameter);
-                            userManager.addUser(usernameFromParameter, userTypeFromParameter, threads);
+                            if(threads > 5 || threads < 1){
+                                String errorMessage = "Worker threads should be between 1-5!";
+                                // stands for unauthorized user type
+                                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                                response.getOutputStream().print(errorMessage);
+                                return;
+                            }
+                            else
+                                userManager.addUser(usernameFromParameter, userTypeFromParameter, threads);
                         }
-                        else
+                        else if (userTypeFromParameter.compareToIgnoreCase("Admin") == 0)
                             userManager.addUser(usernameFromParameter, userTypeFromParameter);
 
                         //set the username in a session so it will be available on each request
@@ -66,14 +83,15 @@ public class LightweightLoginServlet extends HttpServlet {
                         request.getSession(true).setAttribute("username", usernameFromParameter);
 
                         //redirect the request to the chat room - in order to actually change the URL
-                        System.out.println("On login, request URI is: " + request.getRequestURI());
                         response.setStatus(HttpServletResponse.SC_OK);
+                        response.getOutputStream().print("Logged in successfully as " + usernameFromParameter +"!");
                     }
                 }
             }
         } else {
             //user is already logged in
             response.setStatus(HttpServletResponse.SC_OK);
+            response.getOutputStream().print("User is already logged in as " + usernameFromSession +".\nPlease logout first.");
         }
     }
 }
