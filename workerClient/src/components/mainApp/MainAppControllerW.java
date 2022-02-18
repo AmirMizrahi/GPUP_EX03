@@ -168,26 +168,29 @@ public class MainAppControllerW implements sharedMainAppController {
 
                         @Override
                         public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                            String jsonArrayOfUsersNames = response.body().string();
-                            //httpRequestLoggerConsumer.accept("Users Request # " + finalRequestNumber + " | Response: " + jsonArrayOfUsersNames);
-                            Type type = new TypeToken<List<TargetDTOForWorker>>(){}.getType();
-                            List<TargetDTOForWorker> taskDTOForWorkers = GSON_INSTANCE.fromJson(jsonArrayOfUsersNames, type);
-                            response.close();
-                            //List<String> temp = new LinkedList<>();
-                            //taskDTOForWorkers.forEach(taskDTOForWorker -> temp.add(taskDTOForWorker.getTargetDTO().getTargetName()));
-                            System.out.println("--------------------------------------------Got from server: " + taskDTOForWorkers.size());
-                            workerManager.setThreadsOnWork(taskDTOForWorkers.size());
-                            taskDTOForWorkers.forEach(dto-> {
-                                try {
-                                    workerManager.addTargetToThreadPool(dto);
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
-                            });
-                            //System.out.println("RESULT: " + temp);
+                            synchronized (this) {
+                                String jsonArrayOfUsersNames = response.body().string();
+                                //httpRequestLoggerConsumer.accept("Users Request # " + finalRequestNumber + " | Response: " + jsonArrayOfUsersNames);
+                                Type type = new TypeToken<List<TargetDTOForWorker>>() {
+                                }.getType();
+                                List<TargetDTOForWorker> taskDTOForWorkers = GSON_INSTANCE.fromJson(jsonArrayOfUsersNames, type);
+                                response.close();
+                                //List<String> temp = new LinkedList<>();
+                                //taskDTOForWorkers.forEach(taskDTOForWorker -> temp.add(taskDTOForWorker.getTargetDTO().getTargetName()));
+                                System.out.println("--------------------------------------------Got from server: " + taskDTOForWorkers.size());
+                                workerManager.setThreadsOnWork(taskDTOForWorkers.size());
+                                taskDTOForWorkers.forEach(dto -> {
+                                    try {
+                                        workerManager.addTargetToThreadPool(dto);
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
+                                });
+                                //System.out.println("RESULT: " + temp);
 
 
-                            //graphsListConsumer.accept(taskDTOForWorkers);*///todo
+                                //graphsListConsumer.accept(taskDTOForWorkers);*///todo
+                            }
                         }
                     });
                 }
@@ -207,7 +210,6 @@ public class MainAppControllerW implements sharedMainAppController {
                 if(workerManager.areThereTargetsToSend()){
                     String body =
                             "results=" + new Gson().toJson(workerManager.getUpdatedTargetsResults());
-                    System.out.println(new Gson().toJson(workerManager.getUpdatedTargetsResults()));
 
                     HttpClientUtil.postRequest(RequestBody.create(body.getBytes()), new Callback() {
                         @Override

@@ -35,12 +35,15 @@ public class GraphListRefresher extends TimerTask {
 
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                String jsonArrayOfUsersNames = response.body().string();
-                //httpRequestLoggerConsumer.accept("Users Request # " + finalRequestNumber + " | Response: " + jsonArrayOfUsersNames);
-                Type type = new TypeToken<List<GraphDTO>>(){}.getType();
-                List<GraphDTO> graphDTOS= GSON_INSTANCE.fromJson(jsonArrayOfUsersNames, type);
-                response.close();
-                graphsListConsumer.accept(graphDTOS);
+                synchronized (this) {
+                    String jsonArrayOfUsersNames = response.body().string();
+                    //httpRequestLoggerConsumer.accept("Users Request # " + finalRequestNumber + " | Response: " + jsonArrayOfUsersNames);
+                    Type type = new TypeToken<List<GraphDTO>>() {
+                    }.getType();
+                    List<GraphDTO> graphDTOS = GSON_INSTANCE.fromJson(jsonArrayOfUsersNames, type);
+                    response.close();
+                    graphsListConsumer.accept(graphDTOS);
+                }
             }
         });
     }

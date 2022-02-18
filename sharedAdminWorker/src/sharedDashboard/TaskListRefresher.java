@@ -36,6 +36,7 @@ public class TaskListRefresher extends TimerTask {
 
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                synchronized (this) {
                 String jsonArrayOfUsersNames = response.body().string();
                 //httpRequestLoggerConsumer.accept("Users Request # " + finalRequestNumber + " | Response: " + jsonArrayOfUsersNames);
                 Type type = new TypeToken<List<TaskDTO>>(){}.getType();
@@ -43,6 +44,7 @@ public class TaskListRefresher extends TimerTask {
                 //Map<String,String> usersNames = GSON_INSTANCE2.fromJson(jsonArrayOfUsersNames, Map.class);
                 response.close();
                 tasksListConsumer.accept(tasksDTOS);
+                }
 
             }
         });
