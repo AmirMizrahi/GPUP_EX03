@@ -33,14 +33,13 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
 
 import static Utils.Constants.LINE_SEPARATOR;
-import static Utils.Constants.UPLOAD_TASK;
+import static Utils.Constants.TASK;
 
 public class CreateTaskController implements Controller {
 
@@ -381,7 +380,7 @@ public class CreateTaskController implements Controller {
                     }
                     Platform.runLater(() -> p.show() );
                 }
-            }, UPLOAD_TASK);
+            }, TASK);
         }
         //   String source = this.compilationTaskController.getSourceFolder();
         //   String destination = this.compilationTaskController.getDestinationFolder();

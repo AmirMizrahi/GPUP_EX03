@@ -5,7 +5,7 @@
     <deployment>
       <artifact name="web:Web exploded">
         <settings>
-          <option name="CONTEXT_PATH" value="/gpupAdmin" />
+          <option name="CONTEXT_PATH" value="/gpup" />
         </settings>
       </artifact>
     </deployment>

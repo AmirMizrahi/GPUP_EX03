@@ -15,6 +15,7 @@ public class LightweightLoginServlet extends HttpServlet {
         response.setContentType("text/plain;charset=UTF-8");
 
         String usernameFromSession = SessionUtils.getUsername(request);
+        String errorMessage;
         UserManager userManager = ServletUtils.getUserManager(getServletContext());
 
         if (usernameFromSession == null) { //user is not logged in yet
@@ -22,30 +23,21 @@ public class LightweightLoginServlet extends HttpServlet {
             String usernameFromParameter = request.getParameter("username");
             String userTypeFromParameter = request.getParameter("type");
             String threadsFromParameter = request.getParameter("threads");
-            if (usernameFromParameter == null || usernameFromParameter.isEmpty()) {
-                //no username in session and no username in parameter - not standard situation. it's a conflict
 
+            if (usernameFromParameter == null || usernameFromParameter.isEmpty()) {
+                //no username in session, no username in parameter or bad char were inserted - not standard situation. it's a conflict
                 // stands for conflict in server state
                 response.setStatus(HttpServletResponse.SC_CONFLICT);
-            } else {
+                errorMessage = "Username can't be empty!'";
+                response.getOutputStream().print(errorMessage);
+            }
+            else {
                 //normalize the username value
                 usernameFromParameter = usernameFromParameter.trim();
 
-                /*
-                One can ask why not enclose all the synchronizations inside the userManager object ?
-                Well, the atomic action we need to perform here includes both the question (isUserExists) and (potentially) the insertion
-                of a new user (addUser). These two actions needs to be considered atomic, and synchronizing only each one of them, solely, is not enough.
-                (of course there are other more sophisticated and performable means for that (atomic objects etc) but these are not in our scope)
-
-                The synchronized is on this instance (the servlet).
-                As the servlet is singleton - it is promised that all threads will be synchronized on the very same instance (crucial here)
-
-                A better code would be to perform only as little and as necessary things we need here inside the synchronized block and avoid
-                do here other not related actions (such as response setup. this is shown here in that manner just to stress this issue
-                 */
                 synchronized (this) {
                     if (userManager.isUserExists(usernameFromParameter)) {
-                        String errorMessage = "Username " + usernameFromParameter + " already exists. Please enter a different username.";
+                        errorMessage = "Username " + usernameFromParameter + " already exists. Please enter a different username.";
 
                         // stands for unauthorized as there is already such user with this name
                         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -53,7 +45,7 @@ public class LightweightLoginServlet extends HttpServlet {
                     }
                     else if(userTypeFromParameter.compareToIgnoreCase("Worker") != 0 &&
                             userTypeFromParameter.compareToIgnoreCase("Admin") != 0){
-                        String errorMessage = "Authorized type are 'Admin' or 'Worker' only!";
+                        errorMessage = "Authorized type are 'Admin' or 'Worker' only!";
 
                         // stands for unauthorized user type
                         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -62,18 +54,27 @@ public class LightweightLoginServlet extends HttpServlet {
 
                     else {
                         //add the new user to the users list
-                        if(userTypeFromParameter.compareToIgnoreCase("Worker") == 0){
-                            int threads = Integer.parseInt(threadsFromParameter);
-                            if(threads > 5 || threads < 1){
-                                String errorMessage = "Worker threads should be between 1-5!";
-                                // stands for unauthorized user type
+                        if(userTypeFromParameter.compareToIgnoreCase("Worker") == 0) {
+                            try {
+                                int threads = Integer.parseInt(threadsFromParameter);
+                                if (threads > 5 || threads < 1) {
+                                    errorMessage = "Worker threads should be between 1-5!";
+                                    // stands for unauthorized user type
+                                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                                    response.getOutputStream().print(errorMessage);
+                                    return;
+                                }
+                                else
+                                    userManager.addUser(usernameFromParameter, userTypeFromParameter, threads);
+
+                            } catch (NumberFormatException e) {
+                                errorMessage = "Threads can be integers only.";
                                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                                 response.getOutputStream().print(errorMessage);
                                 return;
                             }
-                            else
-                                userManager.addUser(usernameFromParameter, userTypeFromParameter, threads);
                         }
+
                         else if (userTypeFromParameter.compareToIgnoreCase("Admin") == 0)
                             userManager.addUser(usernameFromParameter, userTypeFromParameter);
 

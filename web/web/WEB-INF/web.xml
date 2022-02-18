@@ -45,7 +45,7 @@
     </servlet>
     <servlet-mapping>
         <servlet-name>UploadTaskServlet</servlet-name>
-        <url-pattern>/engine/uploadtask</url-pattern>
+        <url-pattern>/engine/task</url-pattern>
     </servlet-mapping>
 
     <servlet>

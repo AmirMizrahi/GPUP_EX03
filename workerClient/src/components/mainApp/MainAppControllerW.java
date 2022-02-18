@@ -155,7 +155,7 @@ public class MainAppControllerW implements sharedMainAppController {
                             .parse(Constants.GET_TARGETS)
                             .newBuilder()
                             .addQueryParameter("username", SharedDashboard.getLoggedInUserName(dashboardControllerW.getUserNameLabel()))
-                            .addQueryParameter("availableThreads", workerManager.getAvailableThreadsAmount().toString())
+                            .addQueryParameter("numberOfTargets", workerManager.getAvailableThreadsAmount().toString())
                             .build()
                             .toString();
 
@@ -207,6 +207,7 @@ public class MainAppControllerW implements sharedMainAppController {
                 if(workerManager.areThereTargetsToSend()){
                     String body =
                             "results=" + new Gson().toJson(workerManager.getUpdatedTargetsResults());
+                    System.out.println(new Gson().toJson(workerManager.getUpdatedTargetsResults()));
 
                     HttpClientUtil.postRequest(RequestBody.create(body.getBytes()), new Callback() {
                         @Override

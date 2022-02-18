@@ -1,6 +1,7 @@
 package servlets;
 
 import DTO.TargetDTOForWorker;
+import DTO.UserDTO;
 import com.google.gson.Gson;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,13 +23,21 @@ public class TargetsRequestServlet extends HttpServlet {
             String error = null;
 
             String usernameFromParameter = request.getParameter("username");
-            String availableThreadsFromParameter = request.getParameter("availableThreads");
+            String availableThreadsFromParameter = request.getParameter("numberOfTargets");
 
             try {
                 availableThreads = Integer.parseInt(availableThreadsFromParameter);
+                if(availableThreads > 5 || availableThreads < 0)
+                    error = "Error! Please insert threads between 0 to 5.";
             } catch (NumberFormatException nfe) {
-                error = "Error! one of the arguments is not a number";
+                error = "Error! one of the arguments is not a number.";
             }
+
+            UserDTO userDTO = ServletUtils.getUserManager(getServletContext()).getUsers().get(usernameFromParameter);
+            if(userDTO == null)
+                error = "Error! Username isn't exits.";
+            else if(availableThreads > userDTO.getThreadsAmount())
+                error = "Error! Number of targets can be greater than the number you registered with.";
 
             if (error != null) {
                 response.getWriter().println(error);

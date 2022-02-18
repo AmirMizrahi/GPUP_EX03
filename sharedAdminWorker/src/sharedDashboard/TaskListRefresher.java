@@ -27,7 +27,7 @@ public class TaskListRefresher extends TimerTask {
 
     @Override
     public void run() {
-        HttpClientUtil.runAsync(Constants.UPLOAD_TASK, new Callback() {
+        HttpClientUtil.runAsync(Constants.TASK, new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
                 List<TaskDTO> failed = new LinkedList<>();
