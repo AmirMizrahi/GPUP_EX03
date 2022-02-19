@@ -1,5 +1,5 @@
 <component name="ArtifactManager">
-  <artifact name="workerEngine">
+  <artifact build-on-make="true" name="workerEngine">
     <output-path>$PROJECT_DIR$/out/artifacts/workerEngine</output-path>
     <root id="root">
       <element id="archive" name="workerEngine.jar">

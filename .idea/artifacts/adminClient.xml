@@ -1,5 +1,5 @@
 <component name="ArtifactManager">
-  <artifact name="adminClient">
+  <artifact build-on-make="true" name="adminClient">
     <output-path>$PROJECT_DIR$/out/artifacts/adminClient</output-path>
     <root id="root">
       <element id="archive" name="adminClient.jar">

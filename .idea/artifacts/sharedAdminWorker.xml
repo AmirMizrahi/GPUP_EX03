@@ -1,5 +1,5 @@
 <component name="ArtifactManager">
-  <artifact name="sharedAdminWorker">
+  <artifact build-on-make="true" name="sharedAdminWorker">
     <output-path>$PROJECT_DIR$/out/artifacts/sharedAdminWorker</output-path>
     <root id="root">
       <element id="archive" name="sharedAdminWorker.jar">
