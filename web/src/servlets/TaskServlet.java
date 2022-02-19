@@ -2,6 +2,7 @@ package servlets;
 
 import DTO.TaskDTO;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -57,21 +58,21 @@ public class TaskServlet extends HttpServlet {
             //response.getOutputStream().print(error);
 
         } else {
-            Manager manager = ServletUtils.getManager(getServletContext());
-            try{
-                if(taskType.compareToIgnoreCase("simulation") == 0)
-                    manager.addNewTask(time,time_option,successRates,warningRates,userName, graphName, taskName, targets);
-                else
-                    manager.addNewTask(source, destination ,userName, graphName, taskName, targets);
+            synchronized (getServletContext()) {
+                Manager manager = ServletUtils.getManager(getServletContext());
+                try {
+                    if (taskType.compareToIgnoreCase("simulation") == 0)
+                        manager.addNewTask(time, time_option, successRates, warningRates, userName, graphName, taskName, targets);
+                    else
+                        manager.addNewTask(source, destination, userName, graphName, taskName, targets);
 
-                response.setStatus(HttpServletResponse.SC_OK);
-                response.getOutputStream().print("Task " + taskName + " Created Successfully!");
+                    response.setStatus(HttpServletResponse.SC_OK);
+                    response.getOutputStream().print("Task " + taskName + " Created Successfully!");
+                } catch (Exception e) {
+                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    response.getOutputStream().print(e.getMessage());
+                }
             }
-            catch (Exception e){
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                response.getOutputStream().print(e.getMessage());
-            }
-
         }
     }
 
@@ -79,12 +80,14 @@ public class TaskServlet extends HttpServlet {
         //returning JSON objects, not HTML
         response.setContentType("application/json");
         try (PrintWriter out = response.getWriter()) {
-            Gson gson = new Gson();
-            Manager manager = ServletUtils.getManager(getServletContext());
-            List<TaskDTO> tasksList = manager.getAllTasks();
-            String json = gson.toJson(tasksList);
-            out.println(json);
-            out.flush();
+            Gson gson = new GsonBuilder().serializeSpecialFloatingPointValues().create();
+            synchronized (getServletContext()) {
+                Manager manager = ServletUtils.getManager(getServletContext());
+                List<TaskDTO> tasksList = manager.getAllTasks();
+                String json = gson.toJson(tasksList);
+                out.println(json);
+                out.flush();
+            }
         }
     }
 }

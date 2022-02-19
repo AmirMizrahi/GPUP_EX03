@@ -7,8 +7,6 @@ import Utils.Constants;
 import Utils.HttpClientUtil;
 import components.mainApp.Controller;
 import components.mainApp.MainAppController;
-import exceptions.TargetNotFoundException;
-import exceptions.XMLException;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -190,14 +188,13 @@ public class TaskControlPanelController implements Controller {
         }
         try {
             String name = temp.substring(++start, last);
-            System.out.println("-----------------------(" + name+")");
             if(name.compareTo("null") != 0 && name.compareTo("") != 0)
                 this.showTargetOnTable(name);
         }
         catch (Exception e) {};
     }
 
-    private void showTargetOnTable(String targetName) throws XMLException {
+    private void showTargetOnTable(String targetName) {
         TargetDTO targetDTO = searchForRefreshedTarget(targetName);
         if (targetDTO==null)
             return;
@@ -208,9 +205,7 @@ public class TaskControlPanelController implements Controller {
             this.targetInfoListView.getItems().add("Target dependOn list: " + targetDTO.getOutList());
             this.targetInfoListView.getItems().add("Target requiredFor list: " + targetDTO.getInList());
             this.targetInfoListView.getItems().add("Target data: " + targetDTO.getTargetData());
-            try {
-                printAccordingToCurrentStatus(targetDTO);
-            } catch (TargetNotFoundException | XMLException ignore) {}
+            printAccordingToCurrentStatus(targetDTO);
 
         });
     }
@@ -458,7 +453,7 @@ public class TaskControlPanelController implements Controller {
         }
     }
 
-    private void printAccordingToCurrentStatus(TargetDTO targetDTO) throws TargetNotFoundException, XMLException {
+    private void printAccordingToCurrentStatus(TargetDTO targetDTO){
         SimpleStringProperty temp = new SimpleStringProperty(taskNameLabel.getText());
         String graphName = SharedDashboard.getSelectedTask(temp).getGraphName();
         GraphDTO dto = null;

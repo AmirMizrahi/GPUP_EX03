@@ -177,7 +177,7 @@ public class MainAppControllerW implements sharedMainAppController {
                                 response.close();
                                 //List<String> temp = new LinkedList<>();
                                 //taskDTOForWorkers.forEach(taskDTOForWorker -> temp.add(taskDTOForWorker.getTargetDTO().getTargetName()));
-                                System.out.println("--------------------------------------------Got from server: " + taskDTOForWorkers.size());
+                                //System.out.println("--------------------------------------------Got from server: " + taskDTOForWorkers.size());
                                 workerManager.setThreadsOnWork(taskDTOForWorkers.size());
                                 taskDTOForWorkers.forEach(dto -> {
                                     try {

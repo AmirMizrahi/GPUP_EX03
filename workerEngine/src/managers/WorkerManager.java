@@ -60,13 +60,13 @@ public class WorkerManager {
     public void setThreadsOnWork(Integer threadsOnWork) {
         synchronized (dummy) {
             this.threadsOnWork = this.threadsOnWork + threadsOnWork;
-            System.out.println("--------------------------------------------Threads on work: " + (this.threadsOnWork));
+       //     System.out.println("--------------------------------------------Threads on work: " + (this.threadsOnWork));
         }
     }
 
     public Integer getAvailableThreadsAmount() {
         synchronized (dummy) {
-            System.out.println("--------------------------------------------Threads request: " + (this.threadsAmount - this.threadsOnWork));
+       //     System.out.println("--------------------------------------------Threads request: " + (this.threadsAmount - this.threadsOnWork));
             return this.threadsAmount - this.threadsOnWork;
         }
     }

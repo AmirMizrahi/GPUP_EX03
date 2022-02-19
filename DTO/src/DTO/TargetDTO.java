@@ -15,7 +15,7 @@ public class TargetDTO {
 
     public String getTargetName(){return this.target.getName();}
 
-    public Target.TargetType getTargetCategory(){return this.target.getCategory();}
+    public String getTargetCategory(){return this.target.getCategory().toString();}
 
     public List<String> getOutList(){
         //List<String> res = new LinkedList<>();

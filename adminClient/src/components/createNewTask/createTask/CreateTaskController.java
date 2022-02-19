@@ -5,13 +5,10 @@ import DTO.TargetDTO;
 import Utils.HttpClientUtil;
 import com.google.gson.Gson;
 import components.createNewTask.compilationTask.CompilationTaskController;
-import components.createNewTask.processLogs.ProcessLogController;
 import components.createNewTask.simulationTask.SimulationTaskController;
 import components.basicInformation.TargetsTableViewRow;
 import components.mainApp.Controller;
 import components.mainApp.MainAppController;
-import exceptions.TargetNotFoundException;
-import exceptions.XMLException;
 import javafx.application.Platform;
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
@@ -47,7 +44,6 @@ public class CreateTaskController implements Controller {
     private SimulationTaskController simulationTaskController;
     private CompilationTaskController compilationTaskController;
     private MainAppController mainAppController;
-    private ProcessLogController processLogController;
     private Node nodeController;
     private boolean parentsAndChildrenIndicator = false;
     //UI
@@ -73,9 +69,14 @@ public class CreateTaskController implements Controller {
         isCompilationSelected = new SimpleBooleanProperty(false);
         this.simulationTaskController = (SimulationTaskController) genericControllersInit("/components/createNewTask/simulationTask/simulationTask.fxml");
         this.compilationTaskController = (CompilationTaskController) genericControllersInit("/components/createNewTask/compilationTask/compilationTask.fxml");
-        this.processLogController = (ProcessLogController) genericControllersInit("/components/createNewTask/processLogs/processLogs.fxml");
         isWithChildrenSelected = new SimpleBooleanProperty(false);
         isWithParentsSelected = new SimpleBooleanProperty(false);
+
+        taskNameTextField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\sa-zA-Z*\\d*")) {
+                taskNameTextField.setText(newValue.replaceAll("[^\\sa-zA-Z\\d]", ""));
+            }
+        });
 
         //new!
         this.deselectAllTargetsButton.setOnAction(e->{
@@ -96,7 +97,6 @@ public class CreateTaskController implements Controller {
 
     public void initializeMainActivateTask(){
         isCompilationSelected.set(false);
-        this.processLogController.initializeProcessLog();
         this.compilationTaskController.initializeCompilationTask();
         bindTargetsToButton();
         if (this.taskTypeCombo.getItems().size() == 0) {
@@ -148,19 +148,14 @@ public class CreateTaskController implements Controller {
                     //If with children is marked:
                     if (isWithChildrenSelected.get()) {
                         //      call whatif method for x name?
-                        try {
-                            List<String> listOfEffected = mainAppController.getAllEffectedTargetsAdapter(x.getTargetName(), "Depends On");
-                            selectAllInvolved(listOfEffected);
-
-                        } catch (TargetNotFoundException | XMLException ignore) {}
+                        List<String> listOfEffected = mainAppController.getAllEffectedTargetsAdapter(x.getTargetName(), "Depends On");
+                        selectAllInvolved(listOfEffected);
                     }
 
                     if (isWithParentsSelected.get()) {
                         //      call whatif method for x name?
-                        try {
-                            List<String> listOfEffected = mainAppController.getAllEffectedTargetsAdapter(x.getTargetName(), "Required For");
-                            selectAllInvolved(listOfEffected);
-                        } catch (TargetNotFoundException | XMLException ignore) {}
+                        List<String> listOfEffected = mainAppController.getAllEffectedTargetsAdapter(x.getTargetName(), "Required For");
+                        selectAllInvolved(listOfEffected);
                     }
                     parentsAndChildrenIndicator = false;
                 }
@@ -253,18 +248,6 @@ public class CreateTaskController implements Controller {
         isWithParentsSelected.set(!isWithParentsSelected.get());
     }
 
-    public void activateTask(Consumer<File> consumeWhenFinished) {
-
-    }
-
-    public void updateProcessLog(List<TargetDTO> newTargetStatus) {
-        this.processLogController.updateProcess(newTargetStatus);
-    }
-
-    public TargetDTO getTargetInformationWhenTableClicked(String targetName) throws XMLException, TargetNotFoundException {
-        return this.mainAppController.getInformationOnTarget(targetName);
-    }
-
     public ObservableList<CheckBox> getCheckBoxes() {
         return this.mainAppController.getCheckBoxesFromMainAppController();
     }
@@ -293,11 +276,8 @@ public class CreateTaskController implements Controller {
         this.mainAppController.close();
     }
 
-    public void informPauseToMainActivateTaskController(boolean pause) {
-        this.mainAppController.informPauseToMainAppController(pause);
-    }
 
-    public List<String> getAllEffectedTargets(String targetName, String depends_on, GraphDTO graphDTO) throws TargetNotFoundException, XMLException {
+    public List<String> getAllEffectedTargets(String targetName, String depends_on, GraphDTO graphDTO) {
         return this.mainAppController.getAllEffectedTargets(targetName,depends_on, graphDTO);
     }
 

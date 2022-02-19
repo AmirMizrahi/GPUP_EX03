@@ -4,7 +4,6 @@ import DTO.GraphDTO;
 import DTO.TargetDTO;
 import components.mainApp.Controller;
 import components.mainApp.MainAppController;
-import exceptions.XMLException;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -39,7 +38,7 @@ public class GraphvizController implements Controller {
         this.nodeController = node;
     }
 
-    public void initializeGraphvizController(String fileName) throws XMLException, IOException {
+    public void initializeGraphvizController(String fileName) throws IOException {
         GraphDTO graph = this.mainAppController.getSelectedGraphDTOFromDashboard();
 
         if(fileName.endsWith(".png") || fileName.endsWith(".viz"))

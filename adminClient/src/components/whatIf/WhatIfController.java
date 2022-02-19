@@ -3,8 +3,6 @@ package components.whatIf;
 import components.graphMainComponent.GraphMainComponentController;
 import components.mainApp.Controller;
 import components.mainApp.MainAppController;
-import exceptions.TargetNotFoundException;
-import exceptions.XMLException;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
@@ -97,7 +95,7 @@ public class WhatIfController implements Controller {
     }
 
     @FXML
-    void startButtonAction(ActionEvent event) throws TargetNotFoundException, XMLException {
+    void startButtonAction(ActionEvent event) {
         List<String> allEffectedTargets = this.mainAppController.getAllEffectedTargetsAdapter(this.targetComboBox.getValue(), ((RadioButton)relation.getSelectedToggle()).getText());
         this.resultListView.getItems().clear();
         this.resultListView.getItems().addAll(allEffectedTargets);

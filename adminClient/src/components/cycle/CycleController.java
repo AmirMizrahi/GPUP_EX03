@@ -3,8 +3,6 @@ package components.cycle;
 import components.graphMainComponent.GraphMainComponentController;
 import components.mainApp.Controller;
 import components.mainApp.MainAppController;
-import exceptions.TargetNotFoundException;
-import exceptions.XMLException;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -58,7 +56,7 @@ public class CycleController implements Controller {
     }
 
     @FXML
-    void startButtonAction(ActionEvent event) throws XMLException, TargetNotFoundException {
+    void startButtonAction(ActionEvent event) {
         List<String> path = this.mainAppController.getCyclePath(this.targetComboBox.getValue());
         this.resultListView.getItems().clear();
         if (path.size() > 0){

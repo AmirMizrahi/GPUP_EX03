@@ -15,9 +15,6 @@ import components.login.LoginController;
 import components.taskControlPanel.TaskControlPanelController;
 import components.welcomeAnimation.welcomeAnimationController;
 import components.welcomeToGPUP.welcomeToGPUPController;
-import exceptions.TargetNotFoundException;
-import exceptions.XMLException;
-import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
@@ -25,7 +22,6 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -35,7 +31,6 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import managers.Manager;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
@@ -45,9 +40,6 @@ import sharedControllers.sharedMainAppController;
 import sharedDashboard.SharedDashboard;
 import sharedLogin.SharedLogin;
 import sharedMainApp.SharedMainApp;
-import tasks.AbstractTask;
-import tasks.SimulationTask;
-
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
@@ -63,7 +55,6 @@ import static sharedMainApp.SharedMainApp.sharedOnLoggedIn;
 public class MainAppController implements Closeable, sharedMainAppController {
 
     //
-    private final Manager manager;
     private Stage primaryStage;
     private Timer timer;
     //
@@ -98,7 +89,6 @@ public class MainAppController implements Closeable, sharedMainAppController {
     //
 
     public MainAppController(){
-        this.manager = new Manager();
         isFileSelected = new SimpleBooleanProperty(false);
         isLoggedIn = new SimpleBooleanProperty(false);
         selectedGraph = new SimpleStringProperty();
@@ -253,7 +243,7 @@ public class MainAppController implements Closeable, sharedMainAppController {
     }
 
     @FXML
-    void graphvizAction(ActionEvent event) throws XMLException, IOException {
+    void graphvizAction(ActionEvent event) throws IOException {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Choose 'Graphviz' Location To Save");
         //fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("PNG Files", "*.png"));
@@ -285,9 +275,9 @@ public class MainAppController implements Closeable, sharedMainAppController {
     public List<String> getAllPathsBetweenTwoTargets(String source, String destination, RadioButton selectedRadioButton) {
         String relation;
         if (selectedRadioButton.getText().equals("Depends On"))
-            relation = Manager.DependencyRelation.DEPENDS_ON.name();
+            relation ="DEPENDS_ON";
         else
-            relation = Manager.DependencyRelation.REQUIRED_FOR.name();
+            relation = "REQUIRED_FOR";
 
         List<String> path = this.getSelectedGraphDTOFromDashboard().findAllPathsBetweenTwoTargets(source, destination, relation);
 
@@ -307,43 +297,12 @@ public class MainAppController implements Closeable, sharedMainAppController {
         return returnedList;
     }
 
-    public List<String> getAllEffectedTargetsAdapter(String targetName, String textInRadioButton) throws TargetNotFoundException, XMLException {
+    public List<String> getAllEffectedTargetsAdapter(String targetName, String textInRadioButton) {
         return getAllEffectedTargets(targetName, textInRadioButton, getSelectedGraphDTOFromDashboard());
-    }
-
-
-    public List<String> getTasksNames() {
-        return this.manager.getTasksNames();
     }
 
     public TableView<TargetsTableViewRow> getTargetsTableView(){
         return this.graphMainComponentController.getTargetTable();
-    }
-
-    public void activateSimTask(List<String> selectedTargets, Integer time, SimulationTask.TIME_OPTION time_option, Double successRates,
-                                Double warningRates, AbstractTask.WAYS_TO_START_SIM_TASK way, Consumer<File> consumeWhenFinished) {
-        List<Consumer<String>> consumerList = new LinkedList<>();
-        Consumer<String> consumer1 = System.out::println;
-        consumerList.add(consumer1);
-        try {
-            this.startTaskControlPanelRefresher();
-            this.manager.activateSimulationTask(selectedTargets, time,time_option, successRates,warningRates, way,consumerList, consumeWhenFinished, "emptyString"); //todo enter current selected graph name
-        } catch (XMLException | IOException | InterruptedException | TargetNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void activateCompTask(List<String> selectedTargets, String source, String destination, AbstractTask.WAYS_TO_START_SIM_TASK way,
-                                 Consumer<File> consumeWhenFinished) {
-        List<Consumer<String>> consumerList = new LinkedList<>();
-        Consumer<String> consumer1 = System.out::println;
-        consumerList.add(consumer1);
-        try {
-            this.startTaskControlPanelRefresher();
-            this.manager.activateCompilationTask(selectedTargets, source, destination, way,consumerList,consumeWhenFinished, "emptyString");//todo enter current selected graph name
-        } catch (XMLException | IOException | InterruptedException | TargetNotFoundException e) {
-            e.printStackTrace();
-        }
     }
 
     private void startTaskControlPanelRefresher(){
@@ -366,9 +325,6 @@ public class MainAppController implements Closeable, sharedMainAppController {
         timer.schedule(targetRefresher, TARGET_REFRESH_RATE, TARGET_REFRESH_RATE);
     }
 
-    public TargetDTO getInformationOnTarget(String targetName) throws XMLException, TargetNotFoundException {
-        return this.manager.showInformationAboutSpecificTargetMG("",targetName);//todo
-    }
 
     @Override
     public void close() {
@@ -379,10 +335,6 @@ public class MainAppController implements Closeable, sharedMainAppController {
 
     public ObservableList<CheckBox> getCheckBoxesFromMainAppController() {
         return this.graphMainComponentController.getCheckBoxes();
-    }
-
-    public List<TargetDTO> getAllTargetsThatWereActivated() {
-        return this.manager.getAllTargetsThatWereActivatedMG();
     }
 
     @FXML
@@ -419,14 +371,6 @@ public class MainAppController implements Closeable, sharedMainAppController {
         });
     }
 
-    public void informPauseToMainAppController(boolean pause) {
-        this.manager.informPauseToManager(pause);
-    }
-
-    public void setNewThreadAmount(Integer value) {
-        this.manager.setNewThreadAmountMG(value);
-    }
-
     @Override
     public void onLoggedIn() {
 //        this.isLoggedIn.set(true);
@@ -452,6 +396,13 @@ public class MainAppController implements Closeable, sharedMainAppController {
 
     public String getCurrentUserName() {
         return this.dashboardController.getLoggedInUserName();
+    }
+
+    public List<String> getTasksNames() {
+        List<String> taskNames = new LinkedList<>();
+        taskNames.add("Simulation");
+        taskNames.add("Compilation");
+        return taskNames;
     }
 }
 

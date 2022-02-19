@@ -3,8 +3,6 @@ package components.findPath;
 import components.graphMainComponent.GraphMainComponentController;
 import components.mainApp.Controller;
 import components.mainApp.MainAppController;
-import exceptions.TargetNotFoundException;
-import exceptions.XMLException;
 
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -86,7 +84,7 @@ public class FindPathController implements Controller {
     }
 
     @FXML
-    void startButtonAction(ActionEvent event) throws XMLException, TargetNotFoundException {
+    void startButtonAction(ActionEvent event) {
         List<String> allPaths;
         allPaths = this.mainAppController.getAllPathsBetweenTwoTargets(this.sourceComboBox.getValue(), this.destinationComboBox.getValue(), (RadioButton)relation.getSelectedToggle());
         this.resultListView.getItems().clear();
